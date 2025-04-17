@@ -1,9 +1,7 @@
-import dotenv from "dotenv";
-import pg from "pg";
-const { Client } = pg;
+require("dotenv").config();
+const { Client } = require("pg");
 
-dotenv.config();
-
+// NOTE: Create the variable DATABASE_CONNECTION_STRING in your ".env" file
 const client = new Client({
     connectionString: process.env.DATABASE_CONNECTION_STRING,
 });
@@ -16,7 +14,7 @@ async function main() {
                         NAME TEXT
                         )`);
 
-    await client.query(`INSERT INTO USERS (NAME) VALUES ($1)`, ["change_me"]);
+    await client.query(`INSERT INTO USERS (NAME) VALUES ($1)`, ["Tyrese_wuz_here"]);
 
     const response = await client.query("SELECT * FROM USERS");
     console.log("Objects found:", response.rows);
