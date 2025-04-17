@@ -1,12 +1,22 @@
 # Requirements
-1. Node.js
+- Node.js
 
 # Setup
-1. Open Node.js command prompt
-2. cd project\_root
-3. Create a ".env" file containing "DATABASE\_CONNECTION\_STRING=string\_goes\_here" (without quotes in actual file)
-4. npm init -y
-5. npm install pg dotenv
+Open Node.js command prompt and:
+```
+cd project_root
+```
+Then create a ".env" file containing:
+```
+DATABASE_CONNECTION_STRING=type_string_here
+```
+Finally, install dependencies:
+```
+npm init -y
+npm install pg dotenv
+```
 
 # Run
-1. node create\_read.js
+```
+node create_read.js
+```
