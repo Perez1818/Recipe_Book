@@ -19,7 +19,7 @@ async function main() {
     await client.query(`INSERT INTO USERS (NAME) VALUES ($1)`, ["next"]);
 
     const response = await client.query("SELECT * FROM USERS");
-    console.log("Objects found: ", response.rows);
+    console.log("Objects found:", response.rows);
 
     await client.end();
 }
