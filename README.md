@@ -19,5 +19,5 @@ npm install pg express dotenv
 
 # Run
 ```
-node create_read.js
+node main.js
 ```
