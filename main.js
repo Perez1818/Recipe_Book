@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+/* Serve static files (HTML, CSS, Javascript, etc.) */
+app.use(express.static("public"));
 
 require("dotenv").config();
 const { Client } = require("pg");
