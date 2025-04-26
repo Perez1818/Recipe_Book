@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 app.set("view engine", "ejs");
+/* Explicitly specify "views" path */
+app.set("views", "./views");
 /* Serve static files (HTML, CSS, Javascript, etc.) */
 app.use(express.static("public"));
 
@@ -10,20 +12,18 @@ const client = new Client({
     connectionString: process.env.DATABASE_CONNECTION_STRING,
 });
 
-
 async function main() {
     app.use(express.json());
+    await client.connect();
 
     app.get("/", (request, response) => {
-        response.render("index", { title: "Dynamic Title" });
+        response.render("index");
     });
 
     app.get("/users", async(request, response) => {
         try {
-            await client.connect();
             const result = await client.query("SELECT * FROM users");
             response.json(result.rows);
-            await client.end();
         } catch (error) {
             console.error(error);
             response.status(500).send("Server Error");
@@ -34,6 +34,7 @@ async function main() {
     app.listen(SERVER_PORT, () => {
         console.log(`Server running on http://localhost:${SERVER_PORT}`);
     });
+    // await client.end();
 }
 
 main().catch(console.error);
