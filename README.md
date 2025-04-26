@@ -1,5 +1,8 @@
 # Requirements
 - Node.js
+- Express.js
+- Embedded JavaScript Templates (ejs)
+- PostgreSQL Client (pg)
 
 # Setup
 Open Node.js command prompt and:

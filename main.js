@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+app.set("view engine", "ejs");
 /* Serve static files (HTML, CSS, Javascript, etc.) */
 app.use(express.static("public"));
 
@@ -14,7 +15,8 @@ async function main() {
     app.use(express.json());
 
     app.get("/", (request, response) => {
-        response.send("Recipe Book");
+        // response.send("Recipe Book");
+        response.render("index");
     });
 
     app.get("/users", async(request, response) => {
