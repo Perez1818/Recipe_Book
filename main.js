@@ -22,8 +22,11 @@ async function main() {
 
     app.get("/users", async(request, response) => {
         try {
+            // result.rows format = [json_object1, json_object2, ...]
+            // json_object format = {"id": 1, "name": "string"}
             const result = await client.query("SELECT * FROM users");
-            response.json(result.rows);
+            // response.json(result.rows);
+            response.render("users", {users : result.rows});
         } catch (error) {
             console.error(error);
             response.status(500).send("Server Error");
