@@ -15,7 +15,7 @@ async function main() {
     app.use(express.json());
 
     app.get("/", (request, response) => {
-        response.render("index", { title: "Dynamic Title" });
+        response.render("index");
     });
 
     app.get("/users", async(request, response) => {
