@@ -14,7 +14,7 @@ SERVER_PORT=type_server_port_number_here
 Finally, install dependencies:
 ```
 npm init -y
-npm install pg express dotenv
+npm install
 ```
 
 # Run
