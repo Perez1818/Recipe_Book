@@ -49,9 +49,9 @@
         const item = {
             name: addNameTextbox.value.trim(),
             description: addDescriptionTextbox.value.trim(),
-            ingredients: ["Ingredient 1", "Ingredient 2"],
+            ingredients: addIngredientsTextbox.value.trim().split(",").map(ingredient => ingredient.trim()),
             cookTime: addCookTimeTextbox.value.trim(),
-            tags: ["Tag 1", "Tag 2"]
+            tags: addTagsTextbox.value.trim().split(",").map(tag => tag.trim())
         };
 
         fetch(uri, {
