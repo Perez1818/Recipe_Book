@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Recipe Book</title>
+    </head>
+    <body>
+        <%- include("partial/navbar.ejs") %>
+        <h1>Recipes</h1>
+        <% for (let i = 0; i < recipes.length; i++) { %>
+        <p><%= i + 1 %>. <%= recipes[i].name %></p>
+        <% } %>
+    </body>
+</html>

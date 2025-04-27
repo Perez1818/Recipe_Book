@@ -33,6 +33,16 @@ async function main() {
         }
     });
 
+    app.get("/recipes", async(request, response) => {
+        try {
+            const result = await client.query("SELECT * FROM recipes");
+            response.render("recipes", {recipes : result.rows});
+        } catch (error) {
+            console.error(error);
+            response.status(500).send("Server Error");
+        }
+    });
+
     const SERVER_PORT = process.env.SERVER_PORT;
     app.listen(SERVER_PORT, () => {
         console.log(`Server running on http://localhost:${SERVER_PORT}`);
