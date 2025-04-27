@@ -6,15 +6,22 @@
 <body>
     <%- include("partial/navbar.ejs") %>
     <h1>Recipes</h1>
-    <h3>Add</h3>
     <form action="javascript:void(0);" method="POST" onsubmit="addItem()">
         <input type="text" id="add-name" placeholder="Recipe name">
-        <input type="submit" value="Add">
+        <input type="text" id="add-description" placeholder="Description">
+        <input type="text" id="add-ingredients" placeholder="Ingredient 1, Ingredient 2, ...">
+        <input type="text" id="add-cooktime" placeholder="Cook Time (#:##)">
+        <input type="text" id="add-tags" placeholder="Tag 1, Tag 2, ...">
+        <input type="submit" value="Create">
     </form>
 
     <table>
         <tr>
             <th>Name</th>
+            <th>Description</th>
+            <th>Ingredients</th>
+            <th>Cook Time</th>
+            <th>Tags</th>
         </tr>
         <tbody id="recipes"></tbody>
     </table>
@@ -27,19 +34,23 @@
     function getItems() {
         fetch(uri)
             .then(response => response.json())  // upon success status code
-            .then(data => _displayItems(data))  // call displayItems where data is each todo item
+            .then(data => _displayItems(data))  // call displayItems where data is each recipe item
             .catch(error => console.error('Unable to get items.', error));  // if web API request fails, show browser error
     }
 
     function addItem() {
         const addNameTextbox = document.getElementById('add-name');
+        const addDescriptionTextbox = document.getElementById('add-description');
+        const addIngredientsTextbox = document.getElementById('add-ingredients');
+        const addCookTimeTextbox = document.getElementById('add-cooktime');
+        const addTagsTextbox = document.getElementById('add-tags');
 
-        /* represents todo item object */
+        /* represents recipe item object */
         const item = {
             name: addNameTextbox.value.trim(),
-            description: "Description placeholder",
+            description: addDescriptionTextbox.value.trim(),
             ingredients: ["Ingredient 1", "Ingredient 2"],
-            cook_time: "#:##",
+            cookTime: addCookTimeTextbox.value.trim(),
             tags: ["Tag 1", "Tag 2"]
         };
 
@@ -49,7 +60,7 @@
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(item)  // defines request body as todo item
+            body: JSON.stringify(item)  // defines request body as recipe item
         })
             .then(response => response.json())
             .then(() => {
@@ -59,7 +70,7 @@
             .catch(error => console.error('Unable to add item.', error));   // if web API request fails, show browser error
     }
 
-    /* each todo item in data is added to a table with edit and delete buttons */
+    /* each recipe item in data is added to a table with edit and delete buttons */
     function _displayItems(data) {
         const tBody = document.getElementById('recipes');
         tBody.innerHTML = '';
@@ -69,9 +80,25 @@
         data.forEach(item => {
             let tr = tBody.insertRow();
 
-            let td2 = tr.insertCell(0); // 1 + 1
-            let textNode = document.createTextNode(item.name);
-            td2.appendChild(textNode);
+            let td1 = tr.insertCell(0);
+            let textNode1 = document.createTextNode(item.name);
+            td1.appendChild(textNode1);
+
+            let td2 = tr.insertCell(1);
+            let textNode2 = document.createTextNode(item.description);
+            td2.appendChild(textNode2);
+
+            let td3 = tr.insertCell(2);
+            let textNode3 = document.createTextNode(item.ingredients);
+            td3.appendChild(textNode3);
+
+            let td4 = tr.insertCell(3);
+            let textNode4 = document.createTextNode(item.cook_time);
+            td4.appendChild(textNode4);
+
+            let td5 = tr.insertCell(4);
+            let textNode5 = document.createTextNode(item.tags);
+            td5.appendChild(textNode5);
         });
 
         recipes = data;

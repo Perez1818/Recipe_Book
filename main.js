@@ -36,8 +36,11 @@ async function main() {
 
     app.get("/recipes", async(request, response) => {
         try {
+            /*
             const result = await client.query("SELECT * FROM recipes");
             response.render("recipes", {recipes : result.rows});
+            */
+            response.render("recipes");
         } catch (error) {
             console.error(error);
             response.status(500).send("Server Error");
@@ -46,7 +49,10 @@ async function main() {
 
     app.post("/api/recipes", async(request, response) => {
         try {
-            console.log("request", request.body);
+            // console.log("request", request.body);
+            recipe = request.body;
+            console.log(recipe);
+            await client.query(`INSERT INTO RECIPES (NAME, DESCRIPTION, INGREDIENTS, COOK_TIME, TAGS) VALUES ($1, $2, $3, $4, $5)`, [recipe.name, recipe.description, recipe.ingredients, recipe.cookTime, recipe.tags]);
             response.send(request.body);
         } catch (error) {
             console.error(error);
