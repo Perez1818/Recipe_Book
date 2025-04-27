@@ -14,8 +14,11 @@ const client = new Client({
 async function main() {
     app.use(express.json());
 
-    app.get("/", (request, response) => {
-        response.render("index");
+    app.get("/", (req, res) => {
+        res.render("index", { 
+            browserTitle: "Recipe Book", 
+            pageTitle: "Recipe Book" 
+        });
     });
 
     app.get("/users", async(request, response) => {
