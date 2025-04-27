@@ -13,6 +13,7 @@ const client = new Client({
 });
 
 async function main() {
+    // Built-in middleware
     app.use(express.json());
     await client.connect();
 
@@ -37,6 +38,26 @@ async function main() {
         try {
             const result = await client.query("SELECT * FROM recipes");
             response.render("recipes", {recipes : result.rows});
+        } catch (error) {
+            console.error(error);
+            response.status(500).send("Server Error");
+        }
+    });
+
+    app.post("/api/recipes", async(request, response) => {
+        try {
+            console.log("request", request.body);
+            response.send(request.body);
+        } catch (error) {
+            console.error(error);
+            response.status(500).send("Server Error");
+        }
+    });
+
+    app.get("/api/recipes", async(request, response) => {
+        try {
+            const result = await client.query("SELECT * FROM recipes");
+            response.send(result.rows);
         } catch (error) {
             console.error(error);
             response.status(500).send("Server Error");

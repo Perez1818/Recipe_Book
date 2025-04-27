@@ -1,13 +1,82 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Recipe Book</title>
-    </head>
-    <body>
-        <%- include("partial/navbar.ejs") %>
-        <h1>Recipes</h1>
-        <% for (let i = 0; i < recipes.length; i++) { %>
-        <p><%= i + 1 %>. <%= recipes[i].name %></p>
-        <% } %>
-    </body>
+<head>
+    <title>Recipe Book</title>
+</head>
+<body>
+    <%- include("partial/navbar.ejs") %>
+    <h1>Recipes</h1>
+    <h3>Add</h3>
+    <form action="javascript:void(0);" method="POST" onsubmit="addItem()">
+        <input type="text" id="add-name" placeholder="Recipe name">
+        <input type="submit" value="Add">
+    </form>
+
+    <table>
+        <tr>
+            <th>Name</th>
+        </tr>
+        <tbody id="recipes"></tbody>
+    </table>
+
+    <script type="text/javascript">
+    const uri = 'api/recipes';
+    let recipes = [];
+
+    /* HTTP GET request sent to api/recipes route */
+    function getItems() {
+        fetch(uri)
+            .then(response => response.json())  // upon success status code
+            .then(data => _displayItems(data))  // call displayItems where data is each todo item
+            .catch(error => console.error('Unable to get items.', error));  // if web API request fails, show browser error
+    }
+
+    function addItem() {
+        const addNameTextbox = document.getElementById('add-name');
+
+        /* represents todo item object */
+        const item = {
+            name: addNameTextbox.value.trim(),
+            description: "Description placeholder",
+            ingredients: ["Ingredient 1", "Ingredient 2"],
+            cook_time: "#:##",
+            tags: ["Tag 1", "Tag 2"]
+        };
+
+        fetch(uri, {
+            method: 'POST', // POST request will be sent to api/recipes route
+            headers: {      // only receive and send JSON formatting
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(item)  // defines request body as todo item
+        })
+            .then(response => response.json())
+            .then(() => {
+                getItems(); // update HTML table when there's a success status code
+                addNameTextbox.value = '';
+            })
+            .catch(error => console.error('Unable to add item.', error));   // if web API request fails, show browser error
+    }
+
+    /* each todo item in data is added to a table with edit and delete buttons */
+    function _displayItems(data) {
+        const tBody = document.getElementById('recipes');
+        tBody.innerHTML = '';
+
+        const button = document.createElement('button');
+
+        data.forEach(item => {
+            let tr = tBody.insertRow();
+
+            let td2 = tr.insertCell(0); // 1 + 1
+            let textNode = document.createTextNode(item.name);
+            td2.appendChild(textNode);
+        });
+
+        recipes = data;
+    }
+    getItems();
+    </script>
+</body>
 </html>
