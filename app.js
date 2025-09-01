@@ -12,7 +12,7 @@ const SERVER_PORT = process.env.SERVER_PORT;
 const app = express();
 app.set("view engine", "ejs");
 app.set("views", "./views");
-app.use(express.static("public"));
+app.use(express.static(`${CURRENT_WORKING_DIRECTORY}/public`));
 
 const pool = new Pool({ connectionString: process.env.DATABASE_CONNECTION_STRING });
 
@@ -27,6 +27,10 @@ app.get("/users", async (request, response) => {
 
 app.get("/recipes", async (request, response) => {
     response.render("recipes");
+});
+
+app.get("/signup", async (request, response) => {
+    response.redirect("./signup.html");
 });
 
 app.post("/api/recipes", async (request, response) => {
