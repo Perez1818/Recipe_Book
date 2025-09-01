@@ -1,10 +1,23 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Recipe Book</title>
-    </head>
-    <body>
-        <%- include("partial/navbar.ejs") %>
-        <h1>Home Feed</h1>
-    </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= browserTitle %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-green-100 min-h-screen flex flex-col items-center justify-center">
+
+    <div class="bg-white p-10 rounded-2xl shadow-2xl text-center">
+        <h1 class="text-4xl font-bold text-green-500 mb-4"><%= pageTitle %></h1>
+        <p class="text-gray-600 text-lg">Discover/Share your favorite recipes with the world! 🥗🍞🍰</p>
+        <button class="mt-6 w-48 py-2 bg-green-400 text-white font-semibold rounded-full hover:bg-green-500 transition">
+            Login
+        </button>
+    </br>
+        <button class="mt-6 w-48 py-2 bg-green-400 text-white font-semibold rounded-full hover:bg-green-500 transition">
+            Sign Up
+        </button>
+    </div>
+
+</body>
 </html>
