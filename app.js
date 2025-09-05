@@ -11,6 +11,8 @@ dotenv.config({ path: `${CURRENT_WORKING_DIRECTORY}/.env` });
 const SERVER_PORT = process.env.SERVER_PORT;
 
 const app = express();
+app.use(express.urlencoded({ extended: false }));
+
 app.set("view engine", "ejs");
 app.set("views", "./views");
 app.use(express.static(`${CURRENT_WORKING_DIRECTORY}/public`));
@@ -32,6 +34,10 @@ app.get("/recipes", async (request, response) => {
 
 app.get("/signup", async (request, response) => {
     response.sendFile(`${STATIC_FOLDER}/signup.html`);
+});
+
+app.post("/signup", async (request, response) => {
+    response.send(`Hello ${request.body.username}!`);
 });
 
 app.post("/api/recipes", async (request, response) => {
