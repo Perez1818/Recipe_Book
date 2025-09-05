@@ -5,6 +5,7 @@ const { Pool } = require("pg");
 
 const CURRENT_WORKING_DIRECTORY = __dirname;
 const PROJECT_TITLE = "Recipe Book";
+const STATIC_FOLDER = `${CURRENT_WORKING_DIRECTORY}/public`
 
 dotenv.config({ path: `${CURRENT_WORKING_DIRECTORY}/.env` });
 const SERVER_PORT = process.env.SERVER_PORT;
@@ -30,7 +31,7 @@ app.get("/recipes", async (request, response) => {
 });
 
 app.get("/signup", async (request, response) => {
-    response.redirect("./signup.html");
+    response.sendFile(`${STATIC_FOLDER}/signup.html`);
 });
 
 app.post("/api/recipes", async (request, response) => {
