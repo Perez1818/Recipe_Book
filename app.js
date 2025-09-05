@@ -61,5 +61,4 @@ app.listen(SERVER_PORT, (error) => {
         throw error;
     }
     console.log(`App listening on port ${SERVER_PORT}`);
-    pool.connect();
 });
