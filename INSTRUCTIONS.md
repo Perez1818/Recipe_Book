@@ -3,6 +3,7 @@
 - Express.js
 - Embedded JavaScript Templates (ejs)
 - PostgreSQL Client (pg)
+- Express Validator (express-validator)
 
 # Setup
 Open Node.js command prompt and:
