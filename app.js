@@ -94,6 +94,10 @@ app.post("/signup", validate.username(), validate.email(), validate.password(), 
     }
 });
 
+app.get("/login", async (request, response) => {
+    response.render("login");
+});
+
 app.post("/api/recipes", async (request, response) => {
     const recipe = request.body;
     await pool.query(`INSERT INTO RECIPES (NAME, DESCRIPTION, INGREDIENTS, COOK_TIME, TAGS) VALUES ($1, $2, $3, $4, $5)`, [recipe.name, recipe.description, recipe.ingredients, recipe.cookTime, recipe.tags]);

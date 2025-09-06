@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Login</title>
+        <meta charset="UTF-8">
+
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+            }
+
+            body {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            h1 {
+                font-size: 65px;
+                margin-bottom: 44px;
+            }
+
+            .field {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 10px;
+            }
+
+            p {
+                max-width: 165px;
+            }
+
+            label {
+                margin-bottom: 5px;
+            }
+
+            input {
+                margin-bottom: 2px;
+                border-radius: 5px;
+                border-width: 1px;
+            }
+
+            .container {
+                display: flex;
+                margin-top: 25px;
+            }
+
+            #submit-button, a {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            #submit-button {
+                margin-top: 22px;
+                padding: 6px 16px;
+            }
+
+            p {
+                color: red;
+                margin: 0;
+            }
+
+            input:not(#submit-button) {
+                height: 26px;
+                width: 240px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>Recipe Book</h1>
+
+        <% function getErrorMessage(fieldName) { %>
+            <% if (locals.errorMessages && errorMessages[fieldName] !== undefined) { %>
+                <% return errorMessages[fieldName]; %>
+            <% } %>
+            <% return ""; %>
+        <% } %>
+
+        <% // Submit form to current route %>
+        <form action="" method="post">
+            <div class="field">
+                <label for="username">Username or Email</label>
+                <input type="text" id="username" name="username">
+            </div>
+
+            <div class="field">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password">
+                <p><%= getErrorMessage("credentials") %></p>
+            </div>
+
+            <div class="field">
+                <input id="submit-button" type="submit" value="Sign In">
+            </div>
+
+            <div class="container"><a href="/signup">No Account? Sign up!</a></div>
+        </form>
+    </body>
+</html>
