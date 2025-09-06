@@ -28,12 +28,16 @@ const validate = {
                       .isAlphanumeric().withMessage("Username must contain only letters and numbers"),
 
     email: () => body("email")
-                      .notEmpty().withMessage("Email is required")
-                      .isEmail().withMessage("Please enter a valid email"),
+                   .notEmpty().withMessage("Email is required")
+                   .isEmail().withMessage("Please enter a valid email"),
 
     password: () => body("password")
                       .notEmpty().withMessage("Password is required")
-                      .isLength({ min: MIN_PASSWORD_LENGTH }).withMessage(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`)
+                      .isLength({ min: MIN_PASSWORD_LENGTH }).withMessage(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`),
+
+    confirmedPassword: async (request) => await body("confirmedPassword")
+                                                  .equals(request.body.password).withMessage("Passwords do not match")
+                                                  .run(request)
 };
 
 function getErrorMessages(result) {
@@ -72,6 +76,7 @@ app.get("/signup", async (request, response) => {
 });
 
 app.post("/signup", validate.username(), validate.email(), validate.password(), async (request, response) => {
+    await validate.confirmedPassword(request);
     const result = validationResult(request);
     const errorMessages = getErrorMessages(result);
 
