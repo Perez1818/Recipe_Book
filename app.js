@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("node:path");
 const { Pool } = require("pg");
+const { body, validationResult } = require("express-validator");
 
 const CURRENT_WORKING_DIRECTORY = __dirname;
 const PROJECT_TITLE = "Recipe Book";
@@ -19,6 +20,10 @@ app.use(express.static(`${CURRENT_WORKING_DIRECTORY}/public`));
 
 const pool = new Pool({ connectionString: process.env.DATABASE_CONNECTION_STRING });
 
+const validate = {
+    email: () => body("email").isEmail()
+};
+
 app.get("/", (request, response) => {
     response.render("index", { browserTitle: PROJECT_TITLE, pageTitle: PROJECT_TITLE });
 });
@@ -33,10 +38,12 @@ app.get("/recipes", async (request, response) => {
 });
 
 app.get("/signup", async (request, response) => {
-    response.sendFile(`${STATIC_FOLDER}/signup.html`);
+    response.render("signup");
 });
 
-app.post("/signup", async (request, response) => {
+app.post("/signup", validate.email(), async (request, response) => {
+    const result = validationResult(request);
+    console.log(result);
     response.send(`Hello ${request.body.username}!`);
 });
 
