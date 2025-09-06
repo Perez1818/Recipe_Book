@@ -46,10 +46,10 @@
 
         <% // Submit form to current route %>
         <form action="" method="post">
-            <% if (locals.errors) { %>
+            <% if (locals.errorMessages) { %>
                 <div class="errors">
-                    <% for (let error of errors) { %>
-                        <p><%= error %></p>
+                    <% for (let fieldName in errorMessages) { %>
+                        <p><%= errorMessages[fieldName] %></p>
                     <% } %>
                 </div>
             <% } %>

@@ -21,8 +21,22 @@ app.use(express.static(`${CURRENT_WORKING_DIRECTORY}/public`));
 const pool = new Pool({ connectionString: process.env.DATABASE_CONNECTION_STRING });
 
 const validate = {
-    email: () => body("email").isEmail().withMessage("is invalid"),
+    email: () => body("email").isEmail().withMessage("Email is invalid"),
 };
+
+function getErrorMessages(result) {
+    const errors = result.errors;
+
+    const errorMessages = {};
+
+    for (let error of errors) {
+        let fieldName = error.path;
+        let errorMessage = error.msg;
+        errorMessages[fieldName] = errorMessage;
+    }
+    
+    return errorMessages;
+}
 
 app.get("/", (request, response) => {
     response.render("index", { browserTitle: PROJECT_TITLE, pageTitle: PROJECT_TITLE });
@@ -34,17 +48,18 @@ app.get("/users", async (request, response) => {
 });
 
 app.get("/recipes", async (request, response) => {
+
     response.render("recipes");
 });
 
 app.get("/signup", async (request, response) => {
-    response.render("signup", { errors: ["First error message", "Another"] });
+    response.render("signup");
 });
 
 app.post("/signup", validate.email(), async (request, response) => {
     const result = validationResult(request);
-    console.log(result);
-    response.send(`Hello ${request.body.username}!`);
+    const errorMessages = getErrorMessages(result);
+    response.render("signup", { errorMessages: errorMessages });
 });
 
 app.post("/api/recipes", async (request, response) => {
