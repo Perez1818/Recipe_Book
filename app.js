@@ -84,7 +84,7 @@ app.post("/signup", validate.username(), validate.email(), validate.password(), 
             response.redirect("/");
         }
         else {
-            response.render("signup", { errorMessages: { accountExists: "Username or email is unavailable or already taken, please try another" } });
+            response.render("signup", { errorMessages: { unavailable: "Username or email is unavailable or already taken, please try another" } });
         }
     }
 });

@@ -18,8 +18,14 @@
                 justify-content: center;
             }
 
-            .field > * {
-                display: block;
+            .field {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 10px;
+            }
+
+            p {
+                max-width: 165px;
             }
 
             label {
@@ -27,7 +33,7 @@
             }
 
             input {
-                margin-bottom: 10px;
+                margin-bottom: 2px;
             }
 
             #submit-button {
@@ -35,8 +41,9 @@
                 margin-right: auto;
             }
 
-            .errors {
+            p {
                 color: red;
+                margin: 0;
             }
         </style>
     </head>
@@ -44,30 +51,32 @@
     <body>
         <h1>Sign up</h1>
 
+        <% function getErrorMessage(fieldName) { %>
+            <% if (locals.errorMessages && errorMessages[fieldName] !== undefined) { %>
+                <% return errorMessages[fieldName]; %>
+            <% } %>
+            <% return ""; %>
+        <% } %>
+
         <% // Submit form to current route %>
         <form action="" method="post">
-            <% if (locals.errorMessages) { %>
-                <div class="errors">
-                    <% for (let fieldName in errorMessages) { %>
-                        <p><%= errorMessages[fieldName] %></p>
-                    <% } %>
-                </div>
-            <% } %>
-
             <div class="field">
+                <p><%= getErrorMessage("unavailable") %></p>
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username">
-
+                <p><%= getErrorMessage("username") %></p>
             </div>
 
             <div class="field">
                 <label for="email">Email</label>
                 <input type="text" id="email" name="email">
+                <p><%= getErrorMessage("email") %></p>
             </div>
 
             <div class="field">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password">
+                <p><%= getErrorMessage("password") %></p>
             </div>
 
             <div class="field">
