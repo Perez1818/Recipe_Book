@@ -8,6 +8,9 @@ const CURRENT_WORKING_DIRECTORY = __dirname;
 const PROJECT_TITLE = "Recipe Book";
 const STATIC_FOLDER = `${CURRENT_WORKING_DIRECTORY}/public`
 
+const MIN_USERNAME_LENGTH = 3;
+const MIN_PASSWORD_LENGTH = 5;
+
 dotenv.config({ path: `${CURRENT_WORKING_DIRECTORY}/.env` });
 const SERVER_PORT = process.env.SERVER_PORT;
 
@@ -21,11 +24,22 @@ app.use(express.static(`${CURRENT_WORKING_DIRECTORY}/public`));
 const pool = new Pool({ connectionString: process.env.DATABASE_CONNECTION_STRING });
 
 const validate = {
-    email: () => body("email").isEmail().withMessage("Email is invalid"),
+    username: () => body("username")
+                      .notEmpty().withMessage("Username is required")
+                      .isLength({ min: MIN_USERNAME_LENGTH }).withMessage(`Username must be at least ${MIN_USERNAME_LENGTH} characters long`)
+                      .isAlphanumeric().withMessage("Username must contain only letters and numbers"),
+
+    email: () => body("email")
+                      .notEmpty().withMessage("Email is required")
+                      .isEmail().withMessage("Please enter a valid email"),
+
+    password: () => body("password")
+                      .notEmpty().withMessage("Password is required")
+                      .isLength({ min: MIN_PASSWORD_LENGTH }).withMessage(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`)
 };
 
 function getErrorMessages(result) {
-    const errors = result.errors;
+    const errors = result.array({ onlyFirstError: true });
 
     const errorMessages = {};
 
@@ -56,7 +70,7 @@ app.get("/signup", async (request, response) => {
     response.render("signup");
 });
 
-app.post("/signup", validate.email(), async (request, response) => {
+app.post("/signup", validate.username(), validate.email(), validate.password(), async (request, response) => {
     const result = validationResult(request);
     const errorMessages = getErrorMessages(result);
     response.render("signup", { errorMessages: errorMessages });
