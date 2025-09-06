@@ -18,6 +18,11 @@
                 justify-content: center;
             }
 
+            h1 {
+                font-size: 65px;
+                margin-bottom: 44px;
+            }
+
             .field {
                 display: flex;
                 flex-direction: column;
@@ -29,27 +34,35 @@
             }
 
             label {
-                margin-bottom: 2px;
+                margin-bottom: 5px;
             }
 
             input {
                 margin-bottom: 2px;
+                border-radius: 5px;
+                border-width: 1px;
             }
 
             #submit-button {
                 margin-left: auto;
                 margin-right: auto;
+                margin-top: 22px;
+                padding: 6px 16px;
             }
 
             p {
                 color: red;
                 margin: 0;
             }
+            input:not(#submit-button) {
+                height: 26px;
+                width: 240px;
+            }
         </style>
     </head>
 
     <body>
-        <h1>Sign up</h1>
+        <h1>Recipe Book</h1>
 
         <% function getErrorMessage(fieldName) { %>
             <% if (locals.errorMessages && errorMessages[fieldName] !== undefined) { %>
@@ -80,7 +93,7 @@
             </div>
 
             <div class="field">
-                <input id="submit-button" type="submit" value="Sign up">
+                <input id="submit-button" type="submit" value="Create Account">
             </div>
         </form>
     </body>
