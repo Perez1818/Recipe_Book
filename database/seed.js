@@ -9,12 +9,17 @@ async function seedDatabase() {
     await client.connect();
 
     // Note that the query function is asynchronous
+
+    /* To ensure that usernames and emails cannot be created with different cases:
+     * https://www.postgresql.org/docs/15/citext.html
+     */
+    await client.query(`CREATE EXTENSION IF NOT EXISTS citext;`);
     await client.query(`DROP TABLE IF EXISTS users;`);
     await client.query(`CREATE TABLE IF NOT EXISTS users(
                   id SERIAL PRIMARY KEY,
-                  username VARCHAR(100) NOT NULL,
-                  email VARCHAR(100) NOT NULL,
-                  password VARCHAR(100) NOT NULL,
+                  username CITEXT NOT NULL,
+                  email CITEXT NOT NULL,
+                  password TEXT NOT NULL,
 
                   UNIQUE(username),
                   UNIQUE(email)
