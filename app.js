@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("node:path");
 const { body, validationResult } = require("express-validator");
-const { pool, addUser } = require("./database/query.js");
+const { pool, addUser, checkUser } = require("./database/query.js");
 
 const CURRENT_WORKING_DIRECTORY = __dirname;
 const PROJECT_TITLE = "Recipe Book";
@@ -95,6 +95,17 @@ app.post("/signup", validate.username(), validate.email(), validate.password(), 
 });
 
 app.get("/login", async (request, response) => {
+    response.render("login");
+});
+
+app.post("/login", async (request, response) => {
+    const userMatches = await checkUser(request.body.username, request.body.password);
+    if (userMatches) {
+        console.log("User found in database!");
+    }
+    else {
+        console.log("No matching user was found.");
+    }
     response.render("login");
 });
 
