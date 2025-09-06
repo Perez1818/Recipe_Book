@@ -101,12 +101,11 @@ app.get("/login", async (request, response) => {
 app.post("/login", async (request, response) => {
     const userMatches = await checkUser(request.body.username, request.body.password);
     if (userMatches) {
-        console.log("User found in database!");
+        response.redirect("/users");
     }
     else {
-        console.log("No matching user was found.");
+        response.render("login", { errorMessages: { credentials: "Login failed. Please try again." } });
     }
-    response.render("login");
 });
 
 app.post("/api/recipes", async (request, response) => {
