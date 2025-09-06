@@ -34,16 +34,30 @@
                 margin-left: auto;
                 margin-right: auto;
             }
+
+            .errors {
+                color: red;
+            }
         </style>
     </head>
 
     <body>
         <h1>Sign up</h1>
-        <!-- Submit form to current route -->
+
+        <% // Submit form to current route %>
         <form action="" method="post">
+            <% if (locals.errors) { %>
+                <div class="errors">
+                    <% for (let error of errors) { %>
+                        <p><%= error %></p>
+                    <% } %>
+                </div>
+            <% } %>
+
             <div class="field">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username">
+
             </div>
 
             <div class="field">

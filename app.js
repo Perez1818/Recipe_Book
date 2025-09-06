@@ -21,7 +21,7 @@ app.use(express.static(`${CURRENT_WORKING_DIRECTORY}/public`));
 const pool = new Pool({ connectionString: process.env.DATABASE_CONNECTION_STRING });
 
 const validate = {
-    email: () => body("email").isEmail()
+    email: () => body("email").isEmail().withMessage("is invalid"),
 };
 
 app.get("/", (request, response) => {
@@ -38,7 +38,7 @@ app.get("/recipes", async (request, response) => {
 });
 
 app.get("/signup", async (request, response) => {
-    response.render("signup");
+    response.render("signup", { errors: ["First error message", "Another"] });
 });
 
 app.post("/signup", validate.email(), async (request, response) => {
