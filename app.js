@@ -1,8 +1,8 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const path = require("node:path");
-const { Pool } = require("pg");
 const { body, validationResult } = require("express-validator");
+const { pool } = require("./database/query.js");
 
 const CURRENT_WORKING_DIRECTORY = __dirname;
 const PROJECT_TITLE = "Recipe Book";
@@ -20,8 +20,6 @@ app.use(express.urlencoded({ extended: false }));
 app.set("view engine", "ejs");
 app.set("views", "./views");
 app.use(express.static(`${CURRENT_WORKING_DIRECTORY}/public`));
-
-const pool = new Pool({ connectionString: process.env.DATABASE_CONNECTION_STRING });
 
 const validate = {
     username: () => body("username")
