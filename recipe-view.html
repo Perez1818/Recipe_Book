@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Walkthrough</title>
+    <link rel="stylesheet" href="css/recipe-view.css">
+</head>
+<body>
+    <header>
+        <p id="logo"> Recipe Book</p>
+    </header>
+    <hr width="100%">
+    <main>
+        <h1>Recipe Name</h1>
+        <!-- <p id="username"> -->
+            <span id="username">
+                <span>By <b>@username1234567890</b></span> | <span>Uploaded on on August 14, 2025</span>
+
+                </span>
+        <!-- </p> -->
+         <div class="rating-container">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="yellow" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="yellow" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="yellow" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="yellow" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="yellow" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+            </svg>
+            <span id="avg-rating">5.0 (1000)</span>
+        </div>
+        <div id="button-container">
+                <button>
+                    <svg id="bookmark" class="clickable" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                    </svg>
+                </button>
+                <span>|</span>
+                <button>
+                    <svg id="calendar" class="clickable" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                    </svg>
+                </button>
+                <span>|</span>
+                <button>
+                    <svg id="share" class="clickable" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
+                    </svg>
+                </button>
+            </div>
+            <div id="recipe-interactions">
+                <div id="likes">
+                    <button>
+                        <svg class="clickable" width="30px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z" />
+                        </svg>
+                    </button>
+                    <span>45</span>
+                </div>
+                <div id="comments">
+                    <button>
+                        <svg class="clickable" width="30px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
+                        </svg>
+                    </button>
+                    <span>150</span>
+                </div>
+            </div>
+        <section id="intro">
+            <!-- <div> -->
+                <div id="image-nutrient-container">
+                    <img id="intro-img">
+                    <div id="nutrient-label-container">
+                        <button id="show-nutrition-facts">
+                            <span>Hide Nutrition Facts</span>
+                        </button>
+                        <table id="nutrient-label">
+                            <tr>
+                                <th>Servings</th>
+                                <td>10</td>
+                            <tr>
+                            <tr>
+                                <th>Serving Size</th>
+                                <td>1 cup</td>
+                            </tr>
+                            <tr>
+                                <th>Calories</th>
+                                <td>150 calories</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            <div id="recipe-details">
+                <div id="prep-time">
+                    <b>Prep Time</b>
+                    <p>30 mins</p>
+                </div>
+                <div id="total-time">
+                    <b>Total Time</b>
+                    <p>1 hr</p>
+                </div>
+            </div>
+            <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae assumenda sequi rerum repellat nulla ipsam, facere ut excepturi ad totam sed aliquid deserunt. Amet reiciendis pariatur veritatis omnis! Quisquam, animi! Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos reiciendis recusandae corporis dolores vel nihil repellendus. Consequuntur quis voluptas ipsam delectus saepe quae soluta accusamus sequi, amet provident nam quos!
+            </p>
+        </section>
+        <section>
+            <hr class="divider">
+            <h2>Video Tutorial</h2>
+            <video id="recipe-tutorial"></video>
+            <p>
+                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Velit molestiae, amet provident ratione sed omnis, aut, sunt incidunt veritatis at autem quia? Mollitia, ab veniam non laudantium error odio! Quam?
+            </p>
+        </section>
+
+        <section>
+            <hr class="divider">
+            <h2>Walkthrough</h2>
+            <div class="two-column-container">
+                <div class="ingredient-card">
+                    <h3>Ingredients</h3>
+                    <ol>
+                        <li> <!-- changed to make ingredients check offable and to change from cups to grams-->
+                            <label>
+                                <input type="checkbox" class="ingredient-checkbox" data-cups="&frac12 cup flour" data-grams="62 grams flour">
+                                <span>&frac12 cup flour</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="checkbox" class="ingredient-checkbox" data-cups="1 stick of butter" data-grams="113 grams butter">
+                                <span>1 stick butter</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="checkbox" class="ingredient-checkbox" data-cups="&frac12 cup water" data-grams="119 grams water">
+                                <span>&frac12 cup water</span>
+                            </label>
+                        </li>
+                    </ol>
+                    <button id="toggle-units">Switch to grams</button> <!-- toggle button for switching units -->
+                </div>
+                <div class="card">
+                    <div class="step-counter">1</div>
+                    <div>
+                        <h3 class="instructions">
+                            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Architecto, dicta! Doloremque, deserunt neque nam, esse alias explicabo ducimus reiciendis veniam voluptatibus assumenda iste doloribus iusto recusandae excepturi accusantium officiis libero.
+                        </h3>
+                        <span class="estimated-time">⏱️ Estimated Time: <b>5 minutes</b></span>
+                    </div>
+                </div>
+            </div>
+
+            <progress id="completion-progress">
+            </progress>
+
+            <div id="navigate-walkthrough">
+                <button>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                    </svg>
+                </button>
+                <span id="completion-fraction">1 / 3</span>
+                <button>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    </svg>
+                </button>
+            </div>
+        </section>
+
+        <section>
+            <hr class="divider">
+            <h2>Reviews</h2>
+            <div id="review-container">
+                <div id="inner-container">
+                    <div id="no-review-container">
+                        <b> No Reviews yet!</b>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script> // JavaScript for toggling between cups and grams
+        document.getElementById('toggle-units').addEventListener('click', function () {
+            const isCups = this.textContent.includes('grams');
+            const ingredients = document.querySelectorAll('.ingredient-card ol li');
+            ingredients.forEach(li => {
+                const checkbox = li.querySelector('input.ingredient-checkbox');
+                const span = li.querySelector('span');
+                if (checkbox && span) {
+                    span.textContent = isCups ? checkbox.getAttribute('data-grams') : checkbox.getAttribute('data-cups');
+                }
+            });
+            this.textContent = isCups ? 'Switch to cups' : 'Switch to grams';
+        });
+    </script>
+</body>
+</html>
