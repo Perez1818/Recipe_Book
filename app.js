@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("node:path");
 const { body, validationResult } = require("express-validator");
-const { pool } = require("./database/query.js");
+const { pool, addUser } = require("./database/query.js");
 
 const CURRENT_WORKING_DIRECTORY = __dirname;
 const PROJECT_TITLE = "Recipe Book";
@@ -50,6 +50,10 @@ function getErrorMessages(result) {
     return errorMessages;
 }
 
+function attributeCount(object) {
+    return Object.keys(object).length;
+}
+
 app.get("/", (request, response) => {
     response.render("index", { browserTitle: PROJECT_TITLE, pageTitle: PROJECT_TITLE });
 });
@@ -60,7 +64,6 @@ app.get("/users", async (request, response) => {
 });
 
 app.get("/recipes", async (request, response) => {
-
     response.render("recipes");
 });
 
@@ -71,7 +74,19 @@ app.get("/signup", async (request, response) => {
 app.post("/signup", validate.username(), validate.email(), validate.password(), async (request, response) => {
     const result = validationResult(request);
     const errorMessages = getErrorMessages(result);
-    response.render("signup", { errorMessages: errorMessages });
+
+    if (attributeCount(errorMessages)) {
+        response.render("signup", { errorMessages: errorMessages });
+    }
+    else {
+        const userCreated = await addUser(request.body.username, request.body.email, request.body.password);
+        if (userCreated) {
+            response.redirect("/");
+        }
+        else {
+            response.render("signup", { errorMessages: { accountExists: "Username or email is unavailable or already taken, please try another" } });
+        }
+    }
 });
 
 app.post("/api/recipes", async (request, response) => {
