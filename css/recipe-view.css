@@ -341,7 +341,7 @@ img, video {
     transform: rotate(-45deg);
 }
 
-.step-counter {
+#step-counter {
     font-size: 2rem;
     vertical-align: top;
     width: 40px;

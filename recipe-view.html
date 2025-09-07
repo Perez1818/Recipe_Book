@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recipe Walkthrough</title>
     <link rel="stylesheet" href="css/recipe-view.css">
+    <script defer src="js/recipe-view.js"></script>
 </head>
 <body>
     <header>
@@ -150,7 +151,7 @@
                     <button id="toggle-units">Switch to grams</button> <!-- toggle button for switching units -->
                 </div>
                 <div class="card">
-                    <div class="step-counter">1</div>
+                    <div id="step-counter">1</div>
                     <div>
                         <h3 class="instructions">
                             Lorem ipsum dolor sit, amet consectetur adipisicing elit. Architecto, dicta! Doloremque, deserunt neque nam, esse alias explicabo ducimus reiciendis veniam voluptatibus assumenda iste doloribus iusto recusandae excepturi accusantium officiis libero.
@@ -164,7 +165,7 @@
             </progress>
 
             <div id="navigate-walkthrough">
-                <button>
+                <button disabled="true">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                     </svg>
