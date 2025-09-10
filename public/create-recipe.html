@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Maker</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/create-recipe.css">
+</head>
+<body>
+    <header>
+        <p id="logo"> Recipe Book</p>
+        <nav>
+            <a href="create-recipe.html" class="tooltip">
+                <span class="tooltiptext">Recipe Maker</span>
+                <svg class="icon-highlight icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                </svg>
+            </a>
+        </nav>
+    </header>
+    <hr width="100%">
+    <main>
+        <h1>Recipe Post Maker</h1>
+        </div>
+        <div class="grid-container">
+            <h2>Recipe Overview</h2>
+            <div class="three-column-container">
+                <div class="group-container">
+                    <b>Recipe Name</b>
+                    <input>
+                </div>
+                <div class="group-container">
+                    <b>Recipe Description</b>
+                    <textarea></textarea>
+                </div>
+                <div class="group-container">
+                    <b>Thumbnail</b>
+                    <input type="file" accept=".png, .jpg, .jpeg">
+                    <img id="thumbnail">
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <h2>Recipe Media</h2>
+            <div class="two-column-container">
+                <div class="group-container">
+                    <h3>Video (Optional)</h3>
+                    <input type="file" accept=".mp4">
+                </div>
+                <video id="recipe-video"></video>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <h2>Ingredients</h2>
+            <div class="three-column-container">
+                <div class="group-container">
+                    <div class="ingredient-container">
+                        <h3>Ingredient #1</h3>
+                        <div>
+                            <b>Ingredient:</b>
+                            <input>
+                        </div>
+                        <div>
+                            <b>Unit of Measurement:</b>
+                            <select>
+                                <option value=""></option>
+                                <option value="tsp">tsp</option>
+                                <option value="tbsp">tbsp</option>
+                                <option value="cup">cup</option>
+                                <option value="oz">oz</option>
+                                <option value="lb">lb</option>
+                            </select>
+                        </div>
+                        <div>
+                            <b>Quantity:</b>
+                            <input id="quantity-input" type="number" step="0.25" placeholder="1"> <!-- NOTE: Change depending on unit measurment-->
+                        </div>
+                    </div>
+                </div>
+                <div class="group-container">
+                    <div id="add-new-item-container">
+                        <img src="../img/Icon_circle_Plus_white.svg">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <h2>Instructions</h2>
+            <div class="two-column-container">
+                <div class="group-container">
+                    <div class="recipe-step-container">
+                        <!-- <div class="step-counter">1</div> -->
+                        <h3>Step 1</h3>
+                        <div>
+                            <b>Instructions for this step:</b>
+                            <textarea></textarea>
+                        </div>
+                        
+                         <div>
+                            <b>Image of Step (Optional):</b>
+                            <input type="file" accept=".png, .jpg, .jpeg">
+                            <!-- <img> -->
+                         </div>
+                         
+                         <div>
+                            <b>Estimated Time:</b>
+                            <div>
+                                <b>Hours:</b>
+                                <input type="number" class="input-time" min="0" placeholder="0">
+                                <b>Minutes:</b>
+                                <input type="number" class="input-time" min="1" placeholder="1">
+                            </div>
+                         </div>
+                    </div>
+                </div>
+                <div class="group-container">
+                    <div id="add-new-item-container">
+                        <img src="../img/Icon_circle_Plus_white.svg">
+                        <!-- <h3>Add New Step</h3> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="button-container">
+            <button id="cancel-button">Cancel</button>
+            <button id="submit-button">Submit</button>
+        </div>
+    </main>
+</body>
+</html>

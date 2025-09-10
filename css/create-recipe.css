@@ -1,0 +1,248 @@
+
+/*Containers*/
+.grid-container {
+    display: grid;
+    justify-items: center;
+    /* grid-template-columns: repeat(3, 1fr); */
+    gap: 20px;
+    /* width: 90%; */
+    background-color: #79B473;
+    margin: 30px;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.three-column-container {
+    display: grid;
+    flex: 1 1 auto;
+    grid-template-columns: repeat(3, 1fr);
+    background-color: white;
+    width: 90%;
+    height: fit-content;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+#miscellaneous-container {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+#select-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Taken from public-account */
+#button-container  /*div that holds the buttons*/{
+    display: flex;
+    width: 100%;
+    height: 100px;
+    background-color: whitesmoke;
+    justify-content: space-around;
+    align-items: center;
+    margin: 20px 0;  /* Changed */
+}
+
+#button-container button /*styles the buttons insde the div*/{
+    width: 200px;
+    height: 50px;
+    border-radius: 10px;
+    font-size: 3vh;
+}
+
+#instruction-container {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-container-user-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #79B473;
+    border-radius: 10px;
+    width: 75%;
+    height: fit-content;
+    margin-bottom: 20px;
+}
+
+.two-column-container {
+    display: grid;
+    flex: 1 1 auto;
+    grid-template-columns: repeat(2, 1fr);
+    background-color: white;
+    width: 90%;
+    height: fit-content;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+.group-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+    border-radius: 10px;
+    border: gray solid 3px;
+    background-color: azure;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    overflow-y: auto;
+}
+
+.group-container * {
+    margin: 15px;
+}
+
+.recipe-step-container {
+    /* display: flex; */
+    /* flex-direction: column; */
+
+    overflow-y: auto;
+    
+    /* align-content: center; */
+}
+
+.recipe-step-container img {
+    width: 90%;
+    aspect-ratio: 1 / 1;
+    border-radius: 5px;
+}
+
+#add-new-item-container {
+    background-color: lightgray;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: fit-content;
+    aspect-ratio: 1 / 1;
+    padding: 5px;
+    border-radius: 10px;
+    color: white;
+    margin: auto;
+    border: gray solid 2px;
+}
+
+/*Headers*/
+/* Note: Copied from account.css*/
+h1 {
+    width: fit-content;
+    padding: 5px 15px;
+    border: rgb(108, 145, 191) solid 4px;
+    background-color: white;
+    justify-self: center;
+    border-radius: 30px;
+    margin: 0 auto; 
+}
+h2 {
+    display: flex;
+    justify-self: center;
+    padding: 15px;
+    background-color: white;
+    border-radius: 5px;
+    height: fit-content;
+}
+
+h3 {
+    margin: 10px 0;
+    text-align: center;
+}
+
+/*Input Action*/
+#video {
+    width: 100%;
+    background-color: lightgray;
+}
+#recipe-thumbnail {
+    width: 200px;
+    background-color: lightgray;
+    /* margin: 10px auto; */
+}
+#quantity-input {
+    width: 50px;
+}
+#thumbnail, #recipe-video {
+    display: flex;
+    flex: 1 1 auto;
+    aspect-ratio: 1 / 1;
+    background-color: lightgray;
+    margin: 20px;
+    border-radius: 10px;
+}
+.input-time {
+    width: 30px;
+}
+.step-counter {
+    font-size: 2rem;
+    vertical-align: top;
+    width: 40px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    background-color: white;
+    text-align: center;
+    padding: 5px;
+    border: black solid 3px;
+}
+
+/*Buttons*/
+.start-btn {
+    display: block;
+    border: rgb(108, 145, 191) solid 2px;
+    cursor: pointer;
+    margin: 8px auto;
+    padding: 5px 30px;            /* top/bottom, left/right */
+    font-size: 1.2rem;             /* scale text */
+    border-radius: 6px;   
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    /* grid-template-columns: repeat(3, 1fr); */
+    width: 90%;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #f0f0f0;
+}
+/*Other*/
+.row-element {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    align-items: center;
+    background-color: white;
+    padding: 10px;
+    margin: 10px;
+    border: black solid 3px;
+    border-radius: 10px;
+}
+
+.row-element button {
+    margin: 10px;
+}
+
+/*Taken from search-engine.css*/
+select {
+    width: 190px;
+    height: fit-content;
+    margin: 15px;
+    border-radius: 20px;
+    padding: 20px;
+    border: #79B473 solid 2px;
+}
+
+input, textarea {
+    height: 15px;
+    padding: 10px;
+    margin-top: 10px;
+    width: 80%;
+    font-size: 2.5vh;
+}
+
+textarea {
+    height: 45px;
+}
+
+
+
+
