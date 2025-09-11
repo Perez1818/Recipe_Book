@@ -20,69 +20,71 @@
         </nav>
     </header>
     <hr width="100%">
+    <!-- Recipe Form -->
+    <form id ="recipe-form" class="page-form" action="/recipes" method="POST" enctype="multipart/form-data">
     <main>
         <h1>Recipe Post Maker</h1>
         </div>
+        <!-- Recipe Overview Section -->
         <div class="grid-container">
-            <h2>Recipe Overview</h2>
             <div class="three-column-container">
                 <div class="group-container">
                     <b>Recipe Name</b>
-                    <input>
+                    <input id="recipe-name" name="name"type="text" required placeholder="e.g. Chocolate Chip Cookies">
                 </div>
+
                 <div class="group-container">
                     <b>Recipe Description</b>
-                    <textarea></textarea>
+                    <textarea id="recipe-description" name="description" required placeholder="e.g. A delicious chocolate chip cookie recipe"></textarea>
                 </div>
+
                 <div class="group-container">
                     <b>Thumbnail</b>
-                    <input type="file" accept=".png, .jpg, .jpeg">
-                    <img id="thumbnail">
-                </div>
-            </div>
-        </div>
-
-        <div class="grid-container">
-            <h2>Recipe Media</h2>
-            <div class="two-column-container">
-                <div class="group-container">
-                    <h3>Video (Optional)</h3>
-                    <input type="file" accept=".mp4">
-                </div>
-                <video id="recipe-video"></video>
-            </div>
-        </div>
-
-        <div class="grid-container">
-            <h2>Ingredients</h2>
-            <div class="three-column-container">
-                <div class="group-container">
-                    <div class="ingredient-container">
-                        <h3>Ingredient #1</h3>
-                        <div>
-                            <b>Ingredient:</b>
-                            <input>
-                        </div>
-                        <div>
-                            <b>Unit of Measurement:</b>
-                            <select>
-                                <option value=""></option>
-                                <option value="tsp">tsp</option>
-                                <option value="tbsp">tbsp</option>
-                                <option value="cup">cup</option>
-                                <option value="oz">oz</option>
-                                <option value="lb">lb</option>
-                            </select>
-                        </div>
-                        <div>
-                            <b>Quantity:</b>
-                            <input id="quantity-input" type="number" step="0.25" placeholder="1"> <!-- NOTE: Change depending on unit measurment-->
-                        </div>
+                    <input id="thumbnail-input" name="thumbnail" type="file" accept=".png, .jpg, .jpeg" required>
+                    <img id="thumbnail-preview" alt="Thumbnail Preview"
+                        style="display: none; max-width: 200px; max-height: 200px; margin-top: 10px;">
+                    <div style="margin-top:12px;">
+                        <span>Would you like to add a video?</span>
+                        <input type="checkbox" id="video-checkbox">
+                    </div>
+                    
+                    <div id="video-section" class="collapsible">
+                        <b>Video (Optional)</b>
+                        <input id="video-input" name="video" type="file" accept=".mp4">
+                        <video id="recipe-video" controls style="max-width: 320px; display:none;"></video>
                     </div>
                 </div>
+            </div>
+        </div>
+        <!-- Ingredients Section -->
+        <div class="grid-container">
+            <div class="one-column-container">
                 <div class="group-container">
-                    <div id="add-new-item-container">
-                        <img src="../img/Icon_circle_Plus_white.svg">
+                    <div id="ingredients-list">
+                        <div class="group-ingredient-container">
+                            <h3>Ingredient #1</h3>
+                            <div>
+                                <b>Ingredient:</b>
+                                <input id="ingredient-name" name="ingredient-name" type="text" required placeholder="e.g. Chocolate Chips">
+                            </div>
+                            <div>
+                                <b>Unit of Measurement:</b>
+                                <select>
+                                    <option value=""></option>
+                                    <option value="tsp">tsp</option>
+                                    <option value="tbsp">tbsp</option>
+                                    <option value="cup">cup</option>
+                                    <option value="oz">oz</option>
+                                    <option value="lb">lb</option>
+                                </select>
+                            </div>
+                            <div>
+                                <b>Quantity:</b>
+                                <input id="quantity-input" type="number" step="0.25" placeholder="1"> <!-- NOTE: Change depending on unit measurment-->
+                            </div>
+                        </div>
+                        <!-- Ingredients will be added here dynamically -->
+                        <button type="button" id="add-ingredient" class="start-btn">+ Add New Ingredient</button>
                     </div>
                 </div>
             </div>

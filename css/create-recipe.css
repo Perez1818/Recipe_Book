@@ -76,6 +76,16 @@
     margin-bottom: 20px;
     border-radius: 10px;
 }
+.one-column-container {
+    display: grid;
+    flex: 1 1 auto;
+    grid-template-columns: repeat(1, 1fr);
+    background-color: white;
+    width: 90%;
+    height: fit-content;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
 
 .group-container {
     display: flex;
@@ -86,12 +96,25 @@
     border: gray solid 3px;
     background-color: azure;
     height: auto;
-    aspect-ratio: 1 / 1;
     overflow-y: auto;
 }
-
 .group-container * {
-    margin: 15px;
+    margin: 15px
+}
+
+
+
+.group-ingredient-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+    border-radius: 10px;
+    border: rgb(0, 0, 0) solid 3px;
+    background-color: rgb(255, 249, 196);
+    height: auto;
+    /* aspect-ratio: 1 / 1; */
+    overflow-y: auto;
 }
 
 .recipe-step-container {
@@ -187,11 +210,12 @@ h3 {
 /*Buttons*/
 .start-btn {
     display: block;
-    border: rgb(108, 145, 191) solid 2px;
+    border: black solid 2px;
+    background-color:rgb(255, 249, 196);
     cursor: pointer;
     margin: 8px auto;
     padding: 5px 30px;            /* top/bottom, left/right */
-    font-size: 1.2rem;             /* scale text */
+    font-size: 0.9rem;             /* scale text */
     border-radius: 6px;   
 }
 
@@ -228,7 +252,7 @@ select {
     margin: 15px;
     border-radius: 20px;
     padding: 20px;
-    border: #79B473 solid 2px;
+    border:black solid 2px;
 }
 
 input, textarea {
@@ -237,12 +261,19 @@ input, textarea {
     margin-top: 10px;
     width: 80%;
     font-size: 2.5vh;
+    
 }
 
 textarea {
     height: 45px;
 }
 
-
+.collapsible {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 240ms ease, opacity 200ms ease;
+  margin-top: 0; 
+}
 
 
