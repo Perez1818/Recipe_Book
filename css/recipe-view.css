@@ -190,6 +190,11 @@ img, video {
     border-radius: 10px;
 }
 
+#recipe-name {
+    display: flex;
+    justify-content: center;
+}
+
 #intro-img {
     display: flex;
     width: 600px;
@@ -198,13 +203,20 @@ img, video {
     background-color: lightgray;
 }
 
-#username {
+#username-and-date {
     display: flex;
     justify-self: center;
     justify-content: center;
     gap: 25px;
     margin-bottom: 10px;
 }
+
+#username-link {
+    margin-right: 10px;
+    color: black;
+    text-decoration-color: #79B473;
+}
+
 
 #button-container, #recipe-interactions {
     display: flex;
