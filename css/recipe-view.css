@@ -397,3 +397,11 @@ img, video {
   align-items: center;
   gap: 1px;
 }
+
+.fa-star.checked {
+  color: orange;
+}
+
+.fa-thumbs-o-up.liked {
+  color: lightgreen;
+}
