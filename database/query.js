@@ -1,5 +1,6 @@
 const dotenv = require("dotenv");
 const { Pool } = require("pg");
+const bcrypt = require("bcryptjs");
 
 const CURRENT_WORKING_DIRECTORY = __dirname;
 dotenv.config({ path: `${CURRENT_WORKING_DIRECTORY}/../.env` });
@@ -28,13 +29,19 @@ async function getUser(username) {
 
 async function addUser(username, email, password) {
     try {
+        /* https://stackoverflow.com/a/46713082 */
+        const hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_LENGTH));
         const result = await pool.query(`INSERT INTO users (username, email, password)
-                                         VALUES ($1, $2, $3);`, [username, email, password]);
+                                         VALUES ($1, $2, $3);`, [username, email, hashedPassword]);
         return true;
     }
     catch {
         return false;
     }
+}
+
+async function comparePasswords(plaintextPassword, hashedPassword) {
+    return await bcrypt.compare(plaintextPassword, hashedPassword);
 }
 
 /* TODO: Potentially avoid listing all exports manually
@@ -43,5 +50,6 @@ module.exports = {
     pool,
     getUser,
     getUserById,
-    addUser
+    addUser,
+    comparePasswords
 }

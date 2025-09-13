@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("node:path");
 const { body, validationResult } = require("express-validator");
-const { pool, getUser, getUserById, addUser } = require("./database/query.js");
+const { pool, getUser, getUserById, addUser, comparePasswords } = require("./database/query.js");
 
 const session = require("express-session");
 const passport = require("passport");
@@ -31,7 +31,9 @@ passport.use(
             if (!user) {
               return done(null, false, { message: "Incorrect username" });
             }
-            if (user.password !== password) {
+
+            const passwordsMatch = await comparePasswords(password, user.password);
+            if (!passwordsMatch) {
               return done(null, false, { message: "Incorrect password" });
             }
 
