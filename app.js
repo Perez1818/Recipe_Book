@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("node:path");
 const { body, validationResult } = require("express-validator");
-const { pool, addUser, checkUser } = require("./database/query.js");
+const { pool, getUser, getUserById, addUser, checkUser } = require("./database/query.js");
 
 const session = require("express-session");
 const passport = require("passport");
@@ -22,6 +22,40 @@ const app = express();
 
 app.use(session({ secret: process.env.EXPRESS_SESSION_SECRET, resave: false, saveUninitialized: false }));
 app.use(passport.session());
+
+passport.use(
+    new LocalStrategy(async (username, password, done) => {
+        try {
+            const user = await getUser(username, password);
+
+            if (!user) {
+              return done(null, false, { message: "Incorrect username" });
+            }
+            if (user.password !== password) {
+              return done(null, false, { message: "Incorrect password" });
+            }
+
+            return done(null, user);
+        }
+        catch(error) {
+            return done(error);
+        }
+    })
+);
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await getUserById(id);
+        done(null, user);
+    }
+    catch(error) {
+        done(error);
+    }
+});
 
 app.use(express.urlencoded({ extended: false }));
 
@@ -103,18 +137,16 @@ app.post("/signup", validate.username(), validate.email(), validate.password(), 
 });
 
 app.get("/login", async (request, response) => {
-    response.render("login");
-});
-
-app.post("/login", async (request, response) => {
-    const userMatches = await checkUser(request.body.username, request.body.password);
-    if (userMatches) {
-        response.redirect("/users");
-    }
-    else {
+    const failedLoginAttempt = (request.query.failed === "1");
+    if (failedLoginAttempt) {
         response.render("login", { errorMessages: { credentials: "Login failed. Please try again." } });
     }
+    else {
+        response.render("login");
+    }
 });
+
+app.post("/login", passport.authenticate("local", { successRedirect: "/users", failureRedirect: "/login?failed=1" }));
 
 app.post("/api/recipes", async (request, response) => {
     const recipe = request.body;

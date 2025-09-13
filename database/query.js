@@ -6,15 +6,37 @@ dotenv.config({ path: `${CURRENT_WORKING_DIRECTORY}/../.env` });
 
 const pool = new Pool({ connectionString: process.env.DATABASE_CONNECTION_STRING });
 
+function getOnlyRow(rows) {
+    if (rows.length === 1) {
+        return rows[0];
+    }
+    else if (rows.length === 0) {
+        return null;
+    }
+    throw new Error("More than one matching row was found in the database. Please review and update the uniqueness constraints or re-evaluate calling this function.");
+}
+
+async function getUserById(id) {
+    const { rows } = await pool.query(`SELECT * FROM users WHERE (id = $1);`, [id]);
+    return getOnlyRow(rows);
+}
+
+async function getUser(username) {
+    const { rows } = await pool.query(`SELECT * FROM users WHERE (username = $1 OR email = $1);`, [username]);
+    return getOnlyRow(rows);
+}
+
 async function checkUser(username, password) {
-    const result = await pool.query(`SELECT * FROM users WHERE (username = $1 OR email = $1) AND password = $2;`, [username, password]);
-    if (result.rows.length === 1) {
-        return true;
+    const user = await getUser(username);
+
+    if (!user) {
+      return false;
     }
-    else if (result.rows.length === 0) {
-        return false;
+    if (user.password !== password) {
+      return false;
     }
-    throw new Error("More than one matching user was found in the database.");
+
+    return true;
 }
 
 async function addUser(username, email, password) {
@@ -32,6 +54,8 @@ async function addUser(username, email, password) {
  */
 module.exports = {
     pool,
+    getUser,
+    getUserById,
     addUser,
     checkUser
 }
