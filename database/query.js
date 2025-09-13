@@ -1,6 +1,5 @@
 const dotenv = require("dotenv");
 const { Pool } = require("pg");
-const bcrypt = require("bcryptjs");
 
 const CURRENT_WORKING_DIRECTORY = __dirname;
 dotenv.config({ path: `${CURRENT_WORKING_DIRECTORY}/../.env` });
@@ -40,10 +39,6 @@ async function createUser(username, email, password) {
     }
 }
 
-async function comparePasswords(plaintextPassword, hashedPassword) {
-    return await bcrypt.compare(plaintextPassword, hashedPassword);
-}
-
 /* TODO: Potentially avoid listing all exports manually
  */
 module.exports = {
@@ -51,5 +46,4 @@ module.exports = {
     getUserByNameOrEmail,
     getUserById,
     createUser,
-    comparePasswords
 }

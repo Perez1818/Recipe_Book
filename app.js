@@ -2,11 +2,12 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("node:path");
 const { body, validationResult } = require("express-validator");
-const { pool, getUserByNameOrEmail, getUserById, createUser, comparePasswords } = require("./database/query.js");
+const { pool, getUserByNameOrEmail, getUserById, createUser } = require("./database/query.js");
 
 const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
+const bcrypt = require("bcryptjs");
 
 const CURRENT_WORKING_DIRECTORY = __dirname;
 const PROJECT_TITLE = "Recipe Book";
@@ -22,6 +23,10 @@ const app = express();
 
 app.use(session({ secret: process.env.EXPRESS_SESSION_SECRET, resave: false, saveUninitialized: false }));
 app.use(passport.session());
+
+async function comparePasswords(plaintextPassword, hashedPassword) {
+    return await bcrypt.compare(plaintextPassword, hashedPassword);
+}
 
 passport.use(
     new LocalStrategy(async (username, password, done) => {
