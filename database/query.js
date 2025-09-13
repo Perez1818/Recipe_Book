@@ -27,7 +27,7 @@ async function getUserByNameOrEmail(username) {
     return getOnlyRow(rows);
 }
 
-async function addUser(username, email, password) {
+async function createUser(username, email, password) {
     try {
         /* https://stackoverflow.com/a/46713082 */
         const hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_LENGTH));
@@ -50,6 +50,6 @@ module.exports = {
     pool,
     getUserByNameOrEmail,
     getUserById,
-    addUser,
+    createUser,
     comparePasswords
 }

@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("node:path");
 const { body, validationResult } = require("express-validator");
-const { pool, getUserByNameOrEmail, getUserById, addUser, comparePasswords } = require("./database/query.js");
+const { pool, getUserByNameOrEmail, getUserById, createUser, comparePasswords } = require("./database/query.js");
 
 const session = require("express-session");
 const passport = require("passport");
@@ -134,7 +134,7 @@ app.post("/signup", validate.username(), validate.email(), validate.password(), 
         response.render("signup", { errorMessages: errorMessages });
     }
     else {
-        const userCreated = await addUser(request.body.username, request.body.email, request.body.password);
+        const userCreated = await createUser(request.body.username, request.body.email, request.body.password);
         if (userCreated) {
             response.redirect("/");
         }
