@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("node:path");
 const { body, validationResult } = require("express-validator");
-const { pool, getUser, getUserById, addUser, checkUser } = require("./database/query.js");
+const { pool, getUser, getUserById, addUser } = require("./database/query.js");
 
 const session = require("express-session");
 const passport = require("passport");

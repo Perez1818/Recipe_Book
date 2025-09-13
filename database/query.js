@@ -26,19 +26,6 @@ async function getUser(username) {
     return getOnlyRow(rows);
 }
 
-async function checkUser(username, password) {
-    const user = await getUser(username);
-
-    if (!user) {
-      return false;
-    }
-    if (user.password !== password) {
-      return false;
-    }
-
-    return true;
-}
-
 async function addUser(username, email, password) {
     try {
         const result = await pool.query(`INSERT INTO users (username, email, password)
@@ -56,6 +43,5 @@ module.exports = {
     pool,
     getUser,
     getUserById,
-    addUser,
-    checkUser
+    addUser
 }
