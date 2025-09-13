@@ -9,8 +9,6 @@ const LocalStrategy = require("passport-local").Strategy;
 
 const PARENT_DIRECTORY = __dirname;
 const PROJECT_TITLE = "Recipe Book";
-const STATIC_FOLDER = `${PARENT_DIRECTORY}/public`
-
 const MIN_USERNAME_LENGTH = 3;
 const MIN_PASSWORD_LENGTH = 5;
 
