@@ -4,6 +4,9 @@
 - Embedded JavaScript Templates (ejs)
 - PostgreSQL Client (pg)
 - Express Validator (express-validator)
+- Express Session (express-session)
+- Passport (passport)
+- Passport Local Strategy (passport-local)
 
 # Setup
 Open Node.js command prompt and:
