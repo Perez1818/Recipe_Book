@@ -2,12 +2,11 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("node:path");
 const { body, validationResult } = require("express-validator");
-const { pool, getUserByNameOrEmail, getUserById, createUser } = require("./database/query.js");
+const db = require("./database/query.js");
 
 const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
-const bcrypt = require("bcryptjs");
 
 const CURRENT_WORKING_DIRECTORY = __dirname;
 const PROJECT_TITLE = "Recipe Book";
@@ -24,20 +23,17 @@ const app = express();
 app.use(session({ secret: process.env.EXPRESS_SESSION_SECRET, resave: false, saveUninitialized: false }));
 app.use(passport.session());
 
-async function comparePasswords(plaintextPassword, hashedPassword) {
-    return await bcrypt.compare(plaintextPassword, hashedPassword);
-}
 
 passport.use(
     new LocalStrategy(async (username, password, done) => {
         try {
-            const user = await getUserByNameOrEmail(username);
+            const user = await db.getUserByNameOrEmail(username);
 
             if (!user) {
               return done(null, false, { message: "Incorrect username" });
             }
 
-            const passwordsMatch = await comparePasswords(password, user.password);
+            const passwordsMatch = await db.comparePasswords(password, user.password);
             if (!passwordsMatch) {
               return done(null, false, { message: "Incorrect password" });
             }
@@ -56,7 +52,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
     try {
-        const user = await getUserById(id);
+        const user = await db.getUserById(id);
         done(null, user);
     }
     catch(error) {
@@ -118,7 +114,7 @@ app.get("/", (request, response) => {
 });
 
 app.get("/users", async (request, response) => {
-    const result = await pool.query("SELECT * FROM users");
+    const result = await db.pool.query("SELECT * FROM users");
     response.render("users", { users : result.rows });
 });
 
@@ -139,7 +135,7 @@ app.post("/signup", validate.username(), validate.email(), validate.password(), 
         response.render("signup", { errorMessages: errorMessages });
     }
     else {
-        const userCreated = await createUser(request.body.username, request.body.email, request.body.password);
+        const userCreated = await db.createUser(request.body.username, request.body.email, request.body.password);
         if (userCreated) {
             response.redirect("/");
         }
@@ -172,12 +168,12 @@ app.get("/logout", (request, response, next) => {
 
 app.post("/api/recipes", async (request, response) => {
     const recipe = request.body;
-    await pool.query(`INSERT INTO RECIPES (NAME, DESCRIPTION, INGREDIENTS, COOK_TIME, TAGS) VALUES ($1, $2, $3, $4, $5)`, [recipe.name, recipe.description, recipe.ingredients, recipe.cookTime, recipe.tags]);
+    await db.pool.query(`INSERT INTO RECIPES (NAME, DESCRIPTION, INGREDIENTS, COOK_TIME, TAGS) VALUES ($1, $2, $3, $4, $5)`, [recipe.name, recipe.description, recipe.ingredients, recipe.cookTime, recipe.tags]);
     response.send(recipe);
 });
 
 app.get("/api/recipes", async (request, response) => {
-    const result = await pool.query("SELECT * FROM recipes");
+    const result = await db.pool.query("SELECT * FROM recipes");
     response.send(result.rows);
 });
 

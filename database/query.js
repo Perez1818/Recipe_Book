@@ -40,6 +40,10 @@ async function createUser(username, email, password) {
     }
 }
 
+async function comparePasswords(plaintextPassword, hashedPassword) {
+    return await bcrypt.compare(plaintextPassword, hashedPassword);
+}
+
 /* TODO: Potentially avoid listing all exports manually
  */
 module.exports = {
@@ -47,4 +51,5 @@ module.exports = {
     getUserByNameOrEmail,
     getUserById,
     createUser,
+    comparePasswords
 }
