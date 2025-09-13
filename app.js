@@ -57,6 +57,12 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
+// Make user object accessible in all views
+app.use((request, response, next) => {
+    response.locals.currentUser = request.user;
+    next();
+});
+
 app.use(express.urlencoded({ extended: false }));
 
 app.set("view engine", "ejs");
