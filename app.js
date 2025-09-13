@@ -68,7 +68,7 @@ app.use((request, response, next) => {
 app.use(express.urlencoded({ extended: false }));
 
 app.set("view engine", "ejs");
-app.set("views", "./views");
+app.set("views", `${CURRENT_WORKING_DIRECTORY}/views`);     /* https://stackoverflow.com/a/41055903 */
 app.use(express.static(`${CURRENT_WORKING_DIRECTORY}/public`));
 
 const validate = {
