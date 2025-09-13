@@ -14,6 +14,7 @@ Then create a ".env" file containing:
 ```
 DATABASE_CONNECTION_STRING=type_string_here
 SERVER_PORT=type_server_port_number_here
+EXPRESS_SESSION_SECRET=type_session_secret_here
 ```
 Finally, install dependencies:
 ```
