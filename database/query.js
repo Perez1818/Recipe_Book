@@ -1,5 +1,6 @@
 const dotenv = require("dotenv");
 const { Pool } = require("pg");
+const bcrypt = require("bcryptjs");
 
 const CURRENT_WORKING_DIRECTORY = __dirname;
 dotenv.config({ path: `${CURRENT_WORKING_DIRECTORY}/../.env` });
