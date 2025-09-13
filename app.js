@@ -148,6 +148,15 @@ app.get("/login", async (request, response) => {
 
 app.post("/login", passport.authenticate("local", { successRedirect: "/users", failureRedirect: "/login?failed=1" }));
 
+app.get("/logout", (request, response, next) => {
+    request.logout((error) => {
+        if (error) {
+            return next(error);
+        }
+        response.redirect("/");
+    });
+});
+
 app.post("/api/recipes", async (request, response) => {
     const recipe = request.body;
     await pool.query(`INSERT INTO RECIPES (NAME, DESCRIPTION, INGREDIENTS, COOK_TIME, TAGS) VALUES ($1, $2, $3, $4, $5)`, [recipe.name, recipe.description, recipe.ingredients, recipe.cookTime, recipe.tags]);
