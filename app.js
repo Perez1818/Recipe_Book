@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("node:path");
 const { body, validationResult } = require("express-validator");
-const { pool, getUser, getUserById, addUser, comparePasswords } = require("./database/query.js");
+const { pool, getUserByNameOrEmail, getUserById, addUser, comparePasswords } = require("./database/query.js");
 
 const session = require("express-session");
 const passport = require("passport");
@@ -26,7 +26,7 @@ app.use(passport.session());
 passport.use(
     new LocalStrategy(async (username, password, done) => {
         try {
-            const user = await getUser(username, password);
+            const user = await getUserByNameOrEmail(username, password);
 
             if (!user) {
               return done(null, false, { message: "Incorrect username" });

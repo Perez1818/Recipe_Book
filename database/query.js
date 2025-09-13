@@ -22,7 +22,7 @@ async function getUserById(id) {
     return getOnlyRow(rows);
 }
 
-async function getUser(username) {
+async function getUserByNameOrEmail(username) {
     const { rows } = await pool.query(`SELECT * FROM users WHERE (username = $1 OR email = $1);`, [username]);
     return getOnlyRow(rows);
 }
@@ -48,7 +48,7 @@ async function comparePasswords(plaintextPassword, hashedPassword) {
  */
 module.exports = {
     pool,
-    getUser,
+    getUserByNameOrEmail,
     getUserById,
     addUser,
     comparePasswords
