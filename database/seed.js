@@ -1,8 +1,8 @@
 const dotenv = require("dotenv");
 const { Client } = require("pg");
 
-const CURRENT_WORKING_DIRECTORY = __dirname;
-dotenv.config({ path: `${CURRENT_WORKING_DIRECTORY}/../.env` });
+const PARENT_DIRECTORY = __dirname;
+dotenv.config({ path: `${PARENT_DIRECTORY}/../.env` });
 
 async function seedDatabase() {
     const client = new Client({ connectionString: process.env.DATABASE_CONNECTION_STRING });

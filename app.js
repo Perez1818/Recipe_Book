@@ -8,21 +8,20 @@ const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 
-const CURRENT_WORKING_DIRECTORY = __dirname;
+const PARENT_DIRECTORY = __dirname;
 const PROJECT_TITLE = "Recipe Book";
-const STATIC_FOLDER = `${CURRENT_WORKING_DIRECTORY}/public`
+const STATIC_FOLDER = `${PARENT_DIRECTORY}/public`
 
 const MIN_USERNAME_LENGTH = 3;
 const MIN_PASSWORD_LENGTH = 5;
 
-dotenv.config({ path: `${CURRENT_WORKING_DIRECTORY}/.env` });
+dotenv.config({ path: `${PARENT_DIRECTORY}/.env` });
 const SERVER_PORT = process.env.SERVER_PORT;
 
 const app = express();
 
 app.use(session({ secret: process.env.EXPRESS_SESSION_SECRET, resave: false, saveUninitialized: false }));
 app.use(passport.session());
-
 
 passport.use(
     new LocalStrategy(async (username, password, done) => {
@@ -69,8 +68,8 @@ app.use((request, response, next) => {
 app.use(express.urlencoded({ extended: false }));
 
 app.set("view engine", "ejs");
-app.set("views", `${CURRENT_WORKING_DIRECTORY}/views`);     /* https://stackoverflow.com/a/41055903 */
-app.use("/static", express.static(`${CURRENT_WORKING_DIRECTORY}/public`));
+app.set("views", `${PARENT_DIRECTORY}/views`);     /* https://stackoverflow.com/a/41055903 */
+app.use("/static", express.static(`${PARENT_DIRECTORY}/public`));
 
 const validate = {
     username: () => body("username")

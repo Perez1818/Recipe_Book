@@ -2,8 +2,8 @@ const dotenv = require("dotenv");
 const { Pool } = require("pg");
 const bcrypt = require("bcryptjs");
 
-const CURRENT_WORKING_DIRECTORY = __dirname;
-dotenv.config({ path: `${CURRENT_WORKING_DIRECTORY}/../.env` });
+const PARENT_DIRECTORY = __dirname;
+dotenv.config({ path: `${PARENT_DIRECTORY}/../.env` });
 
 const pool = new Pool({ connectionString: process.env.DATABASE_CONNECTION_STRING });
 
