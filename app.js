@@ -1,6 +1,5 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const path = require("node:path");
 const { body, validationResult } = require("express-validator");
 const db = require("./database/query.js");
 
