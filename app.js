@@ -4,6 +4,10 @@ const path = require("node:path");
 const { body, validationResult } = require("express-validator");
 const { pool, addUser, checkUser } = require("./database/query.js");
 
+const session = require("express-session");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+
 const CURRENT_WORKING_DIRECTORY = __dirname;
 const PROJECT_TITLE = "Recipe Book";
 const STATIC_FOLDER = `${CURRENT_WORKING_DIRECTORY}/public`
@@ -15,6 +19,10 @@ dotenv.config({ path: `${CURRENT_WORKING_DIRECTORY}/.env` });
 const SERVER_PORT = process.env.SERVER_PORT;
 
 const app = express();
+
+app.use(session({ secret: process.env.EXPRESS_SESSION_SECRET, resave: false, saveUninitialized: false }));
+app.use(passport.session());
+
 app.use(express.urlencoded({ extended: false }));
 
 app.set("view engine", "ejs");
