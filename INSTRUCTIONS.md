@@ -7,6 +7,7 @@
 - Express Session (express-session)
 - Passport (passport)
 - Passport Local Strategy (passport-local)
+- Bcrypt (bcryptjs)
 
 # Setup
 Open Node.js command prompt and:
@@ -18,6 +19,7 @@ Then create a ".env" file containing:
 DATABASE_CONNECTION_STRING=type_string_here
 SERVER_PORT=type_server_port_number_here
 EXPRESS_SESSION_SECRET=type_session_secret_here
+BCRYPT_SALT_LENGTH=type_salt_length_here
 ```
 Finally, install dependencies:
 ```
