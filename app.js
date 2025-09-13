@@ -69,7 +69,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.set("view engine", "ejs");
 app.set("views", `${CURRENT_WORKING_DIRECTORY}/views`);     /* https://stackoverflow.com/a/41055903 */
-app.use(express.static(`${CURRENT_WORKING_DIRECTORY}/public`));
+app.use("/static", express.static(`${CURRENT_WORKING_DIRECTORY}/public`));
 
 const validate = {
     username: () => body("username")
