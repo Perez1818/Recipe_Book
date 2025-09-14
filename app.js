@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 const db = require("./database/query.js");
 const { validate, validationResult } = require("./middleware/formValidation.js");
 
-const session = require("express-session");
+const sessionMiddleware = require("./middleware/session.js");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 
@@ -15,7 +15,7 @@ const SERVER_PORT = process.env.SERVER_PORT;
 
 const app = express();
 
-app.use(session({ secret: process.env.EXPRESS_SESSION_SECRET, resave: false, saveUninitialized: false }));
+app.use(sessionMiddleware());
 app.use(passport.session());
 
 passport.use(
