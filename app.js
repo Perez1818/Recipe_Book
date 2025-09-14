@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const { body, validationResult } = require("express-validator");
 const db = require("./database/query.js");
+const { validate, validationResult } = require("./middleware/formValidation.js");
 
 const session = require("express-session");
 const passport = require("passport");
@@ -9,8 +9,6 @@ const LocalStrategy = require("passport-local").Strategy;
 
 const PARENT_DIRECTORY = __dirname;
 const PROJECT_TITLE = "Recipe Book";
-const MIN_USERNAME_LENGTH = 3;
-const MIN_PASSWORD_LENGTH = 5;
 
 dotenv.config({ path: `${PARENT_DIRECTORY}/.env` });
 const SERVER_PORT = process.env.SERVER_PORT;
@@ -67,25 +65,6 @@ app.use(express.urlencoded({ extended: false }));
 app.set("view engine", "ejs");
 app.set("views", `${PARENT_DIRECTORY}/views`);     /* https://stackoverflow.com/a/41055903 */
 app.use("/static", express.static(`${PARENT_DIRECTORY}/public`));
-
-const validate = {
-    username: () => body("username")
-                      .notEmpty().withMessage("Username is required")
-                      .isLength({ min: MIN_USERNAME_LENGTH }).withMessage(`Username must be at least ${MIN_USERNAME_LENGTH} characters long`)
-                      .isAlphanumeric().withMessage("Username must contain only letters and numbers"),
-
-    email: () => body("email")
-                   .notEmpty().withMessage("Email is required")
-                   .isEmail().withMessage("Please enter a valid email"),
-
-    password: () => body("password")
-                      .notEmpty().withMessage("Password is required")
-                      .isLength({ min: MIN_PASSWORD_LENGTH }).withMessage(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`),
-
-    confirmedPassword: async (request) => await body("confirmedPassword")
-                                                  .equals(request.body.password).withMessage("Passwords do not match")
-                                                  .run(request)
-};
 
 function getErrorMessages(result) {
     const errors = result.array({ onlyFirstError: true });
