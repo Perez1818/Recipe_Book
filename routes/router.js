@@ -1,9 +1,10 @@
 const { Router } = require("express");
+
 const db = require("../database/query.js");
+const controller = require("../controllers/controller.js");
+
 const { validate, validationResult } = require("../middleware/formValidation.js");
 const { passport } = require("../middleware/passport.js");
-
-const PROJECT_TITLE = "Recipe Book";
 
 const router = Router();
 
@@ -25,9 +26,7 @@ function attributeCount(object) {
     return Object.keys(object).length;
 }
 
-router.get("/", (request, response) => {
-    response.render("index", { browserTitle: PROJECT_TITLE, pageTitle: PROJECT_TITLE });
-});
+router.get("/", controller.getIndex);
 
 router.get("/users", async (request, response) => {
     const result = await db.pool.query("SELECT * FROM users");
