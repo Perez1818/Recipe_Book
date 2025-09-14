@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Shopping List</title>
+    <link rel="stylesheet" href="../css/styles.css"></link>
+    <link rel="stylesheet" href="../css/shopping-list.css"></link>
+</head>
+<body>
+    <header>
+        <p id="logo"> Recipe Book</p>
+        <nav>
+            <a href="shopping-list.html" class="tooltip">
+                <svg class="icon-highlight icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                </svg>
+                <span class="tooltiptext">Shopping List</span>
+            </a>
+        </nav>
+    </header>
+    <!-- <div id="my-shopping-lists">
+        <b>
+            <p>
+                My Shopping Lists
+            </p>
+        </b>
+        <ul>
+            <li></li>
+        </ul>
+    </div> -->
+    <main>
+        <hr width="100%">
+        <h1>Shopping List</h1>
+        <div id="shopping-list">
+            <section id>
+                <h2>Fresh Produce</h2>
+                <div class="ingredient-tile-container">
+                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <div class="ingredient-tile">
+                        <img width="25px" height="25px">
+                        <div id="name-quanitity">
+                            <b><p>Fresh Product</p></b>
+                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
+                        </div>
+                        <p class="ingredient-text-container">Text about this product</p>
+                    </div>
+                </div>
+                <button>
+                    <svg width="15px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                Add Item
+                </button>
+            </section>
+            <section>
+                <h2>Meat & Seafood</h2>
+                <div class="ingredient-tile-container">
+                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <div class="ingredient-tile">
+                        <img width="25px" height="25px">
+                        <div id="name-quanitity">
+                            <b><p>Fresh Product</p></b>
+                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
+                        </div>
+                        <p class="ingredient-text-container">Text about this product</p>
+                    </div>
+                </div>
+                <button>
+                <svg width="15px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Add Item
+            </button>
+            </section>
+            <section>
+                <h2>Dairy</h2>
+                <div class="ingredient-tile-container">
+                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <div class="ingredient-tile">
+                        <img width="25px" height="25px">
+                        <div id="name-quanitity">
+                            <b><p>Fresh Product</p></b>
+                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
+                        </div>
+                        <p class="ingredient-text-container">Text about this product</p>
+                    </div>
+                </div>
+                <button>
+                <svg width="15px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Add Item
+            </button>
+            </section>
+            <section>
+                <h2>Bread</h2>
+                <div class="ingredient-tile-container">
+                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <div class="ingredient-tile">
+                        <img width="25px" height="25px">
+                        <div id="name-quanitity">
+                            <b><p>Fresh Product</p></b>
+                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
+                        </div>
+                        <p class="ingredient-text-container">Text about this product</p>
+                    </div>
+                </div>
+                <button>
+                <svg width="15px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Add Item
+            </button>
+            </section>
+            <section>
+                <h2>Frozen Goods</h2>
+                <div class="ingredient-tile-container">
+                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <div class="ingredient-tile">
+                        <img width="25px" height="25px">
+                        <div id="name-quanitity">
+                            <b><p>Fresh Product</p></b>
+                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
+                        </div>
+                        <p class="ingredient-text-container">Text about this product</p>
+                    </div>
+                </div>
+                <button>
+                <svg width="15px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Add Item
+            </button>
+            </section>
+            <section>
+                <h2>Canned & Dry Goods</h2>
+                <div class="ingredient-tile-container">
+                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <div class="ingredient-tile">
+                        <img width="25px" height="25px">
+                        <div id="name-quanitity">
+                            <b><p>Fresh Product</p></b>
+                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
+                        </div>
+                        <p class="ingredient-text-container">Text about this product</p>
+                    </div>
+                </div>
+                <button>
+                <svg width="15px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Add Item
+            </button>
+            </section>
+            <section>
+                <h2>Snacks & Beverages</h2>
+                <div class="ingredient-tile-container">
+                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <div class="ingredient-tile">
+                        <img width="25px" height="25px">
+                        <div id="name-quanitity">
+                            <b><p>Fresh Product</p></b>
+                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
+                        </div>
+                        <p class="ingredient-text-container">Text about this product</p>
+                    </div>
+                </div>
+                <button>
+                <svg width="15px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Add Item
+            </button>
+            </section>
+            <section>
+                <h2>Condiments & Spices</h2>
+                <div class="ingredient-tile-container">
+                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <div class="ingredient-tile">
+                        <img width="25px" height="25px">
+                        <div id="name-quanitity">
+                            <b><p>Fresh Product</p></b>
+                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
+                        </div>
+                        <p class="ingredient-text-container">Text about this product</p>
+                    </div>
+                </div>
+                <button>
+                <svg width="15px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Add Item
+            </button>
+            </section>
+        </div>
+        <hr width="100%">
+        <input type="searchbar" id="search" placeholder="Search for an ingredient">
+    </main>
+    <footer></footer>
+</body>
+</html>
