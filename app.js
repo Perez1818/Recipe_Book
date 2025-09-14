@@ -4,8 +4,7 @@ const db = require("./database/query.js");
 const { validate, validationResult } = require("./middleware/formValidation.js");
 
 const sessionMiddleware = require("./middleware/session.js");
-const passport = require("passport");
-const LocalStrategy = require("passport-local").Strategy;
+const { passport, configurePassport } = require("./middleware/passport.js");
 
 const PARENT_DIRECTORY = __dirname;
 const PROJECT_TITLE = "Recipe Book";
@@ -17,42 +16,7 @@ const app = express();
 
 app.use(sessionMiddleware());
 app.use(passport.session());
-
-passport.use(
-    new LocalStrategy(async (username, password, done) => {
-        try {
-            const user = await db.getUserByNameOrEmail(username);
-
-            if (!user) {
-              return done(null, false, { message: "Incorrect username" });
-            }
-
-            const passwordsMatch = await db.comparePasswords(password, user.password);
-            if (!passwordsMatch) {
-              return done(null, false, { message: "Incorrect password" });
-            }
-
-            return done(null, user);
-        }
-        catch(error) {
-            return done(error);
-        }
-    })
-);
-
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-    try {
-        const user = await db.getUserById(id);
-        done(null, user);
-    }
-    catch(error) {
-        done(error);
-    }
-});
+configurePassport();
 
 // Make user object accessible in all views
 app.use((request, response, next) => {
