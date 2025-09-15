@@ -6,6 +6,13 @@
     <title>Recipe Maker</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/create-recipe.css">
+    <style>
+        .hidden {display: none;}
+        .wizard-progress{display:flex; gap:8px; align-items:center; justify-content:center; margin: 10px 0 20px;}
+        .pill {padding:4px 10px; border-radius:20px; background-color:lightgray; color:black; font-weight:bold;}
+        .pill.active {background-color:#79B473; color:white;}
+        .pill.done {background-color:gray; color:white;}
+    </style>
 </head>
 <body>
     <header>
@@ -24,114 +31,122 @@
     <form id ="recipe-form" class="page-form" action="/recipes" method="POST" enctype="multipart/form-data">
     <main>
         <h1>Recipe Post Maker</h1>
-        </div>
-        <!-- Recipe Overview Section -->
-        <div class="grid-container">
-            <div class="three-column-container">
-                <div class="group-container">
-                    <b>Recipe Name</b>
-                    <input id="recipe-name" name="name"type="text" required placeholder="e.g. Chocolate Chip Cookies">
-                </div>
-
-                <div class="group-container">
-                    <b>Recipe Description</b>
-                    <textarea id="recipe-description" name="description" required placeholder="e.g. A delicious chocolate chip cookie recipe"></textarea>
-                </div>
-
-                <div class="group-container">
-                    <b>Thumbnail</b>
-                    <input id="thumbnail-input" name="thumbnail" type="file" accept=".png, .jpg, .jpeg" required>
-                    <img id="thumbnail-preview" alt="Thumbnail Preview"
-                        style="display: none; max-width: 200px; max-height: 200px; margin-top: 10px;">
-                    <div style="margin-top:12px;">
-                        <span>Would you like to add a video?</span>
-                        <input type="checkbox" id="video-checkbox">
+        <!-- progress pills-->
+         <div class="wizard-progress" aria-live="polite">
+            <span class="pill" data-pill="0">1. Overview</span>
+            <span class="pill" data-pill="1">2. Ingredients</span>
+            <span class="pill" data-pill="2">3. Instructions</span>
+         </div>
+        <!-- Step 1: Recipe Overview Section -->
+        <section id="step-0" data-step="0">
+            <div class="grid-container">
+                <div class="three-column-container">
+                    <div class="group-container">
+                        <b>Recipe Name</b>
+                        <input id="recipe-name" name="name" type="text" placeholder="e.g. Chocolate Chip Cookies">
                     </div>
-                    
-                    <div id="video-section" class="collapsible">
-                        <b>Video (Optional)</b>
-                        <input id="video-input" name="video" type="file" accept=".mp4">
-                        <video id="recipe-video" controls style="max-width: 320px; display:none;"></video>
+
+                    <div class="group-container">
+                        <b>Recipe Description</b>
+                        <textarea id="recipe-description" name="description" placeholder="e.g. A delicious chocolate chip cookie recipe"></textarea>
                     </div>
+
+                    <div class="group-container">
+                        <b>Thumbnail</b>
+                        <input id="thumbnail-input" name="thumbnail" type="file" accept=".png, .jpg, .jpeg">
+                        <img id="thumbnail-preview" alt="Thumbnail Preview"
+                            style="display: none; max-width: 200px; max-height: 200px; margin-top: 10px;">
+                        <div style="margin-top:12px;">
+                            <span>Would you like to add a video?</span>
+                            <input type="checkbox" id="video-checkbox" aria-controls="video-section" aria-expanded="false">
+                        </div>
+                        <div id="video-section" class="collapsible" style="display:none;">
+                            <b>Video (Optional)</b>
+                            <input id="video-input" name="video" type="file" accept=".mp4">
+                            <video id="recipe-video" controls style="max-width: 320px; display:none;"></video>
+                        </div>
+                    </div>
+                </div>
+                <div class = "nav-buttons">
+                    <button type="button" id="btn-next-0" class="start-btn">Next →</button>
                 </div>
             </div>
-        </div>
+            
+        </section>
         <!-- Ingredients Section -->
-        <div class="grid-container">
-            <div class="one-column-container">
+         <section id="step-1" data-step="1" class="hidden">
+            <div class="grid-container">
                 <div class="group-container">
                     <div id="ingredients-list">
-                        <div class="group-ingredient-container">
-                            <h3>Ingredient #1</h3>
-                            <div>
-                                <b>Ingredient:</b>
-                                <input id="ingredient-name" name="ingredient-name" type="text" required placeholder="e.g. Chocolate Chips">
-                            </div>
-                            <div>
-                                <b>Unit of Measurement:</b>
-                                <select>
-                                    <option value=""></option>
-                                    <option value="tsp">tsp</option>
-                                    <option value="tbsp">tbsp</option>
-                                    <option value="cup">cup</option>
-                                    <option value="oz">oz</option>
-                                    <option value="lb">lb</option>
-                                </select>
-                            </div>
-                            <div>
-                                <b>Quantity:</b>
-                                <input id="quantity-input" type="number" step="0.25" placeholder="1"> <!-- NOTE: Change depending on unit measurment-->
-                            </div>
+                        <h3>Ingredient #1</h3>
+                        <div>
+                            <b>Ingredient:</b>
+                            <input id="ingredient-name" name="ingredient-name" type="text" placeholder="e.g. Chocolate Chips">
+                        </div>
+                        <div>
+                            <b>Unit of Measurement:</b>
+                            <select>
+                                <option value=""></option>
+                                <option value="tsp">tsp</option>
+                                <option value="tbsp">tbsp</option>
+                                <option value="cup">cup</option>
+                                <option value="oz">oz</option>
+                                <option value="lb">lb</option>
+                            </select>
+                        </div>
+                        <div>
+                            <b>Quantity:</b>
+                            <input id="quantity-input" type="number" step="0.25" placeholder="1"> <!-- NOTE: Change depending on unit measurment-->
                         </div>
                         <!-- Ingredients will be added here dynamically -->
                         <button type="button" id="add-ingredient" class="start-btn">+ Add New Ingredient</button>
                     </div>
                 </div>
+                <div class = "nav-buttons">
+                    <button type="button" id="btn-back-1" class="start-btn">← Back</button>
+                    <button type="button" id="btn-next-1" class="start-btn">Next →</button>
+                </div>
             </div>
-        </div>
-
-        <div class="grid-container">
-            <h2>Instructions</h2>
-            <div class="two-column-container">
+        </section>
+        <!-- Instructions Section -->
+        <section id="step-2" data-step="2" class="hidden">
+            <div class="grid-container">
                 <div class="group-container">
-                    <div class="recipe-step-container">
-                        <!-- <div class="step-counter">1</div> -->
-                        <h3>Step 1</h3>
+                    <h3>Instructions for Step 1</h3>
+                    <div>
+                        <b>Step Description:</b>
+                        <textarea></textarea>
+                    </div>
+                    
                         <div>
-                            <b>Instructions for this step:</b>
-                            <textarea></textarea>
+                        <b>Image of Step (Optional):</b>
+                        <input type="file" accept=".png, .jpg, .jpeg">
+                        <!-- <img> -->
                         </div>
                         
-                         <div>
-                            <b>Image of Step (Optional):</b>
-                            <input type="file" accept=".png, .jpg, .jpeg">
-                            <!-- <img> -->
-                         </div>
-                         
-                         <div>
-                            <b>Estimated Time:</b>
-                            <div>
-                                <b>Hours:</b>
-                                <input type="number" class="input-time" min="0" placeholder="0">
-                                <b>Minutes:</b>
-                                <input type="number" class="input-time" min="1" placeholder="1">
-                            </div>
-                         </div>
-                    </div>
+                        <div>
+                        <b>Estimated Time:</b>
+                        <div>
+                            <b>Hours:</b>
+                            <input type="number" class="input-time" min="0" placeholder="0">
+                            <b>Minutes:</b>
+                            <input type="number" class="input-time" min="1" placeholder="1">
+                        </div>
+                        </div>
+                    <button type="button" id="add-step" class="start-btn">+ Add New Step</button>
                 </div>
-                <div class="group-container">
-                    <div id="add-new-item-container">
-                        <img src="../img/Icon_circle_Plus_white.svg">
-                        <!-- <h3>Add New Step</h3> -->
-                    </div>
+                <div class="nav-buttons">
+                    <button type="button" id="btn-back-2" class="start-btn">← Back</button>
                 </div>
             </div>
-        </div>
+        </section>
 
         <div id="button-container">
             <button id="cancel-button">Cancel</button>
             <button id="submit-button">Submit</button>
         </div>
     </main>
+    </form>
+    <script src="../js/create-recipe.js" defer></script>
 </body>
 </html>

@@ -16,7 +16,6 @@
     display: grid;
     flex: 1 1 auto;
     grid-template-columns: repeat(3, 1fr);
-    background-color: white;
     width: 90%;
     height: fit-content;
     margin-bottom: 20px;
@@ -38,7 +37,6 @@
     display: flex;
     width: 100%;
     height: 100px;
-    background-color: whitesmoke;
     justify-content: space-around;
     align-items: center;
     margin: 20px 0;  /* Changed */
@@ -70,7 +68,6 @@
     display: grid;
     flex: 1 1 auto;
     grid-template-columns: repeat(2, 1fr);
-    background-color: white;
     width: 90%;
     height: fit-content;
     margin-bottom: 20px;
@@ -80,7 +77,6 @@
     display: grid;
     flex: 1 1 auto;
     grid-template-columns: repeat(1, 1fr);
-    background-color: white;
     width: 90%;
     height: fit-content;
     margin-bottom: 20px;
@@ -93,43 +89,14 @@
     align-items: center;
     margin: 20px;
     border-radius: 10px;
-    border: gray solid 3px;
-    background-color: azure;
-    height: auto;
-    overflow-y: auto;
-}
-.group-container * {
-    margin: 15px
-}
-
-
-
-.group-ingredient-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 20px;
-    border-radius: 10px;
     border: rgb(0, 0, 0) solid 3px;
     background-color: rgb(255, 249, 196);
     height: auto;
     /* aspect-ratio: 1 / 1; */
     overflow-y: auto;
 }
-
-.recipe-step-container {
-    /* display: flex; */
-    /* flex-direction: column; */
-
-    overflow-y: auto;
-    
-    /* align-content: center; */
-}
-
-.recipe-step-container img {
-    width: 90%;
-    aspect-ratio: 1 / 1;
-    border-radius: 5px;
+.group-container * {
+    margin: 15px
 }
 
 #add-new-item-container {
@@ -151,8 +118,7 @@
 h1 {
     width: fit-content;
     padding: 5px 15px;
-    border: rgb(108, 145, 191) solid 4px;
-    background-color: white;
+    border: #79B473 solid 4px;
     justify-self: center;
     border-radius: 30px;
     margin: 0 auto; 
@@ -218,6 +184,14 @@ h3 {
     font-size: 0.9rem;             /* scale text */
     border-radius: 6px;   
 }
+.nav-buttons {
+  display: grid;
+  grid-template-columns: auto auto; /* two buttons side by side */
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
 
 .column {
     display: flex;
@@ -253,6 +227,7 @@ select {
     border-radius: 20px;
     padding: 20px;
     border:black solid 2px;
+    background-color: rgb(255, 249, 196)
 }
 
 input, textarea {

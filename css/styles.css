@@ -31,7 +31,7 @@ header button {
 h1 {
     width: fit-content;
     padding: 5px 15px;
-    border: rgb(108, 145, 191) solid 4px;
+    border: #79B473 solid 4px;
     justify-self: center;
     border-radius: 30px;
 }
