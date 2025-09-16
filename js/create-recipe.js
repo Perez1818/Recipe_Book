@@ -1,4 +1,4 @@
-/* So far this just controls the visibility of the different steps in the recipe creation process - Stef 09/14/2025*/
+/* Logic for the wizard steps - Stef 09/14/2025*/
 document.addEventListener('DOMContentLoaded', () => {
     const DEFAULT_PEEK = false;
     const DEV_BLOCK_SUBMIT = true; //for block form submission for development/testing
@@ -100,7 +100,54 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(t._hide);
         t._hide = setTimeout(() => { t.style.display = 'none'; }, 1500);
     }
+    // +++ Ingredient Pill Logic +++ //
+    let nextGoesLeft = true; // alternate left/right columns each time
 
-    // init
+    const leftRail    = document.getElementById('ingredient-rail-left');
+    const rightRail   = document.getElementById('ingredient-rail-right');
+    const addBtn     = document.getElementById('add-ingredient');
+
+    addBtn?.addEventListener('click', () => {
+    const nameEl = document.getElementById('ingredient-name');
+    const qtyEl  = document.getElementById('quantity-input');
+    const unitEl = document.getElementById('ingredient-unit');
+
+    const name = nameEl.value.trim();
+    const qty  = qtyEl.value.trim();
+    const unit = unitEl.value;
+
+    if (!name) { alert('Please enter an ingredient name.'); return; }
+
+    const label = `${name}${qty ? ` (${qty} ${unit || ""})` : ""}`;
+
+    const pill = document.createElement('div');
+    pill.className = 'pill';
+    pill.innerHTML = `
+        <span>${label}</span>
+        <button type="button" class="remove" aria-label="Remove ingredient">✕</button>
+    `;
+
+    // click pill to edit
+    pill.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove')) return;
+        nameEl.value = name; qtyEl.value = qty; unitEl.value = unit;
+    });
+
+    // remove pill 
+    pill.querySelector('.remove')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        pill.remove();
+    });
+
+    // appends to alternating columns
+    (nextGoesLeft ? leftRail : rightRail)?.appendChild(pill);
+    nextGoesLeft = !nextGoesLeft;
+
+    // clear ingredient editor
+    nameEl.value = ''; qtyEl.value = ''; unitEl.value = '';
+    });
+
     applyVisibility();
+
+
 });

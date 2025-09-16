@@ -9,9 +9,9 @@
     <style>
         .hidden {display: none;}
         .wizard-progress{display:flex; gap:8px; align-items:center; justify-content:center; margin: 10px 0 20px;}
-        .pill {padding:4px 10px; border-radius:20px; background-color:lightgray; color:black; font-weight:bold;}
-        .pill.active {background-color:#79B473; color:white;}
-        .pill.done {background-color:gray; color:white;}
+        .wizard-pill {padding:4px 10px; border-radius:20px; background-color:lightgray; color:black; font-weight:bold;}
+        .wizard-pill.active {background-color:#79B473; color:white;}
+        .wizard-pill.done {background-color:gray; color:white;}
     </style>
 </head>
 <body>
@@ -33,9 +33,9 @@
         <h1>Recipe Post Maker</h1>
         <!-- progress pills-->
          <div class="wizard-progress" aria-live="polite">
-            <span class="pill" data-pill="0">1. Overview</span>
-            <span class="pill" data-pill="1">2. Ingredients</span>
-            <span class="pill" data-pill="2">3. Instructions</span>
+            <span class="wizard-pill" data-pill="0">1. Overview</span>
+            <span class="wizard-pill" data-pill="1">2. Ingredients</span>
+            <span class="wizard-pill" data-pill="2">3. Instructions</span>
          </div>
         <!-- Step 1: Recipe Overview Section -->
         <section id="step-0" data-step="0">
@@ -74,40 +74,54 @@
             
         </section>
         <!-- Ingredients Section -->
-         <section id="step-1" data-step="1" class="hidden">
-            <div class="grid-container">
-                <div class="group-container">
-                    <div id="ingredients-list">
-                        <h3>Ingredient #1</h3>
+        <section id="step-1" data-step="1" class="hidden">
+            <div class="grid-container ingredients-layout">
+
+                <!-- fills top→bottom -->
+                <div id="ingredient-rail-left" class="pill-rail"></div>
+
+                <!-- middle -->
+                    <div class="group-container">
+                        <div id="ingredients-list">
+                            <h3>Ingredient Editor</h3>
+
                         <div>
-                            <b>Ingredient:</b>
-                            <input id="ingredient-name" name="ingredient-name" type="text" placeholder="e.g. Chocolate Chips">
-                        </div>
-                        <div>
-                            <b>Unit of Measurement:</b>
-                            <select>
-                                <option value=""></option>
-                                <option value="tsp">tsp</option>
-                                <option value="tbsp">tbsp</option>
-                                <option value="cup">cup</option>
-                                <option value="oz">oz</option>
-                                <option value="lb">lb</option>
-                            </select>
-                        </div>
-                        <div>
-                            <b>Quantity:</b>
-                            <input id="quantity-input" type="number" step="0.25" placeholder="1"> <!-- NOTE: Change depending on unit measurment-->
-                        </div>
-                        <!-- Ingredients will be added here dynamically -->
-                        <button type="button" id="add-ingredient" class="start-btn">+ Add New Ingredient</button>
+                        <b>Ingredient:</b>
+                        <input id="ingredient-name" name="ingredient-name" type="text" placeholder="e.g. Chocolate Chips">
                     </div>
-                </div>
-                <div class = "nav-buttons">
-                    <button type="button" id="btn-back-1" class="start-btn">← Back</button>
-                    <button type="button" id="btn-next-1" class="start-btn">Next →</button>
+
+                    <div>
+                        <b>Unit of Measurement:</b>
+                        <select id="ingredient-unit">
+                            <option value=""></option>
+                            <option value="tsp">tsp</option>
+                            <option value="tbsp">tbsp</option>
+                            <option value="cup">cup</option>
+                            <option value="oz">oz</option>
+                            <option value="lb">lb</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <b>Quantity:</b>
+                        <input id="quantity-input" type="number" step="0.25" placeholder="1">
+                    </div>
+
+                    <!-- Add button stays inside the editor -->
+                    <button type="button" id="add-ingredient" class="start-btn">+ Add New Ingredient</button>
                 </div>
             </div>
+
+            <!-- fills top→bottom-->
+            <div id="ingredient-rail-right" class="pill-rail"></div>
+
+            <!-- NAV BUTTONS -->
+            <div class="nav-buttons" style="grid-column: 1 / -1;">
+                <button type="button" id="btn-back-1" class="start-btn">← Back</button>
+                <button type="button" id="btn-next-1" class="start-btn">Next →</button>
+            </div>
         </section>
+
         <!-- Instructions Section -->
         <section id="step-2" data-step="2" class="hidden">
             <div class="grid-container">
