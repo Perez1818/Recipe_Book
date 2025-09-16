@@ -89,6 +89,22 @@ function getIngredients(recipe) {
     return {ingredients, measurements}
 }
 
+function renderIngredients(ingredients, measurements) {
+    ingredientListElement.innerHTML = ""; //clear any existing items
+    for (let i = 0; i < ingredients.length; i++) {
+        const ingredient = ingredients[i];
+        const measurement = measurements[i];
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <label>
+                <input type="checkbox" class="ingredient-checkbox" data-cups="${measurement} ${ingredient}" data-grams="${measurement} ${ingredient}">
+                <span>${measurement} ${ingredient}</span>
+            </label>
+        `;
+        ingredientListElement.appendChild(li);
+    }
+}
+
 async function fillRecipeViewPage() {
     const recipe = await searchForRecipe();
     recipeName.textContent = recipe["strMeal"]
@@ -99,6 +115,7 @@ async function fillRecipeViewPage() {
     videoElement.setAttribute("src", `https://www.youtube.com/embed/${tutorialVideoId}`)
     instructionsTextElement.textContent = instructions[0];
     let {ingredients, measurements} = getIngredients(recipe);
+    renderIngredients(ingredients, measurements);
     return { instructions }
 }
 
