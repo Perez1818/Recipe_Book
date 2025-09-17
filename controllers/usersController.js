@@ -1,4 +1,4 @@
-const db = require("../database/query.js");
+const usersTable = require("../database/usersTable.js");
 const { validate, validationResult } = require("../middleware/formValidation.js");
 const { passport } = require("../middleware/passport.js");
 
@@ -9,7 +9,7 @@ exports.getIndex = (request, response) => {
 };
 
 exports.getUsers = async (request, response) => {
-    const users = await db.getAllUsers();
+    const users = await usersTable.getAllUsers();
     response.render("users", { users : users });
 };
 
@@ -49,7 +49,7 @@ exports.signUpUser = [
             response.render("signup", { errorMessages: errorMessages });
         }
         else {
-            const userCreated = await db.createUser(request.body.username, request.body.email, request.body.password);
+            const userCreated = await usersTable.createUser(request.body.username, request.body.email, request.body.password);
             if (userCreated) {
                 response.redirect("/");
             }

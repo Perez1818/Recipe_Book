@@ -1,4 +1,4 @@
-const db = require("../database/query.js");
+const usersTable = require("../database/usersTable.js");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 
@@ -6,13 +6,13 @@ function configurePassport() {
     passport.use(
         new LocalStrategy(async (username, password, done) => {
             try {
-                const user = await db.getUserByNameOrEmail(username);
+                const user = await usersTable.getUserByNameOrEmail(username);
 
                 if (!user) {
                   return done(null, false, { message: "Incorrect username" });
                 }
 
-                const passwordsMatch = await db.comparePasswords(password, user.password);
+                const passwordsMatch = await usersTable.comparePasswords(password, user.password);
                 if (!passwordsMatch) {
                   return done(null, false, { message: "Incorrect password" });
                 }
@@ -31,7 +31,7 @@ function configurePassport() {
 
     passport.deserializeUser(async (id, done) => {
         try {
-            const user = await db.getUserById(id);
+            const user = await usersTable.getUserById(id);
             done(null, user);
         }
         catch(error) {
