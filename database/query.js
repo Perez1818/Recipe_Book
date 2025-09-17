@@ -38,16 +38,33 @@ async function createUser(username, email, password) {
     }
 }
 
+async function getAllUsers() {
+    const { rows } = await pool.query("SELECT * FROM users");
+    return rows;
+}
+
 async function comparePasswords(plaintextPassword, hashedPassword) {
     return await bcrypt.compare(plaintextPassword, hashedPassword);
 }
 
-/* TODO: Potentially avoid listing all exports manually
+async function getAllRecipes() {
+    const { rows } = await pool.query("SELECT * FROM recipes");
+    return rows;
+}
+
+async function createRecipe(name, description, ingredients, cookTime, tags) {
+    await pool.query(`INSERT INTO RECIPES (NAME, DESCRIPTION, INGREDIENTS, COOK_TIME, TAGS) VALUES ($1, $2, $3, $4, $5)`, [name, description, ingredients, cookTime, tags]);
+}
+
+/* Avoid listing all exports manually
  */
 module.exports = {
     pool,
     getUserByNameOrEmail,
     getUserById,
     createUser,
-    comparePasswords
+    getAllUsers,
+    comparePasswords,
+
+    getAllRecipes
 }

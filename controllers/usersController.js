@@ -9,8 +9,8 @@ exports.getIndex = (request, response) => {
 };
 
 exports.getUsers = async (request, response) => {
-    const result = await db.pool.query("SELECT * FROM users");
-    response.render("users", { users : result.rows });
+    const users = await db.getAllUsers();
+    response.render("users", { users : users });
 };
 
 exports.getSignUp = async (request, response) => {
