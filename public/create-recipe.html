@@ -109,6 +109,8 @@
 
                     <!-- Add button stays inside the editor -->
                     <button type="button" id="add-ingredient" class="start-btn">+ Add New Ingredient</button>
+                    <!--cancel/edit button-->
+                    <button type="button" id="cancel-edit" class="start-btn hidden">Cancel Edit</button>
                 </div>
             </div>
 
@@ -122,38 +124,57 @@
             </div>
         </section>
 
-        <!-- Instructions Section -->
+       <!-- Instructions Section -->
         <section id="step-2" data-step="2" class="hidden">
-            <div class="grid-container">
+            <div class="grid-container ingredients-layout"><!-- reuse same 3-col layout -->
+
+                <!-- LEFT RAIL -->
+                <div id="instruction-rail-left" class="pill-rail"></div>
+
+                <!-- MIDDLE: EDITOR CARD -->
                 <div class="group-container">
-                    <h3>Instructions for Step 1</h3>
+                    <h3>Instruction Editor</h3>
+
                     <div>
                         <b>Step Description:</b>
-                        <textarea></textarea>
+                        <textarea id="instruction-text"></textarea>
                     </div>
-                    
-                        <div>
+
+                    <div>
                         <b>Image of Step (Optional):</b>
-                        <input type="file" accept=".png, .jpg, .jpeg">
-                        <!-- <img> -->
+                        <input id="instruction-image" type="file" accept=".png, .jpg, .jpeg">
+                        <div id="instruction-preview" class="thumb-wrapper hidden">
+                            <img id="instruction-image-preview" class="instr-thumb" alt="Step preview">
+                            <button type="button" id="remove-instruction-image" class="thumb-remove">✕</button>
                         </div>
-                        
-                        <div>
+                    </div>
+
+                    <div>
                         <b>Estimated Time:</b>
                         <div>
                             <b>Hours:</b>
-                            <input type="number" class="input-time" min="0" placeholder="0">
+                            <input id="instruction-hours" type="number" class="input-time" min="0" placeholder="0">
                             <b>Minutes:</b>
-                            <input type="number" class="input-time" min="1" placeholder="1">
+                            <input id="instruction-minutes" type="number" class="input-time" min="0" placeholder="0">
                         </div>
-                        </div>
-                    <button type="button" id="add-step" class="start-btn">+ Add New Step</button>
+                    </div>
+
+                    <!-- Buttons (outside the small time div) -->
+                    <button type="button" id="add-instruction" class="start-btn">+ Add New Step</button>
+                    <button type="button" id="cancel-instruction-edit" class="start-btn hidden">Cancel Edit</button>
                 </div>
-                <div class="nav-buttons">
+
+                <!-- RIGHT RAIL -->
+                <div id="instruction-rail-right" class="pill-rail"></div>
+
+                <!-- NAV -->
+                <div class="nav-buttons" style="grid-column: 1 / -1;">
                     <button type="button" id="btn-back-2" class="start-btn">← Back</button>
                 </div>
+
             </div>
         </section>
+
 
         <div id="button-container">
             <button id="cancel-button">Cancel</button>
