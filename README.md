@@ -8,6 +8,7 @@
 - Passport (passport)
 - Passport Local Strategy (passport-local)
 - Bcrypt (bcryptjs)
+- Connect PG Simple (connect-pg-simple)
 - Multer (multer)
 - Mime Types (mime-types)
 
