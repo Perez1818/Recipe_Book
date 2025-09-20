@@ -1,9 +1,26 @@
 
-const recipeContainers = document.getElementsByClassName("recipe-container");
-const recipeContainersArray = Array.from(recipeContainers);
-const bookmarks = Array.from(document.getElementsByClassName("bookmark-recipe-icon"));
-const carousels = Array.from(document.getElementsByClassName("carousel-container"));
-let bookmarkedRecipes = {};
+// const recipeContainers = document.getElementsByClassName("recipe-container");
+// const recipeContainersArray = Array.from(recipeContainers);
+// const bookmarks = Array.from(document.getElementsByClassName("bookmark-recipe-icon"));
+// const carousels = Array.from(document.getElementsByClassName("carousel-container"));
+const initialCarousel = document.getElementById("trending-container");
+const mainElement = document.getElementsByTagName("main")[0];
+
+const viewedRecipeTags = JSON.parse(localStorage.getItem("recipeTags"));
+
+async function createNewCarousel(lookupMethod, filter) {
+    clonedContainer = initialCarousel.cloneNode(true);
+    clonedContainer.setAttribute("id", `${filter.toLowerCase()}-recipe-container`)
+    clonedContainer.dataset.lookupMethod = lookupMethod;
+    clonedContainer.dataset.filter = filter;
+
+    let heading1 = clonedContainer.getElementsByTagName("h2")[0];
+    heading1.textContent = `Because You Recently Viewed a ${filter} Recipe`;
+    mainElement.append(clonedContainer)
+    await renderCarousel(clonedContainer, lookupMethod=lookupMethod, filter=filter);
+}
+
+let bookmarkedRecipes = JSON.parse(localStorage.getItem("bookmarkedRecipes")) || {};
 
 async function listPublisher(url, recipeContainer) {
     if (!url) {
@@ -21,20 +38,29 @@ async function listPublisher(url, recipeContainer) {
     username = recipeContainer.getElementsByClassName("username")[0];
     username.textContent = `@${domainName}`;
     username.href = `public-account.html?user=${domainName}`;
-    console.log(username.href)
 }
 
-function addVisibleRecipesFromCarousel(carousel){
+function addVisibleRecipesFromCarousel(carousel) {
     const recipeContainerChildren = getCarouselRecipeContainerObjs(carousel);
-    seenRecipes = JSON.parse(carousel.dataset.seenRecipes);
-    recipeContainerChildren.forEach(
-        (recipeContainer) => {
-            const id = JSON.parse(recipeContainer.dataset.recipeId);
+
+    // Initialize empty array if not already set
+    let seenRecipes = [];
+    try {
+        seenRecipes = JSON.parse(carousel.dataset.seenRecipes) || [];
+    } catch {
+        seenRecipes = [];
+    }
+
+    recipeContainerChildren.forEach((recipeContainer) => {
+        const id = JSON.parse(recipeContainer.dataset.recipeId);
+        if (!seenRecipes.includes(id)) {
             seenRecipes.push(id);
         }
-    )
+    });
+
     carousel.dataset.seenRecipes = JSON.stringify(seenRecipes);
 }
+
 
 function addVisibleRecipesFromRecipeContainer(recipeContainer){
     parentCarousel = recipeContainer.closest(".carousel-container");
@@ -53,11 +79,46 @@ async function fetchRecipe(){
     return data['meals'][0];
 }
 
+async function fetchRecipesByCategory(category){
+    const response = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?c=${category}`);
+    if (!response.ok){
+        throw "Error occurred fetching data";
+    }
+    const data = await response.json();
+    return data['meals'];
+}
+
+async function fetchRecipesByCuisine(cuisine) {
+    const response = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?a=${cuisine}`);
+    if (!response.ok) {
+        throw "Error occurred fetching data";
+    }
+    const data = await response.json();
+    return data["meals"];
+}
+
 async function setRecipeContainer(recipe, recipeContainer) {
-    const { recipeName, recipeThumbnail, recipeId, recipeIngredients, recipeOrigin } = initializeRecipeVariables(recipe);
+    const { recipeName,
+        recipeThumbnail,
+        recipeId,
+        recipeIngredients,
+        recipeOrigin,
+        recipeCategory,
+        recipeCusine } = initializeRecipeVariables(recipe);
+            
     recipeContainer.dataset.recipeId = JSON.stringify(recipeId);
 
     recipeContainer.onclick = () => {
+        const recipeTags = {
+            category: recipeCategory,
+            cuisine: recipeCusine
+        }
+
+        // Prevents "undefined recipes" from being displayed
+        if (recipeCategory && recipeCusine) {
+            localStorage.setItem("recipeTags", JSON.stringify(recipeTags));
+        }
+
         window.location.href = `recipe-view.html?id=${recipeId}`;
     }
 
@@ -93,16 +154,21 @@ function initializeRecipeVariables(recipe){
     recipeId = recipe["idMeal"];
     recipeIngredients = getIngredientsList(recipe);
     recipeOrigin = recipe["strSource"];
+    recipeCategory = recipe["strCategory"];
+    recipeCusine = recipe["strArea"];
     return {
         recipeName,
         recipeThumbnail,
         recipeId,
         recipeIngredients,
-        recipeOrigin
+        recipeOrigin,
+        recipeCategory,
+        recipeCusine
     }
 }
 
 async function renderAllCarousels(){
+    const carousels = Array.from(document.getElementsByClassName("carousel-container"));
     for (let carousel of carousels) {
         carousel.dataset.seenRecipes = JSON.stringify([]);
         await renderCarousel(carousel);
@@ -128,16 +194,50 @@ function checkBookmarked(recipe, recipeContainer) {
     );
 }
 
-async function renderCarousel(carousel){
-    carouselRecipeContainers = getCarouselRecipeContainerObjs(carousel);
-    for (let recipeContainer of carouselRecipeContainers) {
-        let recipe = await fetchRecipe();
-        setRecipeContainer(recipe, recipeContainer);
-        checkBookmarked(recipe, recipeContainer);
-        // addVisibleRecipesFromRecipeContainer(recipeContainer);
+async function renderCarousel(carousel, lookupMethod=null, filter=null){
+    const carouselRecipeContainers = getCarouselRecipeContainerObjs(carousel);
+    const startIndex = carousel.sliderIndex || 0;
+    const batchSize = carouselRecipeContainers.length;
+
+    if (!lookupMethod) {
+        for (let recipeContainer of carouselRecipeContainers) {
+            const recipe = await fetchRecipe();
+            await setRecipeContainer(recipe, recipeContainer);
+            checkBookmarked(recipe, recipeContainer);
+        }
+    } else {
+        if (!filter) return;
+
+        let recipes;
+        if (lookupMethod === "category") {
+            recipes = await fetchRecipesByCategory(filter);
+        } else if (lookupMethod === "cuisine") {
+            recipes = await fetchRecipesByCuisine(filter);
+        } else {
+            throw "Unknown lookup method";
+        }
+
+        const recipeIds = recipes.map(r => r.idMeal);
+        carousel.dataset.seenRecipes = JSON.stringify(recipeIds);
+
+        const slice = recipes.slice(startIndex, startIndex + batchSize);
+
+        for (let [index, recipeContainer] of carouselRecipeContainers.entries()) {
+            const recipe = slice[index];
+            if (!recipe) {
+                let [_, rightButton] = carousel.getElementsByClassName("carousel-button");
+                rightButton.disabled = true;
+                continue;
+            }
+
+            const fullRecipe = await searchForRecipe(recipe.idMeal);
+            await setRecipeContainer(fullRecipe, recipeContainer);
+            checkBookmarked(fullRecipe, recipeContainer);
+        }
     }
     addVisibleRecipesFromCarousel(carousel);
 }
+
 
 async function renderCarouselWithOldElements(carousel, recipeIds){
     carouselRecipeContainers = getCarouselRecipeContainerObjs(carousel);
@@ -163,6 +263,7 @@ function getNumColumns(){
 }
 
 function findCarouselByCarouselIndex(carouselIndex){
+    const carousels = Array.from(document.getElementsByClassName("carousel-container"));
     const carouselReference = carousels[carouselIndex];
     return carouselReference;
 }
@@ -197,6 +298,23 @@ async function searchForRecipe(recipeId){
 async function main() {
     await renderAllCarousels();
 
+    let initialCarousels = Array.from(document.getElementsByClassName("carousel-container"));
+
+    // Initialize sliderIndex and maxSliderIndex for all carousels
+    initialCarousels.forEach(carousel => {
+        carousel.sliderIndex = 0;
+        carousel.maxSliderIndex = getCarouselRecipeContainerObjs(carousel).length; // number of visible recipe containers
+    });
+
+    if (viewedRecipeTags) {
+        await createNewCarousel("category", viewedRecipeTags.category);
+        await createNewCarousel("cuisine", viewedRecipeTags.cuisine);
+    }
+    
+    const carousels = Array.from(document.getElementsByClassName("carousel-container"));
+    const recipeContainers = document.getElementsByClassName("recipe-container");
+    const recipeContainersArray = Array.from(recipeContainers);
+
     recipeContainersArray.forEach(
         (recipeContainer) => {
             recipeContainer.addEventListener("mouseover", () => {
@@ -211,6 +329,8 @@ async function main() {
         }
     );
 
+    const bookmarks = Array.from(document.getElementsByClassName("bookmark-recipe-icon"));
+
     bookmarks.forEach(
         (bookmark) => {
             bookmark.addEventListener("mouseenter", () => {
@@ -224,70 +344,91 @@ async function main() {
             });
             
             bookmark.addEventListener(
-            "click", (event) => {
-                event.stopPropagation(); // Prevents recipeContainer from being clicked
-                bookmark.setAttribute("fill", "#E34234");
-                bookmark.classList.toggle("bookmarked");
+                "click", (event) => {
+                    event.stopPropagation(); // Prevents recipeContainer from being clicked
+                    bookmark.setAttribute("fill", "#E34234");
+                    bookmark.classList.toggle("bookmarked");
 
-                parentRecipeContainer = bookmark.closest(".recipe-container");
-                recipeId = JSON.parse(parentRecipeContainer.dataset.recipeId);
-                if (recipeId in bookmarkedRecipes) {
-                    delete bookmarkedRecipes[recipeId];
+                    const parentRecipeContainer = bookmark.closest(".recipe-container");
+                    const recipeId = JSON.parse(parentRecipeContainer.dataset.recipeId);
+
+                    if (bookmarkedRecipes[recipeId]) {
+                        delete bookmarkedRecipes[recipeId];
+                        localStorage.setItem("bookmarkedRecipes", JSON.stringify(bookmarkedRecipes));
+                    }
+                    else {
+                        bookmarkedRecipes[recipeId] = true;
+                        localStorage.setItem("bookmarkedRecipes", JSON.stringify(bookmarkedRecipes));
+                    }
                 }
-                else {
-                    bookmarkedRecipes[recipeId] = true;
-                }
-            });
+            );
         }
     );
 
-    for (let i = 0; i < carousels.length; i++){
-        let currentCarousel = carousels[i];
-        let [ leftButton, rightButton ] = currentCarousel.getElementsByClassName("carousel-button");
-        [ leftButton.parentCarousel, rightButton.parentCarousel ] = [ currentCarousel, currentCarousel ];
+    for (let i = 0; i < carousels.length; i++) {
+        const carousel = carousels[i];
+        const [leftButton, rightButton] = carousel.getElementsByClassName("carousel-button");
+        leftButton.parentCarousel = carousel;
+        rightButton.parentCarousel = carousel;
         rightButton.siblingButton = leftButton;
-        currentCarousel.sliderIndex = 0;
-        currentCarousel.maxSliderIndex = 0;
+
+        const batchSize = getCarouselRecipeContainerObjs(carousel).length;
+        carousel.sliderIndex = 0;
+        carousel.maxSliderIndex = 0;
 
         leftButton.addEventListener("click", async () => {
             leftButton.disabled = true;
             currentCarousel = leftButton.parentCarousel;
-            endingIndex = currentCarousel.sliderIndex;
-            startingIndex = endingIndex - 3;
-            seenRecipeIds = JSON.parse(currentCarousel.dataset.seenRecipes);
-            relevantRecipeIds = seenRecipeIds.slice(startingIndex, endingIndex);
 
+            // decrement index first
+            currentCarousel.sliderIndex -= 3;
+            if (currentCarousel.sliderIndex < 0) currentCarousel.sliderIndex = 0;
+
+            const seenRecipeIds = JSON.parse(currentCarousel.dataset.seenRecipes);
+            const startingIndex = currentCarousel.sliderIndex;
+            const endingIndex = startingIndex + 3;
+            const relevantRecipeIds = seenRecipeIds.slice(startingIndex, endingIndex);
             await renderCarouselWithOldElements(currentCarousel, relevantRecipeIds);
 
-            currentCarousel.sliderIndex -= 3;
-
-            if (currentCarousel.sliderIndex != 0){
-                leftButton.disabled = false;
-            }
+            // Enable/disable buttons
+            leftButton.disabled = currentCarousel.sliderIndex <= 0;
+            rightButton.disabled = currentCarousel.sliderIndex + 3 >= seenRecipeIds.length;
         });
 
         rightButton.addEventListener("click", async () => {
             rightButton.disabled = true;
             currentCarousel = rightButton.parentCarousel;
             rightButton.siblingButton.disabled = false;
-            // To render new elements
-            if(currentCarousel.sliderIndex >= currentCarousel.maxSliderIndex){
-                await renderCarousel(currentCarousel);
-            }
-            // To render old elements
-            else {
-                startingIndex = currentCarousel.sliderIndex + 3;
-                endingIndex = startingIndex + 3;
-                seenRecipeIds = JSON.parse(currentCarousel.dataset.seenRecipes);
-                relevantRecipeIds = seenRecipeIds.slice(startingIndex, endingIndex);
 
+            // increment index first
+            currentCarousel.sliderIndex += 3;
+
+            const seenRecipeIds = JSON.parse(currentCarousel.dataset.seenRecipes);
+            const totalRecipes = seenRecipeIds.length;
+
+            // If we need to fetch/render new recipes
+            if (currentCarousel.sliderIndex >= currentCarousel.maxSliderIndex) {
+                await renderCarousel(currentCarousel, currentCarousel.dataset.lookupMethod, currentCarousel.dataset.filter);
+            } else {
+                const startingIndex = currentCarousel.sliderIndex;
+                const endingIndex = startingIndex + 3;
+                const relevantRecipeIds = seenRecipeIds.slice(startingIndex, endingIndex);
                 await renderCarouselWithOldElements(currentCarousel, relevantRecipeIds);
             }
-            currentCarousel.sliderIndex += 3;
+
+            // Update maxSliderIndex
             currentCarousel.maxSliderIndex = getMaxSliderIndex(currentCarousel);
+
+            // Disable right button if we've reached the end
+            if (currentCarousel.sliderIndex + 3 >= totalRecipes) rightButton.disabled = true;
+
+            // Left button should always be enabled if sliderIndex > 0
+            leftButton.disabled = currentCarousel.sliderIndex <= 0;
+
             rightButton.disabled = false;
         });
     }
+
 }
 
 main();
