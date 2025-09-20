@@ -8,6 +8,7 @@
 - Passport (passport)
 - Passport Local Strategy (passport-local)
 - Bcrypt (bcryptjs)
+- Multer (multer)
 
 # Setup
 Open Node.js command prompt and:
