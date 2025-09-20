@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recipe Walkthrough</title>
-    <link rel="stylesheet" href="css/recipe-view.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/styles.css">
+    <link defer rel="stylesheet" href="css/recipe-view.css">
+    <link defer rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link defer rel="stylesheet" href="css/styles.css">
     <script defer src="js/recipe-view.js"></script>
+    <script defer src="js/timer.js"></script>
 </head>
 <body>
     <header>
@@ -162,7 +163,7 @@
         <section>
             <hr class="divider">
             <h2>Video Tutorial</h2>
-            <iframe id="recipe-tutorial" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            <iframe id="recipe-tutorial"
             allowfullscreen></iframe>
             <p>
                 Lorem ipsum, dolor sit amet consectetur adipisicing elit. Velit molestiae, amet provident ratione sed omnis, aut, sunt incidunt veritatis at autem quia? Mollitia, ab veniam non laudantium error odio! Quam?
@@ -172,6 +173,8 @@
         <section>
             <hr class="divider">
             <h2>Walkthrough</h2>
+            <h3 id="countdown">5:00</h3>
+            <progress id="timer"></progress>
             <div class="two-column-container">
                 <div class="ingredient-card">
                     <h3>Ingredients</h3>
