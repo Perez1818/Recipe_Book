@@ -195,7 +195,7 @@ img, video {
     justify-content: center;
 }
 
-#intro-img {
+#recipe-thumbnail {
     display: flex;
     width: 600px;
     height: 400px;
@@ -366,8 +366,8 @@ img, video {
     border: black solid 3px;
 }
 
-.instructions {
-    margin: 20px 0 20px 20px;
+#instructions {
+    margin: 20px 0 20px 50px;
     height: 75%;
 }
 
