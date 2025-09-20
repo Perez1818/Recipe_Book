@@ -434,7 +434,6 @@ document.addEventListener('DOMContentLoaded', () => {
         unitEl.value = '';
         nameEl.focus();
     });
-
     // +++ Instructions Logic (ADD + EDIT + IMAGE) +++ //
     let instructionGoesLeft = true;
     let editingInstruction = null;
