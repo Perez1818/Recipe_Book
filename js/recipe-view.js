@@ -91,13 +91,13 @@ function getIngredients(recipe) {
 
 function renderIngredients(ingredients, measurements) {
     ingredientListElement.innerHTML = ""; //clear any existing items
-    for (let i = 0; i < ingredients.length; i++) {
+    for (let i = 0; i < ingredients.length; i++) { //for every ingredient the recipe has, put it into a checklist
         const ingredient = ingredients[i];
         const measurement = measurements[i];
         const li = document.createElement("li");
         li.innerHTML = `
             <label>
-                <input type="checkbox" class="ingredient-checkbox" data-cups="${measurement} ${ingredient}" data-grams="${measurement} ${ingredient}">
+                <input type="checkbox" class="ingredient-checkbox" data-original="${measurement} ${ingredient}">
                 <span>${measurement} ${ingredient}</span>
             </label>
         `;
@@ -169,6 +169,111 @@ async function main() {
             getPreviousStep.style.cursor = "pointer";
         }
     })
+
+    //dropdown for unit conversion
+    const ingredientCard = document.querySelector('.ingredient-card');
+    //source that helped: https://stackoverflow.com/a/23718863 (Credit to user named "nicael")
+    const dropdown = document.createElement('select');
+    dropdown.id = 'unit-conversion-dropdown';
+    dropdown.innerHTML = `
+        <option value="none">Select conversion</option>
+        <option value="oz-to-ml">Ounces to Milliliters</option>
+        <option value="ml-to-oz">Milliliters to Ounces</option>
+        <option value="cups-to-ml">Cups to Milliliters</option>
+        <option value="ml-to-cups">Milliliters to Cups</option>
+        <option value="tbsp-to-tsp">Tablespoons to Teaspoons</option>
+        <option value="tsp-to-tbsp">Teaspoons to Tablespoons</option>
+    `;
+    ingredientCard.insertBefore(dropdown, ingredientCard.firstChild.nextSibling); // after h3, before ol
+
+    // Conversion factors
+    const conversionFactors = {
+        'oz-to-ml': 29.5735, //https://www.inchcalculator.com/convert/fluid-ounce-to-milliliter/
+        'ml-to-oz': 1/29.5735,
+        'cups-to-ml': 236.588, //https://www.unitconverters.net/volume/cups-to-ml.htm
+        'ml-to-cups': 1/236.588,
+        'tbsp-to-tsp': 3, //https://www.inchcalculator.com/convert/tablespoon-to-teaspoon/
+        'tsp-to-tbsp': 1/3
+    };
+
+    function convertMeasurement(measurement, conversionType) {
+        //extract number and unit + source that helped: https://regexone.com/references/javascript
+        const regex = /([\d\.]+)\s*(oz|ounce|ounces|ml|milliliter|milliliters|cup|cups|tbsp|tbs\.?|tablespoon|tablespoons|T|tsp|tsp\.?|teaspoon|teaspoons|t)/i;
+        const match = measurement.match(regex);
+        if (!match) return measurement; //no conversion if no match
+        let value = parseFloat(match[1]); //the number
+        let unit = match[2].toLowerCase().replace(/\.$/, ""); //the unit + turning to lowercase and remove period at end if there is one
+        let convertedValue, convertedUnit;
+        switch(conversionType) { //https://www.w3schools.com/js/js_switch.asp
+            case 'oz-to-ml':
+                if (["oz","ounce","ounces"].includes(unit)) {
+                    convertedValue = value * conversionFactors[conversionType];
+                    convertedUnit = "ml";
+                }
+                break;
+            case 'ml-to-oz':
+                if (["ml","milliliter","milliliters"].includes(unit)) {
+                    convertedValue = value * conversionFactors[conversionType];
+                    convertedUnit = "oz";
+                }
+                break;
+            case 'cups-to-ml':
+                if (["cup","cups"].includes(unit)) {
+                    convertedValue = value * conversionFactors[conversionType];
+                    convertedUnit = "ml";
+                }
+                break;
+            case 'ml-to-cups':
+                if (["ml","milliliter","milliliters"].includes(unit)) {
+                    convertedValue = value * conversionFactors[conversionType];
+                    convertedUnit = "cups";
+                }
+                break;
+            case 'tbsp-to-tsp':
+                if (["tbsp", "tbs", "tablespoon","tablespoons"].includes(unit)) {
+                    convertedValue = value * conversionFactors[conversionType];
+                    convertedUnit = "tsp";
+                }
+                break;
+            case 'tsp-to-tbsp':
+                if (["tsp","teaspoon","teaspoons","t","tsp."].includes(unit)) {
+                    convertedValue = value * conversionFactors[conversionType];
+                    convertedUnit = "tbsp";
+                }
+                break;
+            default:
+                return measurement;
+        }
+        if (convertedValue !== undefined) {
+            return `${convertedValue.toFixed(2)} ${convertedUnit}`;
+        }
+        return measurement;
+    }
+
+    dropdown.addEventListener('change', function() {
+        const conversionType = this.value;
+        const ingredients = document.querySelectorAll('.ingredient-card ol li');
+        ingredients.forEach(li => {
+            const checkbox = li.querySelector('input.ingredient-checkbox');
+            const span = li.querySelector('span');
+            if (checkbox && span) {
+                const original = checkbox.getAttribute('data-original');
+                if (conversionType === 'none') {
+                    span.textContent = original;
+                } else {
+                    // Only convert the measurement part, keep ingredient name
+                    const parts = original.split(' ');
+                    if (parts.length >= 2) {
+                        const measurement = parts.slice(0,2).join(' ');
+                        const rest = parts.slice(2).join(' ');
+                        span.textContent = convertMeasurement(measurement, conversionType) + (rest ? ' ' + rest : '');
+                    } else {
+                        span.textContent = convertMeasurement(original, conversionType);
+                    }
+                }
+            }
+        });
+    });
 }
 
 main()

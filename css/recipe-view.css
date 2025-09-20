@@ -392,6 +392,13 @@ img, video {
   vertical-align: middle;
   margin-right: 8px;
 }
+
+/* https://stackoverflow.com/a/56928969 credit to user named Sumit Patel*/
+.ingredient-checkbox:checked + span {
+  text-decoration: line-through;
+  color: gray;
+}
+
 .ingredient-card label {
   display: flex;
   align-items: center;

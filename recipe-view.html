@@ -80,6 +80,7 @@
             <span id="publishing-date">Uploaded on on August 14, 2025</span>
         </span>
          <div class="rating-container">
+            <!-- source that helped: https://www.w3schools.com/howto/howto_css_star_rating.asp-->
             <span class="fa fa-star" data-r-value="1"></span>
             <span class="fa fa-star" data-r-value="2"></span>
             <span class="fa fa-star" data-r-value="3"></span>
@@ -179,9 +180,8 @@
                 <div class="ingredient-card">
                     <h3>Ingredients</h3>
                     <ol id="ingredient-list">
-                        <!-- Ingredients from recipe-view.js will appear here -->
+                        <!-- ingredients from recipe-view.js will appear here -->
                     </ol>
-                    <button id="toggle-units">Switch to grams</button> <!-- toggle button for switching units -->
                 </div>
                 <div class="card">
                     <div id="step-counter">1</div>
@@ -225,19 +225,7 @@
         </section>
     </main>
 
-    <script> // JavaScript for toggling between cups and grams + star ratings + like button
-        document.getElementById('toggle-units').addEventListener('click', function () {
-            const isCups = this.textContent.includes('grams');
-            const ingredients = document.querySelectorAll('.ingredient-card ol li');
-            ingredients.forEach(li => {
-                const checkbox = li.querySelector('input.ingredient-checkbox');
-                const span = li.querySelector('span');
-                if (checkbox && span) {
-                    span.textContent = isCups ? checkbox.getAttribute('data-grams') : checkbox.getAttribute('data-cups');
-                }
-            });
-            this.textContent = isCups ? 'Switch to cups' : 'Switch to grams';
-        });
+    <script> //javascript for star ratings + like button
 
         document.querySelectorAll('.rating-container .fa-star').forEach(star => {
             star.addEventListener('click', function() {
