@@ -3,11 +3,30 @@
     <head>
         <title>File Uploads</title>
         <meta charset="UTF-8">
+        <style>
+            * {
+                font-family: sans-serif;
+            }
+
+            .error {
+                color: red;
+            }
+
+            .avatar {
+                width: 150px;
+                height: 150px;
+                object-fit: cover;
+            }
+        </style>
     </head>
 
     <body>
+        <img src="<%= currentUser.avatar %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
+        <% if (locals.errorMessage) { %>
+            <div class="error"><%= errorMessage %></div>
+        <% } %>
+        <h1><%= currentUser.username %></h1>
         <form action="" method="post" enctype="multipart/form-data">
-            <img src="<%= avatarUrl %>">
             <input type="file" name="avatar">
             <button>Save</button>
         </form>

@@ -22,14 +22,17 @@ exports.getAvatarUpload = async (request, response) => {
     }
 }
 
-exports.uploadAvatar = [
-    uploadSingleAvatar,
-
-    async (request, response, next) => {
-        if (request.isAuthenticated() && request.file !== undefined) {
-            const avatarUrl = `/static/uploads/avatar/${request.file.filename}`;
-            usersTable.updateAvatar(request.user.id, avatarUrl);
+exports.uploadAvatar = async (request, response, next) => {
+    uploadSingleAvatar(request, response, async (error) => {
+        if (error) {
+            response.render("avatar", { errorMessage: error.message });
         }
-        response.redirect("/upload/avatar");
-    }
-];
+        else {
+            if (request.isAuthenticated() && request.file !== undefined) {
+                const avatarUrl = `/static/uploads/avatar/${request.file.filename}`;
+                usersTable.updateAvatar(request.user.id, avatarUrl);
+            }
+            response.redirect("/upload/avatar");
+        }
+    })
+}
