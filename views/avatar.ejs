@@ -22,13 +22,12 @@
 
     <body>
         <img src="<%= currentUser.avatar %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
-        <% if (locals.errorMessage) { %>
-            <div class="error"><%= errorMessage %></div>
-        <% } %>
+
+        <div class="error"><%- (locals.errorMessage) ? errorMessage : "" %></div>
         <h1><%= currentUser.username %></h1>
         <form action="" method="post" enctype="multipart/form-data">
             <input type="file" name="avatar">
-            <button>Save</button>
+            <button type="submit">Save</button>
         </form>
     </body>
 </html>

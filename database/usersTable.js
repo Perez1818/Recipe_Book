@@ -53,20 +53,13 @@ async function updateAvatar(id, avatarUrl) {
     return await pool.query("UPDATE users SET avatar = $1 WHERE id = $2;", [avatarUrl, id]);
 }
 
-async function getAvatar(id) {
-    const user = await getUserById(id);
-    return user.avatar;
-}
-
 /* Avoid listing all exports manually
  */
 module.exports = {
-    pool,
     getUserByNameOrEmail,
     getUserById,
     createUser,
     getAllUsers,
     comparePasswords,
-    updateAvatar,
-    getAvatar,
+    updateAvatar
 }

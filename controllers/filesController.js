@@ -14,8 +14,7 @@ const uploadSingleAvatar = getCustomUpload(ALLOWED_AVATAR_FILE_TYPES, AVATAR_DIR
 
 exports.getAvatarUpload = async (request, response) => {
     if (request.isAuthenticated()) {
-        const avatarUrl = await usersTable.getAvatar(request.user.id);
-        response.render("avatar", { avatarUrl: avatarUrl });
+        response.render("avatar");
     }
     else {
         response.render("login");
@@ -30,7 +29,7 @@ exports.uploadAvatar = async (request, response, next) => {
         else {
             if (request.isAuthenticated() && request.file !== undefined) {
                 const avatarUrl = `/static/uploads/avatar/${request.file.filename}`;
-                usersTable.updateAvatar(request.user.id, avatarUrl);
+                await usersTable.updateAvatar(request.user.id, avatarUrl);
             }
             response.redirect("/upload/avatar");
         }
