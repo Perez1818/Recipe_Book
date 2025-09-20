@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const usersController = require("../controllers/usersController.js");
 const recipesController = require("../controllers/recipesController.js");
+const filesController = require("../controllers/filesController.js");
 
 const router = Router();
 
@@ -18,5 +19,8 @@ router.get("/logout", usersController.logoutUser);
 
 router.get("/api/recipes", recipesController.getRecipes);
 router.post("/api/recipes", recipesController.createRecipe);
+
+router.get("/upload", filesController.getUploader);
+router.post("/upload", filesController.uploadAvatar);
 
 module.exports = router;
