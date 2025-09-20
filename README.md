@@ -9,6 +9,7 @@
 - Passport Local Strategy (passport-local)
 - Bcrypt (bcryptjs)
 - Multer (multer)
+- Mime Types (mime-types)
 
 # Setup
 Open Node.js command prompt and:
