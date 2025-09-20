@@ -11,9 +11,9 @@ const AVATAR_FIELD_NAME = "avatar";
 
 const uploadSingleAvatar = getCustomUpload(ALLOWED_AVATAR_FILE_TYPES, AVATAR_DIRECTORY, BYTES_PER_AVATAR, AVATAR_FIELD_NAME);
 
-exports.getUploader = (request, response) => {
+exports.getAvatarUpload = (request, response) => {
     if (request.isAuthenticated()) {
-        response.render("upload");
+        response.render("avatar");
     }
     else {
         response.render("login");
@@ -28,7 +28,7 @@ exports.uploadAvatar = [
             response.send("Avatar received");
         }
         else {
-            response.render("upload");
+            response.render("avatar");
         }
     }
 ];

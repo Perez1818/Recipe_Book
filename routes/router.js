@@ -20,7 +20,7 @@ router.get("/logout", usersController.logoutUser);
 router.get("/api/recipes", recipesController.getRecipes);
 router.post("/api/recipes", recipesController.createRecipe);
 
-router.get("/upload", filesController.getUploader);
-router.post("/upload", filesController.uploadAvatar);
+router.get("/upload/avatar", filesController.getAvatarUpload);
+router.post("/upload/avatar", filesController.uploadAvatar);
 
 module.exports = router;

@@ -11,7 +11,7 @@ function getCustomUpload(allowedFileTypes, destinationFolder, bytesPerUpload, fi
             callback(null, true);
         }
         else {
-            callback(new Error(`Only ${allowedFileTypes.join(", ")} are allowed.`));
+            callback(new Error(`Only ${allowedFileTypes.join(", ")} are allowed`));
         }
     }
 
