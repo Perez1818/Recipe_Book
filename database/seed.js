@@ -25,6 +25,16 @@ async function seedDatabase() {
                   UNIQUE(email)
     );`);
 
+    /* https://www.npmjs.com/package/connect-pg-simple?activeTab=readme */
+    await client.query(`CREATE TABLE IF NOT EXISTS "session" (
+          "sid" varchar NOT NULL COLLATE "default",
+          "sess" json NOT NULL,
+          "expire" timestamp(6) NOT NULL
+        )
+        WITH (OIDS=FALSE);`);
+    await client.query(`ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;`);
+    await client.query(`CREATE INDEX "IDX_session_expire" ON "session" ("expire");`);
+
     await client.end();
 }
 
