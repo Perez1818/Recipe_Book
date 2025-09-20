@@ -20,12 +20,14 @@ async function seedDatabase() {
                   username CITEXT NOT NULL,
                   email CITEXT NOT NULL,
                   password TEXT NOT NULL,
+                  avatar TEXT NOT NULL,
 
                   UNIQUE(username),
                   UNIQUE(email)
     );`);
 
     /* https://www.npmjs.com/package/connect-pg-simple?activeTab=readme */
+    await client.query(`DROP TABLE IF EXISTS "session";`);
     await client.query(`CREATE TABLE IF NOT EXISTS "session" (
           "sid" varchar NOT NULL COLLATE "default",
           "sess" json NOT NULL,

@@ -1,4 +1,5 @@
 const getCustomUpload = require("../middleware/fileUploader.js");
+const usersTable = require("../database/usersTable.js");
 
 const PARENT_DIRECTORY = __dirname;
 const UPLOADS_DIRECTORY = `${PARENT_DIRECTORY}/../public/uploads`;
@@ -11,9 +12,10 @@ const AVATAR_FIELD_NAME = "avatar";
 
 const uploadSingleAvatar = getCustomUpload(ALLOWED_AVATAR_FILE_TYPES, AVATAR_DIRECTORY, BYTES_PER_AVATAR, AVATAR_FIELD_NAME);
 
-exports.getAvatarUpload = (request, response) => {
+exports.getAvatarUpload = async (request, response) => {
     if (request.isAuthenticated()) {
-        response.render("avatar");
+        const avatarUrl = await usersTable.getAvatar(request.user.id);
+        response.render("avatar", { avatarUrl: avatarUrl });
     }
     else {
         response.render("login");
@@ -23,12 +25,11 @@ exports.getAvatarUpload = (request, response) => {
 exports.uploadAvatar = [
     uploadSingleAvatar,
 
-    (request, response, next) => {
-        if (request.file !== undefined) {
-            response.send("Avatar received");
+    async (request, response, next) => {
+        if (request.isAuthenticated() && request.file !== undefined) {
+            const avatarUrl = `/static/uploads/avatar/${request.file.filename}`;
+            usersTable.updateAvatar(request.user.id, avatarUrl);
         }
-        else {
-            response.render("avatar");
-        }
+        response.redirect("/upload/avatar");
     }
 ];
