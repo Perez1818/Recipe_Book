@@ -4,6 +4,13 @@ const crypto = require("crypto");
 
 const NUM_FILES_ACCEPTED = 1;
 
+function stringArrayToSentence(stringArray) {
+    if (stringArray.length >= 2) {
+        return stringArray.slice(0, -1).join(", ") + " and " + stringArray.at(-1);
+    }
+    return stringArray.join(", ");
+}
+
 function getCustomUpload(allowedFileTypes, destinationFolder, bytesPerUpload, fieldName) {
     const fileFilter = (request, file, callback) => {
         const extension = mime.extension(file.mimetype);
@@ -11,7 +18,7 @@ function getCustomUpload(allowedFileTypes, destinationFolder, bytesPerUpload, fi
             callback(null, true);
         }
         else {
-            callback(new Error(`Only ${allowedFileTypes.join(", ")} are allowed`));
+            callback(new Error(`Only ${stringArrayToSentence(allowedFileTypes)} files are permitted`));
         }
     }
 

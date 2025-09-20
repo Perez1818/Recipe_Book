@@ -24,7 +24,8 @@ exports.getAvatarUpload = async (request, response) => {
 exports.uploadAvatar = async (request, response, next) => {
     uploadSingleAvatar(request, response, async (error) => {
         if (error) {
-            response.render("avatar", { errorMessage: error.message });
+            const message = error.code === "LIMIT_FILE_SIZE" ? `File size cannot exceed ${BYTES_PER_AVATAR / BYTES_PER_MEGABYTE}MB` : error.message;
+            response.render("avatar", { errorMessage: message });
         }
         else {
             if (request.isAuthenticated() && request.file !== undefined) {
