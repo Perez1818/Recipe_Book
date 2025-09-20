@@ -32,3 +32,6 @@ npm install
 ```
 node main.js
 ```
+
+# Attributions
+- [Portrait_Placeholder.png](https://commons.wikimedia.org/wiki/File:Portrait_Placeholder.png) from [Wikimedia Commons](https://commons.wikimedia.org/wiki/Main_Page) by Greasemann, [Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/)
