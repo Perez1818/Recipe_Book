@@ -1,3 +1,24 @@
+<!--
+  Recipe Maker Page (Create Recipe Wizard)
+
+  Purpose:
+  - Three-step UI to compose and submit a recipe.
+
+  Key Sections:
+  1) Overview (step-0): name, description, required thumbnail, cook time, serving size, comma-separated tags.
+  2) Ingredients (step-1): editor + add/edit/cancel; rendered as “pills” in left/right rails.
+  3) Instructions (step-2): editor with optional image preview, hours/minutes, add/edit/cancel; pills in rails.
+
+  UX & Navigation:
+  - Progress pills (active/done), Next/Back buttons, and a final Submit.
+  - “Cancel / Submit” buttons live below the instructions step.
+  - Uses minimal inline styles; main styling from ../css/styles.css and ../css/create-recipe.css.
+  - Accessibility: progress container has aria-live for status updates.
+
+  Behavior:
+  - JS in ../js/create-recipe.js manages step visibility, validation (incl. required thumbnail),
+    ingredient/instruction collection, and POST /recipes submission.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,7 +61,7 @@
         <!-- Step 1: Recipe Overview Section -->
         <section id="step-0" data-step="0">
             <div class="grid-container">
-                <div class="three-column-container">
+                <div class="overview-grid">
                     <div class="group-container">
                         <b>Recipe Name</b>
                         <input id="recipe-name" name="name" type="text" placeholder="e.g. Chocolate Chip Cookies">
@@ -50,20 +71,35 @@
                         <b>Recipe Description</b>
                         <textarea id="recipe-description" name="description" placeholder="e.g. A delicious chocolate chip cookie recipe"></textarea>
                     </div>
-
                     <div class="group-container">
                         <b>Thumbnail</b>
                         <input id="thumbnail-input" name="thumbnail" type="file" accept=".png, .jpg, .jpeg">
-                        <img id="thumbnail-preview" alt="Thumbnail Preview"
-                            style="display: none; max-width: 200px; max-height: 200px; margin-top: 10px;">
-                        <div style="margin-top:12px;">
-                            <span>Would you like to add a video?</span>
-                            <input type="checkbox" id="video-checkbox" aria-controls="video-section" aria-expanded="false">
+
+                        <!-- THUMBNAIL preview -->
+                        <div id="thumb-preview-wrap" class="thumb-wrapper hidden" style="margin-top:10px;">
+                            <img id="thumbnail-preview" class="instr-thumb" alt="Thumbnail Preview">
+                            <button type="button" id="remove-thumbnail" class="thumb-remove" aria-label="Remove thumbnail">✕</button>
                         </div>
-                        <div id="video-section" class="collapsible" style="display:none;">
-                            <b>Video (Optional)</b>
-                            <input id="video-input" name="video" type="file" accept=".mp4">
-                            <video id="recipe-video" controls style="max-width: 320px; display:none;"></video>
+                    </div>
+
+                        <!-- EXTRA DETAILS + PUBLISH -->
+                    <div class="group-container">
+                        <div class="details-grid">
+                            <div>
+                                <b>Cook Time (minutes)</b>
+                                <input id="cook-time" type="number" min="0" placeholder="0">
+                            </div>
+
+                            <div>
+                                <b>Serving Size</b>
+                                <input id="serving-size" type="number" min="1" placeholder="1" value="1">
+                            </div>
+
+                            <div class="col-span-2" style="margin-top:10px;">
+                                <b>Tags</b>
+                                <input id="tags" type="text" placeholder="e.g. quick, vegetarian, dinner">
+                                <div class="muted" style="font-size:12px;color:#666;">Comma-separated</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -173,13 +209,11 @@
                 </div>
 
             </div>
+            <div id="button-container">
+                <button id="cancel-button">Cancel</button>
+                <button id="submit-button" type="submit">Submit</button>
+            </div>
         </section>
-
-
-        <div id="button-container">
-            <button id="cancel-button">Cancel</button>
-            <button id="submit-button">Submit</button>
-        </div>
     </main>
     </form>
     <script src="../js/create-recipe.js" defer></script>

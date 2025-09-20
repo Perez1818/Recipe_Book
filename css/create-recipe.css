@@ -353,3 +353,46 @@ textarea {
   height: 20px;
   cursor: pointer;
 }
+
+/* 2×2 layout for overview cards */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 20px; /* keeps next content off the card edges */
+}
+
+/* Cards look tidy and don't clip at the bottom */
+.group-container {
+  background: #fff6cc;          /* or your current yellow */
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 16px;
+  box-sizing: border-box;       /* prevents bottom clipping */
+}
+
+/* Center the cook-time/serving-size/tags block inside its card */
+.group-container .details-grid {
+  max-width: 560px;      /* narrow the content */
+  margin: 0 auto;        /* center the grid inside the card */
+  grid-template-columns: 1fr 1fr; /* keep 2 columns for the top row */
+  justify-items: stretch; /* inputs fill each column nicely */
+}
+
+/* Make the spanned rows (tags, publish, errors) fill the centered width */
+.group-container .details-grid .col-span-2,
+.group-container .details-grid .publish-row {
+  width: 100%;
+}
+
+/* On small screens, stack it but keep it centered */
+@media (max-width: 820px) {
+  .group-container .details-grid {
+    max-width: 520px;
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
