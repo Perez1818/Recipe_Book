@@ -5,15 +5,6 @@ const mime = require("mime-types");
 const BYTES_PER_MEGABYTE = 1024 * 1024;
 const NUM_FILES_ACCEPTED = 1;
 
-const storage = multer.diskStorage({
-    destination: `${PARENT_DIRECTORY}/../public/uploads/avatar`,
-    filename: (request, file, callback) => {
-        const extension = mime.extension(file.mimetype);
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
-        callback(null, file.fieldname + "-" + uniqueSuffix + "." + extension);
-    }
-});
-
 const fileFilter = (request, file, callback) => {
     const allowedFileTypes = ["png", "jpg", "jpeg"];
     const extension = mime.extension(file.mimetype);
@@ -25,9 +16,20 @@ const fileFilter = (request, file, callback) => {
     }
 }
 
+const storage = multer.diskStorage({
+    destination: `${PARENT_DIRECTORY}/../public/uploads/avatar`,
+    filename: (request, file, callback) => {
+        const extension = mime.extension(file.mimetype);
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
+        callback(null, file.fieldname + "-" + uniqueSuffix + "." + extension);
+    }
+});
+
+const limits = { fileSize: BYTES_PER_MEGABYTE, files: NUM_FILES_ACCEPTED };
+
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: BYTES_PER_MEGABYTE, files: NUM_FILES_ACCEPTED },
+    limits: limits,
     fileFilter: fileFilter
 });
 
