@@ -23,4 +23,7 @@ router.post("/api/recipes", recipesController.createRecipe);
 router.get("/upload/avatar", filesController.getAvatarUpload);
 router.post("/upload/avatar", filesController.uploadAvatar);
 
+router.get("/upload/multimedia", filesController.getMultimediaUpload);
+router.post("/upload/multimedia", filesController.uploadMultimedia);
+
 module.exports = router;

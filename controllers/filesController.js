@@ -1,4 +1,4 @@
-const getCustomUpload = require("../middleware/fileUploader.js");
+const { getCustomUpload, getMultiUpload, getInvalidFileMessage } = require("../middleware/fileUploader.js");
 const usersTable = require("../database/usersTable.js");
 
 const PARENT_DIRECTORY = __dirname;
@@ -21,7 +21,7 @@ exports.getAvatarUpload = async (request, response) => {
     }
 }
 
-exports.uploadAvatar = async (request, response, next) => {
+exports.uploadAvatar = async (request, response) => {
     uploadSingleAvatar(request, response, async (error) => {
         if (error) {
             const message = error.code === "LIMIT_FILE_SIZE" ? `File size cannot exceed ${BYTES_PER_AVATAR / BYTES_PER_MEGABYTE}MB` : error.message;
@@ -36,3 +36,45 @@ exports.uploadAvatar = async (request, response, next) => {
         }
     })
 }
+
+exports.getMultimediaUpload = async (request, response) => {
+    if (request.isAuthenticated()) {
+        response.render("multimedia");
+    }
+    else {
+        response.render("login");
+    }
+}
+
+exports.uploadMultimedia = [
+    getMultiUpload(),
+    async (request, response) => {
+        console.log(request.files);
+        const photoFile = "photo" in request.files ? request.files["photo"][0] : null;
+        const videoFile = "video" in request.files ? request.files["video"][0] : null;
+
+        let photoName = "";
+        let videoName = "";
+
+        let photoErrorMessage = "";
+        let videoErrorMessage ="";
+
+        if (photoFile) {
+            photoErrorMessage = getInvalidFileMessage(photoFile);
+            if (!photoErrorMessage) {
+                photoName = photoFile.filename;
+            }
+        }
+
+        if (videoFile) {
+            videoErrorMessage = getInvalidFileMessage(videoFile);
+            if (!videoErrorMessage) {
+                videoName = videoFile.filename
+            }
+        }
+        
+        console.log(request.files);
+
+        response.render("multimedia", { photoErrorMessage: photoErrorMessage, videoErrorMessage: videoErrorMessage, photoName: photoName, videoName: videoName });
+    }
+]
