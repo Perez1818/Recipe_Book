@@ -1,28 +1,35 @@
+
+// Walkthrough objects
 const navigateWalkthroughContainer = document.getElementById("navigate-walkthrough");
 const stepFractionPresentation = document.getElementById("completion-fraction");
 const progressBar = document.getElementById("completion-progress");
 const stepCounter = document.getElementById("step-counter");
 const currentUrl = window.location.href
-const [ _, recipeApiId ] = currentUrl.split("?id=");
 
+// Publisher and Date objects
 const usernameElement = document.getElementById("username");
 const usernameAndDateElement = document.getElementById("username-and-date");
 const dateElement = document.getElementById("publishing-date");
 const separatorElement = document.getElementById("separator");
 
+// Link objects
 const usernameLink = document.getElementById("username-link");
 const websiteLink = document.getElementById("origin-site-link");
 const websiteAvailableImg = document.getElementById("origin-site-available");
 const websiteNotAvailableImg = document.getElementById("origin-site-not-available")
 
+// Recipe detail objects
 const recipeName = document.getElementById("recipe-name");
 const username = document.getElementById("username-str");
 const thumbnail = document.getElementById("recipe-thumbnail");
 const videoElement = document.getElementById("recipe-tutorial");
 const instructionsTextElement = document.getElementById("instructions");
-
 const ingredientListElement = document.getElementById("ingredient-list");
 
+// Obtains recipe ID from URL
+const [ _, recipeApiId ] = currentUrl.split("?id=");
+
+// Returns the current step and the last step of instructions
 function getSteps() {
     let [ currentStep, _ ] = stepFractionPresentation.textContent.split(" / ");
     currentStep = parseInt(currentStep);
@@ -30,6 +37,7 @@ function getSteps() {
     return { currentStep, lastStep};
 }
 
+// Searches for the recipe based on ID provided in URL
 async function searchForRecipe() {
     const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeApiId}`);
     if (!response.ok) {
@@ -39,6 +47,7 @@ async function searchForRecipe() {
     return data["meals"][0];
 }
 
+// Lists publisher of recipe
 function listPublisher(url, publishingDate) {
     urlCopy = url;
     if (!url) {
@@ -70,17 +79,20 @@ function listPublisher(url, publishingDate) {
     }
 }
 
+// Returns object containing lists of ingredients and their associated measurements
 function getIngredients(recipe) {
     let ingredients = [];
     let measurements = [];
 
-    for (let i=1; i <= 20; i++) {
+    for (let i = 1; i <= 20; i++) {
         ingredient = recipe[`strIngredient${i}`]
         measurement = recipe[`strMeasure${i}`]
+
         if (ingredient) {
             ingredients.push(ingredient);
             measurements.push(measurement)
         }
+        // Early return when no more ingredients/measurements are left
         else {
             return {ingredients, measurements}
         }
@@ -105,17 +117,26 @@ function renderIngredients(ingredients, measurements) {
     }
 }
 
+// Fills in title, publisher, thumbnail, video, ingredients, and measurements associated with recipe
 async function fillRecipeViewPage() {
+    // Fetches recipe (ID provided in link)
     const recipe = await searchForRecipe();
+    // Title
     recipeName.textContent = recipe["strMeal"]
+    // Publisher
     listPublisher(recipe["strSource"], recipe["dateModified"]);
+    // Thumbnail
     thumbnail.src = recipe["strMealThumb"];
+    // Instructions
     instructions = recipe["strInstructions"].replace(/\r/g, "").split("\n").filter(str => str !== "").filter(str => str.length > 7)
-    let [_, tutorialVideoId] = recipe["strYoutube"].split("?v=");
-    videoElement.setAttribute("src", `https://www.youtube.com/embed/${tutorialVideoId}`)
     instructionsTextElement.textContent = instructions[0];
+    // Video Tutorial
+    let [ _, tutorialVideoId ] = recipe["strYoutube"].split("?v=");
+    videoElement.setAttribute("src", `https://www.youtube.com/embed/${tutorialVideoId}`)
+
     let {ingredients, measurements} = getIngredients(recipe);
     renderIngredients(ingredients, measurements);
+
     return { instructions }
 }
 
@@ -132,39 +153,52 @@ async function main() {
 
     stepFractionPresentation.textContent = `1 / ${instructions.length}`
 
+    // Allows user to move to the previous step in instructions when left button is clicked
     getPreviousStep.addEventListener("click", () => {
+        // Obtains current step and last step
         let { currentStep, lastStep } = getSteps();
 
         if (currentStep != 1) {
             currentStep -= 1;
+
+            // Updates text displayed for instructions, steps done, and step counter
             instructionsTextElement.textContent = instructions[currentStep - 1]
             stepFractionPresentation.textContent = `${currentStep} / ${lastStep}`;
             stepCounter.textContent = currentStep;
             progressBar.value = currentStep / lastStep;
 
+            // Prevents user from moving below step 1
             if (currentStep == 1) {
                 getPreviousStep.style.cursor = "not-allowed";
                 getPreviousStep.disabled = true;
             }
+
             getNextStep.disabled = false;
             getNextStep.style.cursor = "pointer";
         }
     })
 
+    // Allows user to move to the next step in instructions when right button is clicked
     getNextStep.addEventListener("click", () => {
+        // Obtains current step and last step
         let { currentStep, lastStep } = getSteps();
 
         if (currentStep != lastStep) {
             currentStep += 1;
+
+            // Updates text displayed for instructions, steps done, and step counter
             instructionsTextElement.textContent = instructions[currentStep - 1]
             stepFractionPresentation.textContent = `${currentStep} / ${lastStep}`;
             stepCounter.textContent = currentStep;
+            // Updates progress bar to reflect current step
             progressBar.value = currentStep / lastStep;
 
+            // Prevents user from moving past last step
             if (currentStep == lastStep) {
                 getNextStep.style.cursor = "not-allowed";
                 getNextStep.disabled = true;
             }
+
             getPreviousStep.disabled = false;
             getPreviousStep.style.cursor = "pointer";
         }
