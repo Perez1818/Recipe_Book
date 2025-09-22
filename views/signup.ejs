@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Sign up</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/static/css/login.css">
+    </head>
+
+    <body>
+        <h1>Recipe Book</h1>
+
+        <% function getErrorMessage(fieldName) { %>
+            <% if (locals.errorMessages && errorMessages[fieldName] !== undefined) { %>
+                <% return errorMessages[fieldName]; %>
+            <% } %>
+            <% return ""; %>
+        <% } %>
+
+        <% // Submit form to current route %>
+        <form action="" method="post">
+            <div class="field">
+                <p><%= getErrorMessage("unavailable") %></p>
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username">
+                <p><%= getErrorMessage("username") %></p>
+            </div>
+
+            <div class="field">
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email">
+                <p><%= getErrorMessage("email") %></p>
+            </div>
+
+            <div class="field">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password">
+                <p><%= getErrorMessage("password") %></p>
+            </div>
+
+            <div class="field">
+                <label for="confirmed-password">Confirm Password</label>
+                <input type="password" id="confirmed-password" name="confirmedPassword">
+                <p><%= getErrorMessage("confirmedPassword") %></p>
+            </div>
+
+            <div class="field">
+                <input id="submit-button" type="submit" value="Create Account">
+            </div>
+        </form>
+    </body>
+</html>
