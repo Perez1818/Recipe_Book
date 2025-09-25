@@ -2,17 +2,6 @@ const usersTable = require("../database/usersTable.js");
 const { validate, validationResult } = require("../middleware/formValidation.js");
 const { passport } = require("../middleware/passport.js");
 
-const PROJECT_TITLE = "Recipe Book";
-
-exports.getIndex = (request, response) => {
-    response.render("index", { browserTitle: PROJECT_TITLE, pageTitle: PROJECT_TITLE });
-};
-
-exports.getUsers = async (request, response) => {
-    const users = await usersTable.getAllUsers();
-    response.render("users", { users : users });
-};
-
 exports.getSignUp = async (request, response) => {
     response.render("signup");
 };
