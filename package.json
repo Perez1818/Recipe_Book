@@ -1,37 +1,23 @@
 {
-  "name": "recipe_book",
+  "name": "recipebook-api",
   "version": "1.0.0",
-  "description": "- Node.js",
-  "main": "main.js",
+  "private": true,
+  "type": "commonjs",
+  "main": "cr_entry.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node cr_entry.js",
+    "start": "node cr_entry.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Perez1818/Recipe_Book.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Perez1818/Recipe_Book/issues"
-  },
-  "homepage": "https://github.com/Perez1818/Recipe_Book#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.5.0",
-    "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
     "express-validator": "^7.2.1",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "pg": "^8.15.6"
-  },
-  "devDependencies": {
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^4.1.4"
   },
   "packageManager": "pnpm@10.9.0+sha512.0486e394640d3c1fb3c9d43d49cf92879ff74f8516959c235308f5a8f62e2e19528a65cdc2a3058f587cde71eba3d5b56327c8c33a97e4c4051ca48a10ca2d5f"
 }
