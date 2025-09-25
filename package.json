@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "type": "commonjs",
-  "main": "cr_entry.js",
+  "main": "app.js",
   "scripts": {
-    "dev": "node cr_entry.js",
-    "start": "node cr_entry.js"
+    "dev": "node app.js",
+    "start": "node app.js"
   },
   "dependencies": {
-    "cors": "^2.8.5",
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
     "express-validator": "^7.2.1",
