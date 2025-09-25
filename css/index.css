@@ -1,0 +1,296 @@
+
+/* Adds unique styling to heading element */
+h1 {
+    width: fit-content;
+    padding: 5px 15px;
+    border: lightcoral solid 4px;
+    justify-self: center;
+    border-radius: 30px;
+}
+
+/* Adds styling to the titles for each carousel */
+h2 {
+    padding: 5px 15px;
+    background-color: white;
+    border-radius: 5px;
+    width: auto;
+    align-self: center;
+    margin: 20px 20px;
+    text-wrap: wrap;
+}
+
+button:disabled {
+    cursor: not-allowed;
+}
+
+.carousel-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    height: fit-content;
+    border: grey solid 2px;
+    margin: 40px 10px;
+    background-color: #79B473;
+    border-radius: 30px;
+}
+
+.buttons-and-recipes {
+    display: flex;
+    flex: 1 1 auto;
+    justify-content: space-around;
+}
+
+.buttons-and-recipes, .carousel {
+    overflow: auto;
+}
+
+.carousel-button {
+    width: 30px;
+    border-radius: 5px;
+    margin: 15px;
+    justify-items: center;
+    padding: 5px 15px;
+}
+
+/* Prevents svg from moving outside container */
+.carousel-button svg {
+    display: block;
+}
+
+.carousel {
+    display: flex;
+    max-height: 380px;
+    overflow: hidden;
+    padding: 0 10px;
+    justify-items: center;
+}
+
+/* Makes recipe container responsive to changes in window size */
+.recipe-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: transparent solid 2px;
+    align-items: center;
+    width: 90%;
+    box-sizing: border-box;
+    height: 350px;
+    padding: 10px;
+    margin: 15px;
+    border-radius: 10px;
+    text-align: center;
+    background-color: whitesmoke;
+    position: relative;
+    overflow: hidden;
+}
+
+.recipe-container:hover {
+    border: grey solid 2px;
+    cursor: pointer;
+}
+
+/* Prevents recipe name and publisher name from pouring out container */
+.hide-overflow {
+    width: 80%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
+}
+
+/* Makes description never exceed 2 lines */
+.description {
+    width: 80%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    margin: 5px 0;
+    text-align: start;
+}
+
+#avg-rating {
+    vertical-align: center;
+    font-size: 15px;
+}
+
+#num-ratings {
+    vertical-align: center;
+    font-size: 18px;
+    margin-right: 5px;
+}
+
+/* Makes image appear circular whilst not stretched */
+.recipe-container img {
+    display: block;
+    object-fit: cover;
+    /* width: 60%; */
+    width: 190px;
+    aspect-ratio: 1 / 1;
+    margin: 10px auto;
+    background-color: lightgray;
+    border-radius: 50%;
+}
+
+/* Makes carousel responsive to changes to window */
+.column-container {
+    display: grid;
+    flex: 1 1 auto;
+    background-color: white;
+    width: 90%;
+    height: fit-content;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+.rating-container {
+    margin-top: 5px;
+    width: 80%;
+}
+
+.rating-container svg {
+    width: 25px;
+    stroke-width: 1px;
+}
+
+/* Makes the lower-half text-area of recipe container responsive to screen size changes */
+.recipe-text-area {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 90%;
+    flex: 0 0 auto;
+    align-items: center;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.recipe-name {
+    font-size: 1.35em;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    cursor: pointer;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+/* Positions bookmark button to be invisible in the top-right corner of recipe container */
+.bookmark-recipe-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: none;
+    background-color: transparent;
+}
+
+/* Fills in bookmark button that has been bookmarked */
+.bookmark-recipe-button .bookmarked {
+    fill: #E34234;
+}
+
+
+/* 
+Media queries to make webpage responsive by limiting width, font-size, and number of description lines
+*/
+
+@media screen and (min-width: 1360px) {
+    .recipe-container img {
+        width: 200px;
+    }
+}
+
+
+@media screen and (max-width: 1080px) {
+    .recipe-name {
+        font-size: 1.15em;
+    }
+    .rating-container svg {
+        width: 20px;
+    }
+}
+
+@media screen and (max-width: 970px) {
+    .rating-container svg {
+        width: 15px;
+    }
+}
+
+/* Applies 3 column grid to any window bigger than 890 pixels */
+@media screen and (min-width: 891px) {
+    .carousel {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .column-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Applies 2 column grid to any window no bigger than 890 pixels */
+@media screen and (max-width: 930px){
+    .carousel {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .column-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (max-width: 890px){
+    .carousel {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .column-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Applies 1 column grid to any window smaller than 700 pixels */
+@media screen and (max-width: 700px){
+    .carousel {
+        display: flex;
+        overflow: hidden;
+        flex-wrap: wrap;
+    }
+    .recipe-container img {
+        width: 150px;
+    }
+    .description {
+        -webkit-line-clamp: 3;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .recipe-text-area .hide-overflow {
+        font-size: 1em;
+    }
+    .description {
+        font-size: 15px;
+    }
+    .rating-container svg {
+        width: 15px;
+    }
+}
+
+@media screen and (max-width: 430px) {
+    .rating-container svg {
+        width: 10px;
+    }
+    .recipe-text-area .hide-overflow {
+        font-size: 0.8em;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .recipe-container img {
+        width: 125px;
+    }
+}
