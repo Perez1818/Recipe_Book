@@ -38,11 +38,6 @@ async function createUser(username, email, password) {
     }
 }
 
-async function getAllUsers() {
-    const { rows } = await pool.query("SELECT * FROM users");
-    return rows;
-}
-
 async function comparePasswords(plaintextPassword, hashedPassword) {
     return await bcrypt.compare(plaintextPassword, hashedPassword);
 }
@@ -54,6 +49,5 @@ module.exports = {
     getUserByNameOrEmail,
     getUserById,
     createUser,
-    getAllUsers,
     comparePasswords,
 }
