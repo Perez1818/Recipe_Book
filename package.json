@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "type": "commonjs",
-  "main": "cr_entry.js",
+  "main": "app.js",
   "scripts": {
-    "dev": "node cr_entry.js",
-    "start": "node cr_entry.js"
+    "dev": "node app.js",
+    "start": "node app.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
