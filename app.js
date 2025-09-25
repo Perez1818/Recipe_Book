@@ -2,6 +2,8 @@ const express = require("express");
 const router = require("./routes/router.js");
 const dotenv = require("dotenv");
 
+const recipesRouter = require("./routes/recipesRouter.js");
+
 const sessionMiddleware = require("./middleware/session.js");
 const { passport, configurePassport } = require("./middleware/passport.js");
 
@@ -28,7 +30,10 @@ app.set("view engine", "ejs");
 app.set("views", `${PARENT_DIRECTORY}/views`);     /* https://stackoverflow.com/a/41055903 */
 app.use("/static", express.static(`${PARENT_DIRECTORY}/public`));
 
+app.use(express.json({ limit: "1mb" }));
+
 // Routes
+app.use("/recipes", recipesRouter);
 app.use("/", router);
 
 app.use((error, request, response, next) => {
