@@ -3,6 +3,7 @@ const usersController = require("../controllers/usersController.js");
 
 const router = Router();
 
+router.get("/", usersController.getIndex);
 router.get("/signup", usersController.getSignUp);
 router.post("/signup", usersController.signUpUser);
 router.get("/login", usersController.getLogin);
