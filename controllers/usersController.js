@@ -2,6 +2,10 @@ const usersTable = require("../database/usersTable.js");
 const { validate, validationResult } = require("../middleware/formValidation.js");
 const { passport } = require("../middleware/passport.js");
 
+exports.getIndex = async (request, response) => {
+    response.redirect("/static/index.html");
+};
+
 exports.getSignUp = async (request, response) => {
     response.render("signup");
 };
