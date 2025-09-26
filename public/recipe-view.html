@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Walkthrough</title>
+    <link defer rel="stylesheet" href="css/recipe-view.css">
+    <!-- Daniel: Importing new font -->
+    <link defer rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!--  -->
+    <link defer rel="stylesheet" href="css/styles.css">
+    <script defer src="js/recipe-view.js"></script>
+    <script defer src="js/timer.js"></script>
+</head>
+<body>
+    <header>
+        <p id="logo"> Recipe Book</p>
+        <!-- Navbar emphasizing "home" icon -->
+        <nav>
+            <a href="account.html" class="tooltip">
+                <span class="tooltiptext">Account</span>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="30px" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+            </a>
+            <a href="index.html" class="tooltip">
+                <svg class="icon-highlight icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                </svg>
+                <span class="tooltiptext">Home</span>
+            </a>
+            <a href="search-engine.html" class="tooltip">
+                <span class="tooltiptext">Search</span>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+            </a>
+            <a href="calendar.html" class="tooltip">
+                <span class="tooltiptext">Calendar</span>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                </svg>
+            </a>
+            <a href="shopping-list.html" class="tooltip">
+                <span class="tooltiptext">Shopping List</span>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                </svg>
+            </a>
+            <a href="bulletin-board.html" class="tooltip">
+                <span class="tooltiptext">Bulletin Board</span>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
+                </svg>
+            </a>
+            <a href="recipe-maker.html" class="tooltip">
+                <span class="tooltiptext">Recipe Maker</span>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                </svg>
+            </a>
+        </nav>
+    </header>
+    <hr width="100%">
+    <main>
+        <h1 id="recipe-name">Recipe Name</h1>
+        <span id="username-and-date">
+            <span>By 
+                <a id="username-link">
+                    <b id="username">@username1234567890</b>
+                </a>
+                <a id="origin-site-link">
+                    <svg id="origin-site-available" width="15px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+                    </svg>
+                    <svg id="origin-site-not-available" width="15px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.181 8.68a4.503 4.503 0 0 1 1.903 6.405m-9.768-2.782L3.56 14.06a4.5 4.5 0 0 0 6.364 6.365l3.129-3.129m5.614-5.615 1.757-1.757a4.5 4.5 0 0 0-6.364-6.365l-4.5 4.5c-.258.26-.479.541-.661.84m1.903 6.405a4.495 4.495 0 0 1-1.242-.88 4.483 4.483 0 0 1-1.062-1.683m6.587 2.345 5.907 5.907m-5.907-5.907L8.898 8.898M2.991 2.99 8.898 8.9" />
+                    </svg>
+                </a>
+
+            </span>
+            <span id="separator">|</span>
+            <span id="publishing-date">Uploaded on on August 14, 2025</span>
+        </span>
+         <div class="rating-container">
+            <!-- Daniel: source that helped: https://www.w3schools.com/howto/howto_css_star_rating.asp-->
+            <span class="fa fa-star" data-r-value="1"></span>
+            <span class="fa fa-star" data-r-value="2"></span>
+            <span class="fa fa-star" data-r-value="3"></span>
+            <span class="fa fa-star" data-r-value="4"></span>
+            <span class="fa fa-star" data-r-value="5"></span>
+            <span id="avg-rating">0.0</span>
+        </div>
+    
+        <div id="button-container">
+                <!-- Bookmark Button -->
+                <button>
+                    <svg id="bookmark" class="clickable" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                    </svg>
+                </button>
+
+                <span>|</span>
+
+                <!-- Calendar Button -->
+                <button>
+                    <svg id="calendar" class="clickable" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                    </svg>
+                </button>
+
+                <span>|</span>
+
+                <!-- Share Button -->
+                <button>
+                    <svg id="share" class="clickable" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
+                    </svg>
+                </button>
+            </div>
+            <div id="recipe-interactions">
+                <!-- Like Button -->
+                <div id="likes">
+                    <button>
+                        <i class="fa fa-thumbs-o-up clickable" style="font-size:30px;"></i>
+                    </button>
+                    <span id="like-count">0</span>
+                </div>
+
+                <!-- Comment Button -->
+                <div id="comments">
+                    <button>
+                        <svg class="clickable" width="30px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
+                        </svg>
+                    </button>
+                    <span>150</span>
+                </div>
+            </div>
+
+        <!-- Intro Section -->
+        <section id="intro">
+            <img id="recipe-thumbnail">
+            <div id="recipe-details">
+                <div id="prep-time">
+                    <b>Prep Time</b>
+                    <p>30 mins</p>
+                </div>
+                <div id="total-time">
+                    <b>Total Time</b>
+                    <p>1 hr</p>
+                </div>
+            </div>
+            <p>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae assumenda sequi rerum repellat nulla ipsam, facere ut excepturi ad totam sed aliquid deserunt. Amet reiciendis pariatur veritatis omnis! Quisquam, animi! Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos reiciendis recusandae corporis dolores vel nihil repellendus. Consequuntur quis voluptas ipsam delectus saepe quae soluta accusamus sequi, amet provident nam quos!
+            </p>
+        </section>
+
+        <!-- Video Tutorial -->
+        <section>
+            <hr class="divider">
+            <h2>Video Tutorial</h2>
+            <iframe id="recipe-tutorial"
+            allowfullscreen></iframe>
+            <p>
+                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Velit molestiae, amet provident ratione sed omnis, aut, sunt incidunt veritatis at autem quia? Mollitia, ab veniam non laudantium error odio! Quam?
+            </p>
+        </section>
+
+        <!-- Walkthrough Section -->
+        <section>
+            <hr class="divider">
+            <h2>Walkthrough</h2>
+            <h3 id="countdown">5:00</h3>
+            <progress id="timer"></progress>
+            <div class="two-column-container">
+                <div class="ingredient-card">
+                    <h3>Ingredients</h3>
+                    <ol id="ingredient-list">
+                        <!-- Daniel: Ingredients from recipe-view.js will appear here -->
+                    </ol>
+                </div>
+                <div class="card">
+                    <div id="step-counter">1</div>
+                    <div>
+                        <h3 id="instructions">
+                            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Architecto, dicta! Doloremque, deserunt neque nam, esse alias explicabo ducimus reiciendis veniam voluptatibus assumenda iste doloribus iusto recusandae excepturi accusantium officiis libero.
+                        </h3>
+                        <span class="estimated-time">⏱️ Estimated Time: <b>5 minutes</b></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recipe Step Progress Bar -->
+            <progress id="completion-progress"></progress>
+
+            <!-- Navigation Bar for Walkthrough -->
+            <div id="navigate-walkthrough">
+                <!-- Left Button -->
+                <button disabled="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                    </svg>
+                </button>
+
+                <!-- Fraction of Steps Completed -->
+                <span id="completion-fraction">1 / 3</span>
+
+                <!-- Right Button -->
+                <button>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    </svg>
+                </button>
+            </div>
+        </section>
+
+        <!-- Review Section -->
+        <section>
+            <hr class="divider">
+            <h2>Reviews</h2>
+            <div id="review-container">
+                <div id="inner-container">
+                    <div id="no-review-container">
+                        <b> No Reviews yet!</b>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script> //javascript for star ratings + like button
+
+        document.querySelectorAll('.rating-container .fa-star').forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.getAttribute('data-r-value'));
+                document.querySelectorAll('.rating-container .fa-star').forEach((s, i) => {
+                s.classList.toggle('checked', i < rating);
+                });
+                document.getElementById('avg-rating').textContent = rating.toFixed(1);
+            });
+        });
+
+        document.getElementById('likes').addEventListener('click', function(e) {
+            if (!e.target.closest('button')) return;
+            const icon = this.querySelector('i');
+            const countSpan = document.getElementById('like-count');
+            let count = parseInt(countSpan.textContent, 10);
+            if (!icon.classList.contains('liked')) {
+                icon.classList.add('liked');
+                countSpan.textContent = count + 1;
+            } else {
+                icon.classList.remove('liked');
+                countSpan.textContent = count > 0 ? count - 1 : 0;
+            }
+        });
+    </script>
+</body>
+</html>
