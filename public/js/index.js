@@ -146,6 +146,9 @@ async function setRecipeContainer(recipe, recipeContainer) {
         window.location.href = `recipe-view.html?id=${recipeId}`;
     }
 
+    // Shows full name of recipe when user hovers over container
+    recipeContainer.title = recipeName 
+
     // Writes the name and description of the recipe and shows its thumbnail
     recipeHeading = recipeContainer.getElementsByClassName("recipe-name")[0];
     recipeHeading.textContent = recipeName;
