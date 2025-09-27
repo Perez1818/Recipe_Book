@@ -35,7 +35,8 @@ async function createUser(username, email, password) {
                                          VALUES ($1, $2, $3, $4);`, [username, email, hashedPassword, DEFAULT_AVATAR_URL]);
         return true;
     }
-    catch {
+    catch (exception) {
+        console.log(exception);
         return false;
     }
 }
