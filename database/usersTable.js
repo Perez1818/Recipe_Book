@@ -22,6 +22,11 @@ async function getUserById(id) {
     return getOnlyRow(rows);
 }
 
+async function getUserByName(username) {
+    const { rows } = await pool.query(`SELECT * FROM users WHERE username = $1;`, [username]);
+    return getOnlyRow(rows);
+}
+
 async function getUserByNameOrEmail(username) {
     const { rows } = await pool.query(`SELECT * FROM users WHERE (username = $1 OR email = $1);`, [username]);
     return getOnlyRow(rows);
@@ -52,6 +57,7 @@ async function updateAvatar(id, avatarUrl) {
 /* Avoid listing all exports manually
  */
 module.exports = {
+    getUserByName,
     getUserByNameOrEmail,
     getUserById,
     createUser,
