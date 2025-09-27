@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title><%= user.username %></title>
+        <meta charset="UTF-8"> 
+        <style>
+            .avatar {
+                width: 150px;
+                height: 150px;
+                object-fit: cover;
+            }
+        </style>
+    </head>
+
+    <body>
+        <img src="<%= user.avatar %>" class="avatar" alt="User <%= user.username %>'s avatar">
+
+        <h1><%= user.username %></h1>
+
+        <p>Birthday: <%= user.birthday || "N/A" %></p>
+        <p>Bio: <%= user.biography %></p>
+
+        <% if (currentUser && currentUser.username === user.username) { %>
+            <a href="./edit">Edit Profile</a>
+        <% } %>
+    </body>
+</html>

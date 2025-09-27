@@ -73,3 +73,13 @@ exports.logoutUser = (request, response, next) => {
         response.redirect("/");
     });
 };
+
+exports.getUserProfile = async (request, response, next) => {
+    const user = await usersTable.getUserByName(request.params.username);
+    if (user) {
+        response.render("profile", { user: user });
+    }
+    else {
+        next();
+    }
+};

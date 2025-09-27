@@ -11,6 +11,8 @@ router.get("/login", usersController.getLogin);
 router.post("/login", usersController.loginUser);
 router.get("/logout", usersController.logoutUser);
 
+router.get("/user/:username", usersController.getUserProfile);
+
 router.get("/upload/avatar", filesController.getAvatarUpload);
 router.post("/upload/avatar", filesController.uploadAvatar);
 
