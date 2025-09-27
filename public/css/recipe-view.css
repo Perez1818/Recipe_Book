@@ -1,9 +1,10 @@
 
 /* Helpful source: https://www.linkedin.com/learning/css-essential-training-22688362/getting-started-with-css */
 
-h2 {
-    display: flex;
-    justify-self: center;
+/* Horizontally centers all direct children of main; removes necessity of justify-self: center */
+main > * {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Shares same width across objects */
@@ -12,8 +13,6 @@ h2 {
 }
 
 #recipe-tutorial {
-    display: flex;
-    justify-self: center;
     width: 600px;
     height: 337.5px;
     background-color: lightgray;
@@ -21,20 +20,16 @@ h2 {
 }
 
 .rating-container {
-    display: flex;
-    justify-self: center;
     height: fit-content;
+    width: fit-content;
     margin-bottom: 10px;
 }
 
-.rating-container svg {
+/* Applies styling to child elements of rating container */
+.rating-container * {
     width: 25px;
     stroke-width: 1px;
-}
-
-.rating-container {
-    display: flex;
-    align-items: center;
+    margin: auto 1px;
 }
 
 /* Source: https://www.w3schools.com/css/css_grid.asp */
@@ -98,7 +93,6 @@ h2 {
 section {
     display: flex;
     flex: 1 1 auto;
-    justify-self: center;
     align-items: center;
     flex-direction: column;
     width: 90%;
@@ -123,7 +117,6 @@ img, video {
 
 #username-and-date {
     display: flex;
-    justify-self: center;
     justify-content: center;
     gap: 25px;
     margin-bottom: 10px;
@@ -140,7 +133,6 @@ img, video {
     display: flex;
     align-items: center;
     justify-content: center;
-    justify-self: center;
     width: 50%;
     margin-bottom: 10px;
 }
@@ -205,8 +197,6 @@ img, video {
 }
 
 .divider {
-    display: flex;
-    justify-self: center;
     margin: 20px 0;
     width: 80%;
 }
