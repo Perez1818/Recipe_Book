@@ -54,6 +54,10 @@ async function updateAvatar(id, avatarUrl) {
     return await pool.query("UPDATE users SET avatar = $1 WHERE id = $2;", [avatarUrl, id]);
 }
 
+async function updateBiography(id, biography) {
+    return await pool.query("UPDATE users SET biography = $1 WHERE id = $2;", [biography, id]);
+}
+
 /* Avoid listing all exports manually
  */
 module.exports = {
@@ -62,5 +66,6 @@ module.exports = {
     getUserById,
     createUser,
     comparePasswords,
-    updateAvatar
+    updateAvatar,
+    updateBiography
 }

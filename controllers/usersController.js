@@ -83,3 +83,22 @@ exports.getUserProfile = async (request, response, next) => {
         next();
     }
 };
+
+exports.getUserEditor = async (request, response, next) => {
+    if (request.user) {
+        response.render("edit-profile");
+    }
+    else {
+        next();
+    }
+}
+
+exports.editUser = async (request, response, next) => {
+    if (request.user && request.user.username === request.params.username) {
+        await usersTable.updateBiography(request.user.id, request.body.biography);
+        response.redirect(`/user/${request.user.username}`);
+    }
+    else {
+        next();
+    }
+}

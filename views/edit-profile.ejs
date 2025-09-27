@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Your profile</title>
+        <meta charset="UTF-8"> 
+        <style>
+            .avatar {
+                width: 150px;
+                height: 150px;
+                object-fit: cover;
+            }
+        </style>
+    </head>
+
+    <body>
+        <img src="<%= currentUser.avatar %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
+
+        <form action="" method="post">
+            <div class="field">
+                <label for="biography">Biography</label>
+                <input type="text" id="biography" name="biography" value="<%= currentUser.biography %>">
+            </div>
+
+            <div class="field">
+                <input id="submit-button" type="submit" value="Save changes">
+            </div>
+        </form>
+    </body>
+</html>

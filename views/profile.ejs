@@ -21,7 +21,7 @@
         <p>Bio: <%= user.biography %></p>
 
         <% if (currentUser && currentUser.username === user.username) { %>
-            <a href="./edit">Edit Profile</a>
+            <a href="/user/<%= user.username %>/edit">Edit Profile</a>
         <% } %>
     </body>
 </html>
