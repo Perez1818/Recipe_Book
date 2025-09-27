@@ -227,12 +227,17 @@ async function verifyIngredientsPreview(req, res) {
   }
 }
 
+async function getRecipeView(request, response) {
+    response.redirect("/static/recipe-view.html");
+}
+
 module.exports = {
-  getRecipeMaker,
-  createRecipe,
-  updateRecipe,
-  listRecipes,
-  getRecipe,
-  deleteRecipe,
-  verifyIngredientsPreview,
+    getRecipeMaker,
+    createRecipe,
+    updateRecipe,
+    listRecipes,
+    getRecipe,
+    deleteRecipe,
+    verifyIngredientsPreview,
+    getRecipeView
 };
