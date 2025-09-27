@@ -37,6 +37,36 @@ async function seedDatabase() {
     await client.query(`ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;`);
     await client.query(`CREATE INDEX "IDX_session_expire" ON "session" ("expire");`);
 
+    await client.query(`CREATE TABLE IF NOT EXISTS recipes(
+                  id SERIAL PRIMARY KEY,
+                  name TEXT NOT NULL,
+                  description TEXT NOT NULL, 
+                  cook_minutes INT, 
+                  serving_size INT,
+                  tags TEXT[],
+                  is_published BOOLEAN NOT NULL
+    );`);
+
+    await client.query(`CREATE TABLE IF NOT EXISTS ingredients(
+                  recipe_id INT,
+                  name TEXT,
+                  qty FLOAT,
+                  unit TEXT,
+                  PRIMARY KEY (recipe_id, name),
+                  CONSTRAINT fk_ingredients_recipes FOREIGN KEY (recipe_id) REFERENCES recipes (id)
+    );`);
+
+    await client.query(`CREATE TABLE IF NOT EXISTS instructions(
+                  recipe_id INT,
+                  step_num INT,
+                  text TEXT NOT NULL,
+                  hours INT,
+                  minutes INT,
+                  has_image BOOLEAN,
+                  PRIMARY KEY (recipe_id, step_num),
+                  CONSTRAINT fk_instructions_recipes FOREIGN KEY (recipe_id) REFERENCES recipes (id)
+    );`);
+
     await client.end();
 }
 

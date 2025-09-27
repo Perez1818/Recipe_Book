@@ -1,0 +1,221 @@
+<!--
+  Recipe Maker Page (Create Recipe Wizard)
+
+  Purpose:
+  - Three-step UI to compose and submit a recipe.
+
+  Key Sections:
+  1) Overview (step-0): name, description, required thumbnail, cook time, serving size, comma-separated tags.
+  2) Ingredients (step-1): editor + add/edit/cancel; rendered as “pills” in left/right rails.
+  3) Instructions (step-2): editor with optional image preview, hours/minutes, add/edit/cancel; pills in rails.
+
+  UX & Navigation:
+  - Progress pills (active/done), Next/Back buttons, and a final Submit.
+  - “Cancel / Submit” buttons live below the instructions step.
+  - Uses minimal inline styles; main styling from ../css/styles.css and ../css/create-recipe.css.
+  - Accessibility: progress container has aria-live for status updates.
+
+  Behavior:
+  - JS in ../js/create-recipe.js manages step visibility, validation (incl. required thumbnail),
+    ingredient/instruction collection, and POST /recipes submission.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Maker</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/create-recipe.css">
+    <style>
+        .hidden {display: none;}
+        .wizard-progress{display:flex; gap:8px; align-items:center; justify-content:center; margin: 10px 0 20px;}
+        .wizard-pill {padding:4px 10px; border-radius:20px; background-color:lightgray; color:black; font-weight:bold;}
+        .wizard-pill.active {background-color:#79B473; color:white;}
+        .wizard-pill.done {background-color:gray; color:white;}
+    </style>
+</head>
+<body>
+    <header>
+        <p id="logo"> Recipe Book</p>
+        <nav>
+            <a href="create-recipe.html" class="tooltip">
+                <span class="tooltiptext">Recipe Maker</span>
+                <svg class="icon-highlight icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                </svg>
+            </a>
+        </nav>
+    </header>
+    <hr width="100%">
+    <!-- Recipe Form -->
+    <form id ="recipe-form" class="page-form" action="/recipes" method="POST" enctype="multipart/form-data">
+    <main>
+        <h1>Recipe Post Maker</h1>
+        <!-- progress pills-->
+         <div class="wizard-progress" aria-live="polite">
+            <span class="wizard-pill" data-pill="0">1. Overview</span>
+            <span class="wizard-pill" data-pill="1">2. Ingredients</span>
+            <span class="wizard-pill" data-pill="2">3. Instructions</span>
+         </div>
+        <!-- Step 1: Recipe Overview Section -->
+        <section id="step-0" data-step="0">
+            <div class="grid-container">
+                <div class="overview-grid">
+                    <div class="group-container">
+                        <b>Recipe Name</b>
+                        <input id="recipe-name" name="name" type="text" placeholder="e.g. Chocolate Chip Cookies">
+                    </div>
+
+                    <div class="group-container">
+                        <b>Recipe Description</b>
+                        <textarea id="recipe-description" name="description" placeholder="e.g. A delicious chocolate chip cookie recipe"></textarea>
+                    </div>
+                    <div class="group-container">
+                        <b>Thumbnail</b>
+                        <input id="thumbnail-input" name="thumbnail" type="file" accept=".png, .jpg, .jpeg">
+
+                        <!-- THUMBNAIL preview -->
+                        <div id="thumb-preview-wrap" class="thumb-wrapper hidden" style="margin-top:10px;">
+                            <img id="thumbnail-preview" class="instr-thumb" alt="Thumbnail Preview">
+                            <button type="button" id="remove-thumbnail" class="thumb-remove" aria-label="Remove thumbnail">✕</button>
+                        </div>
+                    </div>
+
+                        <!-- EXTRA DETAILS + PUBLISH -->
+                    <div class="group-container">
+                        <div class="details-grid">
+                            <div>
+                                <b>Cook Time (minutes)</b>
+                                <input id="cook-time" type="number" min="0" placeholder="0">
+                            </div>
+
+                            <div>
+                                <b>Serving Size</b>
+                                <input id="serving-size" type="number" min="1" placeholder="1" value="1">
+                            </div>
+
+                            <div class="col-span-2" style="margin-top:10px;">
+                                <b>Tags</b>
+                                <input id="tags" type="text" placeholder="e.g. quick, vegetarian, dinner">
+                                <div class="muted" style="font-size:12px;color:#666;">Comma-separated</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class = "nav-buttons">
+                    <button type="button" id="btn-next-0" class="start-btn">Next →</button>
+                </div>
+            </div>
+            
+        </section>
+        <!-- Ingredients Section -->
+        <section id="step-1" data-step="1" class="hidden">
+            <div class="grid-container ingredients-layout">
+
+                <!-- fills top→bottom -->
+                <div id="ingredient-rail-left" class="pill-rail"></div>
+
+                <!-- middle -->
+                    <div class="group-container">
+                        <div id="ingredients-list">
+                            <h3>Ingredient Editor</h3>
+
+                        <div>
+                        <b>Ingredient:</b>
+                        <input id="ingredient-name" name="ingredient-name" type="text" placeholder="e.g. Chocolate Chips">
+                    </div>
+
+                    <div>
+                        <b>Unit of Measurement:</b>
+                        <select id="ingredient-unit">
+                            <option value=""></option>
+                            <option value="tsp">tsp</option>
+                            <option value="tbsp">tbsp</option>
+                            <option value="cup">cup</option>
+                            <option value="oz">oz</option>
+                            <option value="lb">lb</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <b>Quantity:</b>
+                        <input id="quantity-input" type="number" step="0.25" placeholder="1">
+                    </div>
+
+                    <!-- Add button stays inside the editor -->
+                    <button type="button" id="add-ingredient" class="start-btn">+ Add New Ingredient</button>
+                    <!--cancel/edit button-->
+                    <button type="button" id="cancel-edit" class="start-btn hidden">Cancel Edit</button>
+                </div>
+            </div>
+
+            <!-- fills top→bottom-->
+            <div id="ingredient-rail-right" class="pill-rail"></div>
+
+            <!-- NAV BUTTONS -->
+            <div class="nav-buttons" style="grid-column: 1 / -1;">
+                <button type="button" id="btn-back-1" class="start-btn">← Back</button>
+                <button type="button" id="btn-next-1" class="start-btn">Next →</button>
+            </div>
+        </section>
+
+       <!-- Instructions Section -->
+        <section id="step-2" data-step="2" class="hidden">
+            <div class="grid-container ingredients-layout"><!-- reuse same 3-col layout -->
+
+                <!-- LEFT RAIL -->
+                <div id="instruction-rail-left" class="pill-rail"></div>
+
+                <!-- MIDDLE: EDITOR CARD -->
+                <div class="group-container">
+                    <h3>Instruction Editor</h3>
+
+                    <div>
+                        <b>Step Description:</b>
+                        <textarea id="instruction-text"></textarea>
+                    </div>
+
+                    <div>
+                        <b>Image of Step (Optional):</b>
+                        <input id="instruction-image" type="file" accept=".png, .jpg, .jpeg">
+                        <div id="instruction-preview" class="thumb-wrapper hidden">
+                            <img id="instruction-image-preview" class="instr-thumb" alt="Step preview">
+                            <button type="button" id="remove-instruction-image" class="thumb-remove">✕</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <b>Estimated Time:</b>
+                        <div>
+                            <b>Hours:</b>
+                            <input id="instruction-hours" type="number" class="input-time" min="0" placeholder="0">
+                            <b>Minutes:</b>
+                            <input id="instruction-minutes" type="number" class="input-time" min="0" placeholder="0">
+                        </div>
+                    </div>
+
+                    <!-- Buttons (outside the small time div) -->
+                    <button type="button" id="add-instruction" class="start-btn">+ Add New Step</button>
+                    <button type="button" id="cancel-instruction-edit" class="start-btn hidden">Cancel Edit</button>
+                </div>
+
+                <!-- RIGHT RAIL -->
+                <div id="instruction-rail-right" class="pill-rail"></div>
+
+                <!-- NAV -->
+                <div class="nav-buttons" style="grid-column: 1 / -1;">
+                    <button type="button" id="btn-back-2" class="start-btn">← Back</button>
+                </div>
+
+            </div>
+            <div id="button-container">
+                <button id="cancel-button">Cancel</button>
+                <button id="submit-button" type="submit">Submit</button>
+            </div>
+        </section>
+    </main>
+    </form>
+    <script src="/static/js/create-recipe.js" defer></script>
+</body>
+</html>
