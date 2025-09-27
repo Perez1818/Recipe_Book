@@ -22,6 +22,9 @@ async function seedDatabase() {
                   password TEXT NOT NULL,
                   avatar TEXT NOT NULL,
 
+                  birthday DATE,
+                  biography TEXT,
+
                   UNIQUE(username),
                   UNIQUE(email)
     );`);
