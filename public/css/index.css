@@ -1,10 +1,10 @@
 
 /* Adds unique styling to heading element */
 h1 {
+    margin: 20px auto;
     width: fit-content;
     padding: 5px 15px;
     border: lightcoral solid 4px;
-    justify-self: center;
     border-radius: 30px;
 }
 
@@ -45,16 +45,20 @@ button:disabled {
 }
 
 .carousel-button {
+    display: flex;
     width: 30px;
+    height: 350px;
     border-radius: 5px;
     margin: 15px;
-    justify-items: center;
-    padding: 5px 15px;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
 }
 
 /* Prevents svg from moving outside container */
 .carousel-button svg {
-    display: block;
+    width: 100%;
+    height: auto;
 }
 
 .carousel {
@@ -96,8 +100,6 @@ button:disabled {
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
-    text-overflow: ellipsis;
-    text-wrap: nowrap;
 }
 
 /* Makes description never exceed 2 lines */
