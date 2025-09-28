@@ -142,6 +142,9 @@ exports.getAccountSettings = async (request, response, next) => {
 
 exports.updateAccount = [
         validate.emailUpdate(),
+        validate.passwordUpdate(),
+        validate.confirmedPassword(),
+        validate.currentPassword(),
         validate.birthday(),
 
         async (request, response, next) => {
@@ -150,20 +153,24 @@ exports.updateAccount = [
                 const result = validationResult(request);
                 const errorMessages = getErrorMessages(result);
 
-                const invalidUser = {
-                    email: request.body.email,
-                    password: request.body.password,
-                    confirmedPassword: request.body.confirmedPassword,
-                    currentPassword: request.body.currentPassword,
-                    birthday: request.body.birthday
-                };
+                if (attributeCount(errorMessages)) {
+                    const invalidUser = {
+                        email: request.body.email,
+                        birthday: request.body.birthday
+                    };
+                    response.render("edit-account", { errorMessages: errorMessages, invalidUser: invalidUser });
+                }
+                else {
+                    await usersTable.updateEmail(request.user.id, request.body.email);
+                    if (request.body.password) {
+                        await usersTable.updatePassword(request.user.id, request.body.password);
+                    }
+                    if (request.body.birthday) {
+                        await usersTable.updateBirthday(request.user.id, request.body.birthday);
+                    }
 
-                console.log(invalidUser.password);
-                console.log(invalidUser.confirmedPassword);
-                console.log(invalidUser.currentPassword);
-                console.log(invalidUser.birthday);
-
-                response.render("edit-account", { errorMessages: errorMessages, invalidUser: invalidUser });
+                    response.redirect("/settings/account");
+                }
             }
             else {
                 next();

@@ -83,6 +83,20 @@ async function updateBiography(id, biography) {
     return await pool.query("UPDATE users SET biography = $1 WHERE id = $2;", [biography, id]);
 }
 
+async function updateEmail(id, email) {
+    return await pool.query("UPDATE users SET email = $1 WHERE id = $2;", [email, id]);
+}
+
+async function updatePassword(id, password) {
+    const hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_LENGTH));
+    return await pool.query("UPDATE users SET password = $1 WHERE id = $2;", [hashedPassword, id]);
+}
+
+async function updateBirthday(id, birthday) {
+    return await pool.query("UPDATE users SET birthday = $1 WHERE id = $2;", [birthday, id]);
+}
+
+
 /* Avoid listing all exports manually
  */
 module.exports = {
@@ -96,5 +110,9 @@ module.exports = {
     comparePasswords,
     updateAvatar,
     updateUsername,
-    updateBiography
+    updateBiography,
+    
+    updateEmail,
+    updatePassword,
+    updateBirthday
 }

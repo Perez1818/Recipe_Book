@@ -67,7 +67,23 @@ const validate = {
                                   throw new Error("Birthday cannot be in the future");
                               }
                           }
-                      })
+                      }),
+
+    passwordUpdate: () => body("password")
+                            .custom(async password => {
+                                if (password.length < MIN_PASSWORD_LENGTH && password.length !== 0) {
+                                    throw new Error(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`);
+                                }
+                            }),
+
+    currentPassword: () => body("currentPassword")
+                             .custom(async (password, { req }) => {
+                                 if (req.body.password && !(await usersTable.comparePasswords(password, req.user.password))) {
+                                     throw new Error("Current password does not match our records");
+                                 }
+                             })
+
+
 };
 
 module.exports = {
