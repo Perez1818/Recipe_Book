@@ -15,15 +15,22 @@
     <body>
         <img src="<%= currentUser.avatar %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
 
-        <form action="" method="post">
+        <form action="/settings/profile" method="post">
             <div class="field">
-                <label for="biography">Biography</label>
+                <label for="username">Username: </label>
+                <input type="text" id="username" name="username" value="<%= currentUser.username %>">
+            </div>
+
+            <div class="field">
+                <label for="biography">Biography: </label>
                 <input type="text" id="biography" name="biography" value="<%= currentUser.biography %>">
             </div>
 
             <div class="field">
                 <input id="submit-button" type="submit" value="Save changes">
             </div>
+
+            <a href="/user/<%= currentUser.username %>">Profile</a>
         </form>
     </body>
 </html>
