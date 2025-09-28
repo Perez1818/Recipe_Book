@@ -27,6 +27,27 @@ async function getUserByName(username) {
     return getOnlyRow(rows);
 }
 
+async function getUserByEmail(email) {
+    const { rows } = await pool.query(`SELECT * FROM users WHERE email = $1;`, [email]);
+    return getOnlyRow(rows);
+}
+
+async function usernameIsAvailable(username) {
+    const user = await getUserByName(username);
+    if (user) {
+        return false;
+    }
+    return true;
+}
+
+async function emailIsAvailable(email) {
+    const user = await getUserByEmail(email);
+    if (user) {
+        return false;
+    }
+    return true;
+}
+
 async function getUserByNameOrEmail(username) {
     const { rows } = await pool.query(`SELECT * FROM users WHERE (username = $1 OR email = $1);`, [username]);
     return getOnlyRow(rows);
@@ -54,6 +75,10 @@ async function updateAvatar(id, avatarUrl) {
     return await pool.query("UPDATE users SET avatar = $1 WHERE id = $2;", [avatarUrl, id]);
 }
 
+async function updateUsername(id, username) {
+    return await pool.query("UPDATE users SET username = $1 WHERE id = $2;", [username, id]);
+}
+
 async function updateBiography(id, biography) {
     return await pool.query("UPDATE users SET biography = $1 WHERE id = $2;", [biography, id]);
 }
@@ -62,10 +87,14 @@ async function updateBiography(id, biography) {
  */
 module.exports = {
     getUserByName,
+    getUserByEmail,
+    usernameIsAvailable,
+    emailIsAvailable,
     getUserByNameOrEmail,
     getUserById,
     createUser,
     comparePasswords,
     updateAvatar,
+    updateUsername,
     updateBiography
 }
