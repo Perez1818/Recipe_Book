@@ -26,7 +26,9 @@
 
         <img src="<%= currentUser.avatar %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
 
-        <form action="/settings/profile" method="post">
+        <form action="/settings/profile" method="post" enctype="multipart/form-data">
+            <input type="file" name="avatar">
+
             <div class="field">
                 <label for="username">Username: </label>
                 <input type="text" id="username" name="username" value="<%= locals.invalidUser ? invalidUser.username : currentUser.username %>">

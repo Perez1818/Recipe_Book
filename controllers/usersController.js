@@ -2,6 +2,10 @@ const usersTable = require("../database/usersTable.js");
 const { validate, validationResult } = require("../middleware/formValidation.js");
 const { passport } = require("../middleware/passport.js");
 
+const filesController = require("../controllers/filesController.js");
+const BYTES_PER_MEGABYTE = 1024 * 1024;
+const BYTES_PER_AVATAR = BYTES_PER_MEGABYTE;
+
 exports.getIndex = async (request, response) => {
     response.redirect("/static/index.html");
 };
@@ -95,28 +99,40 @@ exports.getUserSettings = async (request, response, next) => {
 }
 
 exports.updateProfile = [
-        validate.usernameUpdate(),
-
         async (request, response, next) => {
-            const user = request.user;
-            if (user) {
-                const result = validationResult(request);
-                const errorMessages = getErrorMessages(result);
+            filesController.uploadSingleAvatar(request, response, async (error) => {
+                await validate.usernameUpdate(request);
+                const user = request.user;
+                if (user) {
+                    const result = validationResult(request);
+                    const errorMessages = getErrorMessages(result);
 
-                if (attributeCount(errorMessages)) {
-                    const invalidUser = { username: request.body.username, biography: request.body.biography };
-                    response.render("edit-profile", { errorMessages: errorMessages, invalidUser: invalidUser });
+                    if (error) {
+                        const message = error.code === "LIMIT_FILE_SIZE" ? `File size cannot exceed ${BYTES_PER_AVATAR / BYTES_PER_MEGABYTE}MB` : error.message;
+                        errorMessages["file"] = message;
+                    }
+
+                    if (attributeCount(errorMessages)) {
+                        const invalidUser = { username: request.body.username, biography: request.body.biography };
+                        response.render("edit-profile", { errorMessages: errorMessages, invalidUser: invalidUser });
+                    }
+
+                    else {
+                        await usersTable.updateUsername(request.user.id, request.body.username);
+                        await usersTable.updateBiography(request.user.id, request.body.biography);
+
+                        if (request.file !== undefined) {
+                            const avatarUrl = `/static/uploads/avatar/${request.file.filename}`;
+                            await usersTable.updateAvatar(request.user.id, avatarUrl);
+                        }
+
+                        response.redirect("/settings");
+                    }
                 }
                 else {
-                    await usersTable.updateUsername(request.user.id, request.body.username);
-                    await usersTable.updateBiography(request.user.id, request.body.biography);
-                    response.redirect("/settings");
+                    next();
                 }
-
-            }
-            else {
-                next();
-            }
-
+        })
     }
 ];
+

@@ -11,6 +11,7 @@ const BYTES_PER_AVATAR = BYTES_PER_MEGABYTE;
 const AVATAR_FIELD_NAME = "avatar";
 
 const uploadSingleAvatar = getCustomUpload(ALLOWED_AVATAR_FILE_TYPES, AVATAR_DIRECTORY, BYTES_PER_AVATAR, AVATAR_FIELD_NAME);
+exports["uploadSingleAvatar"] = uploadSingleAvatar;
 
 exports.getAvatarUpload = async (request, response) => {
     if (request.isAuthenticated()) {
