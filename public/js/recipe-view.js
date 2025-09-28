@@ -4,7 +4,10 @@ const navigateWalkthroughContainer = document.getElementById("navigate-walkthrou
 const stepFractionPresentation = document.getElementById("completion-fraction");
 const progressBar = document.getElementById("completion-progress");
 const stepCounter = document.getElementById("step-counter");
-const currentUrl = window.location.href
+const currentUrl = window.location.href;
+const estimatedTimeElement = document.getElementById("estimated-time");
+const estimatedTimeDescriptor = document.getElementById("description");
+const estimatedTimeBoldedText = document.getElementById("time-in-bold");
 
 // Publisher and Date objects
 const usernameElement = document.getElementById("username");
@@ -36,6 +39,7 @@ function getSteps() {
     lastStep = instructions.length;
     return { currentStep, lastStep};
 }
+
 
 // Searches for the recipe based on ID provided in URL
 async function searchForRecipe() {
@@ -140,6 +144,143 @@ async function fillRecipeViewPage() {
     return { instructions }
 }
 
+function returnExpectedTimeUnit(timeUnit) {
+    switch (timeUnit) {
+        case "minutes":
+            return "minutes";
+        case "mins":
+            return "minutes";
+        case "hours":
+            return "hours";
+        case "hrs":
+            return "hours"
+        case "hour":
+            return "hours"
+        case "hr":
+            return "hours"
+        default:
+            return -1
+    }
+}
+
+
+function getTimeForInstruction() {
+    let matches;
+    currentInstruction = currentInstruction.toLowerCase().replace(" to ", "-").replace(" - ", "-");
+    const regex = /\b\d+(?:\s*(?:mins?|minutes?|hrs?|hours?|hour?|hr?))?\s*(?:-|to)\s*\d+\s*(?:mins?|minutes?|hrs?|hours?|hour?|hr?)\b|\b\d+\s*(?:mins?|minutes?|hrs?|hours?|hour?|hr?)\b/gi;
+    matches = [...currentInstruction.matchAll(regex)];
+
+    if (matches[0]) {
+        timeValue = 0;
+        estimatedTimeBoldedText.textContent = "";
+
+        matches.forEach(
+            (match) => {
+                match = match[0];
+                console.log(match)
+
+                // Grabs the last word representing the time unit and processes it
+                timeUnit = (match.split(" ")).at(-1)
+                timeUnit = returnExpectedTimeUnit(timeUnit)
+
+                if (match.includes("-")) {
+                    if ((match.split("-")[0]).includes(" ")){
+                        let [lowerBound, upperBound] = match.split("-");
+
+                        function getValuesAndUnits(bound) {
+                            bound = bound.split(" ");
+                            timeUnit = bound.at(-1);
+                            timeUnit = returnExpectedTimeUnit(timeUnit);
+                            timeValue = bound[0];
+
+                            if (timeValue == 1) {
+                                timeUnit = timeUnit.slice(0, -1);
+                            }
+
+                            return { timeValue, timeUnit };
+                        }
+                        
+                        let { timeValue: timeValueLower, timeUnit: timeUnitLower } = getValuesAndUnits(lowerBound);
+                        let { timeValue: timeValueUpper, timeUnit: timeUnitUpper } = getValuesAndUnits(upperBound);
+                        
+                        if (estimatedTimeBoldedText.textContent) {
+                            estimatedTimeBoldedText.textContent += ` + (${timeValueLower} ${timeUnitLower} - ${timeValueUpper} ${timeUnitUpper})`
+                        }
+                        else {
+                            estimatedTimeBoldedText.textContent = `${timeValueLower} ${timeUnitLower} - ${timeValueUpper} ${timeUnitUpper}`;
+                        }
+                    }
+                    else {
+                        if (estimatedTimeBoldedText.textContent) {
+                            estimatedTimeBoldedText.textContent += ` + ${match.split(" ")[0]} ${timeUnit}`;
+                        }
+                        else {
+                            estimatedTimeBoldedText.textContent = `${match.split(" ")[0]} ${timeUnit}`;
+                        }
+                    }
+
+                    estimatedTimeElement.style.visibility = "";
+                }
+                else {
+                    timeValue = parseInt(match.split(" ")[0]);
+                    timeUnit = returnExpectedTimeUnit(match.split(" ").at(-1));
+
+                    if (timeUnit === "hours") {
+                        timeValue *= 60;
+                    }
+                    
+                    estimatedTimeElement.style.visibility = "";
+
+                    let numMinutes;
+                    let numHours;
+                    if (timeValue >= 60) {
+                        numHours = Math.floor(timeValue / 60);
+                        numMinutes = timeValue - (60 * numHours);
+                        if (numHours === 1) {
+                            if (estimatedTimeBoldedText.textContent) {
+                                if (numMinutes !== 0) {
+                                    estimatedTimeBoldedText.textContent += ` + 1 hour, ${numMinutes} minutes`;
+                                }
+                                else {
+                                    estimatedTimeBoldedText.textContent += ` + 1 hour`;
+                                }
+                            }
+                            else {
+                                if (numMinutes !== 0) {
+                                    estimatedTimeBoldedText.textContent = `1 hour, ${numMinutes} minutes`;
+                                }
+                                else {
+                                    estimatedTimeBoldedText.textContent = `1 hour`;
+                                }
+                            }
+                        }
+                        else {
+                            if (estimatedTimeBoldedText.textContent) {
+                                estimatedTimeBoldedText.textContent += ` + ${numHours} hours, ${numMinutes} minutes`;
+                            }
+                            else {
+                                estimatedTimeBoldedText.textContent = `${numHours} hours, ${numMinutes} minutes`;
+                            }
+                        }
+                    }
+                    else {
+                        if (estimatedTimeBoldedText.textContent) {
+                            estimatedTimeBoldedText.textContent += ` + ${timeValue} ${timeUnit}`;
+                        }
+                        else {
+                            estimatedTimeBoldedText.textContent = `${timeValue} ${timeUnit}`;
+                        }
+                    }
+                }
+            }
+        );
+    }
+    else {
+        estimatedTimeElement.style.visibility = "hidden";
+        estimatedTimeBoldedText.textContent = ""
+    }
+}
+
 async function main() {
     ({instructions} = await fillRecipeViewPage());
     let [ getPreviousStep, getNextStep ] = navigateWalkthroughContainer.getElementsByTagName("button");
@@ -149,17 +290,26 @@ async function main() {
     progressBar.value = currentStep / lastStep;
     getPreviousStep.style.cursor = "not-allowed";
     getPreviousStep.disabled = true;
-    getNextStep.style.cursor = "pointer"
+    getNextStep.style.cursor = "pointer";
 
     stepFractionPresentation.textContent = `1 / ${instructions.length}`
+
+    currentInstruction = instructions[currentStep - 1];
+    getTimeForInstruction(currentInstruction);
 
     // Allows user to move to the previous step in instructions when left button is clicked
     getPreviousStep.addEventListener("click", () => {
         // Obtains current step and last step
         let { currentStep, lastStep } = getSteps();
 
+        currentInstruction = instructions[currentStep - 1];
+        // getTimeForInstruction(currentInstruction);
+
         if (currentStep != 1) {
             currentStep -= 1;
+
+            currentInstruction = instructions[currentStep - 1];
+            getTimeForInstruction(currentInstruction);
 
             // Updates text displayed for instructions, steps done, and step counter
             instructionsTextElement.textContent = instructions[currentStep - 1]
@@ -185,6 +335,9 @@ async function main() {
 
         if (currentStep != lastStep) {
             currentStep += 1;
+
+            currentInstruction = instructions[currentStep - 1];
+            getTimeForInstruction(currentInstruction);
 
             // Updates text displayed for instructions, steps done, and step counter
             instructionsTextElement.textContent = instructions[currentStep - 1]

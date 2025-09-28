@@ -283,10 +283,11 @@ img, video {
     height: 75%;
 }
 
-.estimated-time {
+#estimated-time {
     background-color: lightgreen;
     border-radius: 10px;
     padding: 10px;
+    width: fit-content;
 }
 
 .clickable:hover {
