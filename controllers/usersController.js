@@ -104,7 +104,8 @@ exports.updateProfile = [
                 const errorMessages = getErrorMessages(result);
 
                 if (attributeCount(errorMessages)) {
-                    response.render("edit-profile", { errorMessages: errorMessages });
+                    const invalidUser = { username: request.body.username, biography: request.body.biography };
+                    response.render("edit-profile", { errorMessages: errorMessages, invalidUser: invalidUser });
                 }
                 else {
                     await usersTable.updateUsername(request.user.id, request.body.username);

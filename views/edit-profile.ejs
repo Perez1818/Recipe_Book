@@ -9,21 +9,33 @@
                 height: 150px;
                 object-fit: cover;
             }
+            p {
+                color: red;
+            }
         </style>
     </head>
 
     <body>
+
+        <% function getErrorMessage(fieldName) { %>
+            <% if (locals.errorMessages && errorMessages[fieldName] !== undefined) { %>
+                <% return errorMessages[fieldName]; %>
+            <% } %>
+            <% return ""; %>
+        <% } %>
+
         <img src="<%= currentUser.avatar %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
 
         <form action="/settings/profile" method="post">
             <div class="field">
                 <label for="username">Username: </label>
-                <input type="text" id="username" name="username" value="<%= currentUser.username %>">
+                <input type="text" id="username" name="username" value="<%= locals.invalidUser ? invalidUser.username : currentUser.username %>">
+                <p><%= getErrorMessage("username") %></p>
             </div>
 
             <div class="field">
                 <label for="biography">Biography: </label>
-                <input type="text" id="biography" name="biography" value="<%= currentUser.biography %>">
+                <input type="text" id="biography" name="biography" value="<%= locals.invalidUser ? invalidUser.biography : currentUser.biography %>">
             </div>
 
             <div class="field">
