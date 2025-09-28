@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Your profile</title>
+        <title>Edit Profile</title>
         <meta charset="UTF-8"> 
         <style>
             .avatar {
@@ -11,6 +11,10 @@
             }
             p {
                 color: red;
+            }
+            a {
+                margin-top: 10px;
+                display: block;
             }
         </style>
     </head>
@@ -28,7 +32,7 @@
 
         <img src="<%= currentUser.avatar %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
 
-        <form action="/settings/profile" method="post" enctype="multipart/form-data">
+        <form action="/settings" method="post" enctype="multipart/form-data">
             <input type="file" name="avatar">
 
             <div class="field">
@@ -43,12 +47,11 @@
             </div>
 
             <div class="field">
-                <input id="submit-button" type="submit" value="Save changes">
+                <input id="submit-button" type="submit" value="Save">
             </div>
         </form>
 
-        <h1>Manage Account</h1>
-
+        <a href="/settings/account">Edit Account</a>
         <a href="/user/<%= currentUser.username %>">Back</a>
     </body>
 </html>

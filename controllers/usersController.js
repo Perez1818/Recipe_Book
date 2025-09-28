@@ -106,7 +106,7 @@ exports.updateProfile = [
                 if (user) {
                     const result = validationResult(request);
                     const errorMessages = getErrorMessages(result);
-
+                    
                     if (error) {
                         const message = error.code === "LIMIT_FILE_SIZE" ? `File size cannot exceed ${BYTES_PER_AVATAR / BYTES_PER_MEGABYTE}MB` : error.message;
                         errorMessages["file"] = message;
@@ -136,3 +136,24 @@ exports.updateProfile = [
     }
 ];
 
+exports.getAccountSettings = async (request, response, next) => {
+    response.render("edit-account");
+}
+
+exports.updateAccount = async (request, response, next) => {
+    const invalidUser = {
+        email: request.body.email,
+        password: request.body.password,
+        confirmedPassword: request.body.confirmedPassword,
+        currentPassword: request.body.currentPassword,
+        birthday: request.body.birthday
+    };
+
+    console.log(invalidUser.email);
+    console.log(invalidUser.password);
+    console.log(invalidUser.confirmedPassword);
+    console.log(invalidUser.currentPassword);
+    console.log(invalidUser.birthday);
+
+    response.render("edit-account", { invalidUser: invalidUser });
+}

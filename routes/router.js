@@ -13,7 +13,10 @@ router.get("/logout", usersController.logoutUser);
 
 router.get("/user/:username", usersController.getUserProfile);
 router.get("/settings", usersController.getUserSettings);
-router.post("/settings/profile", usersController.updateProfile);
+router.post("/settings", usersController.updateProfile);
+
+router.get("/settings/account", usersController.getAccountSettings);
+router.post("/settings/account", usersController.updateAccount);
 
 router.get("/upload/avatar", filesController.getAvatarUpload);
 router.post("/upload/avatar", filesController.uploadAvatar);
