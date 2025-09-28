@@ -17,11 +17,10 @@
 
         <h1><%= user.username %></h1>
 
-        <p>Birthday: <%= user.birthday || "N/A" %></p>
         <p>Bio: <%= user.biography %></p>
 
         <% if (currentUser && currentUser.username === user.username) { %>
-            <a href="/user/<%= user.username %>/edit">Edit Profile</a>
+            <a href="/settings">Edit Profile</a>
         <% } %>
     </body>
 </html>
