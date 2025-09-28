@@ -53,10 +53,14 @@ async function getUserByNameOrEmail(username) {
     return getOnlyRow(rows);
 }
 
+async function getHashedPassword(password) {
+    return await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_LENGTH));
+}
+
 async function createUser(username, email, password) {
     try {
         /* https://stackoverflow.com/a/46713082 */
-        const hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_LENGTH));
+        const hashedPassword = await getHashedPassword(password);
         const result = await pool.query(`INSERT INTO users (username, email, password, avatar)
                                          VALUES ($1, $2, $3, $4);`, [username, email, hashedPassword, DEFAULT_AVATAR_URL]);
         return true;
@@ -88,7 +92,7 @@ async function updateEmail(id, email) {
 }
 
 async function updatePassword(id, password) {
-    const hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_LENGTH));
+    const hashedPassword = await getHashedPassword(password);
     return await pool.query("UPDATE users SET password = $1 WHERE id = $2;", [hashedPassword, id]);
 }
 
@@ -111,7 +115,6 @@ module.exports = {
     updateAvatar,
     updateUsername,
     updateBiography,
-    
     updateEmail,
     updatePassword,
     updateBirthday
