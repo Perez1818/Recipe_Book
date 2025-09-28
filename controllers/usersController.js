@@ -36,9 +36,9 @@ exports.signUpUser = [
     validate.username(),
     validate.email(),
     validate.password(),
+    validate.confirmedPassword(),
 
     async (request, response, next) => {
-        await validate.confirmedPassword(request);
         const result = validationResult(request);
         const errorMessages = getErrorMessages(result);
 

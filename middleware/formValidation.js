@@ -30,9 +30,12 @@ const validate = {
                       .notEmpty().withMessage("Password is required")
                       .isLength({ min: MIN_PASSWORD_LENGTH }).withMessage(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`),
 
-    confirmedPassword: async (request) => await body("confirmedPassword")
-                                                  .equals(request.body.password).withMessage("Passwords do not match")
-                                                  .run(request),
+    confirmedPassword: () => body("confirmedPassword")
+                               .custom(async (password, { req }) => {
+                                   if (password !== req.body.password) {
+                                       throw new Error("Passwords do not match");
+                                   }
+                               }),
 
     usernameUpdate: async (request) => await body("username")
                       .notEmpty().withMessage("Username is required")
