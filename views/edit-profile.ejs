@@ -24,6 +24,8 @@
             <% return ""; %>
         <% } %>
 
+        <h1>Edit Profile</h1>
+
         <img src="<%= currentUser.avatar %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
 
         <form action="/settings/profile" method="post" enctype="multipart/form-data">
@@ -43,8 +45,10 @@
             <div class="field">
                 <input id="submit-button" type="submit" value="Save changes">
             </div>
-
-            <a href="/user/<%= currentUser.username %>">Profile</a>
         </form>
+
+        <h1>Manage Account</h1>
+
+        <a href="/user/<%= currentUser.username %>">Back</a>
     </body>
 </html>
