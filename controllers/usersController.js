@@ -33,7 +33,7 @@ exports.signUpUser = [
     validate.email(),
     validate.password(),
 
-    async (request, response) => {
+    async (request, response, next) => {
         await validate.confirmedPassword(request);
         const result = validationResult(request);
         const errorMessages = getErrorMessages(result);
@@ -47,7 +47,7 @@ exports.signUpUser = [
                 response.redirect("/");
             }
             else {
-                response.render("signup", { errorMessages: { unavailable: "Username or email is unavailable or already taken, please try another" } });
+                next();
             }
         }
     }
@@ -84,8 +84,9 @@ exports.getUserProfile = async (request, response, next) => {
     }
 };
 
-exports.getUserEditor = async (request, response, next) => {
-    if (request.user) {
+exports.getUserSettings = async (request, response, next) => {
+    const user = request.user;
+    if (user) {
         response.render("edit-profile");
     }
     else {
@@ -93,12 +94,28 @@ exports.getUserEditor = async (request, response, next) => {
     }
 }
 
-exports.editUser = async (request, response, next) => {
-    if (request.user && request.user.username === request.params.username) {
-        await usersTable.updateBiography(request.user.id, request.body.biography);
-        response.redirect(`/user/${request.user.username}`);
+exports.updateProfile = [
+        validate.usernameUpdate(),
+
+        async (request, response, next) => {
+            const user = request.user;
+            if (user) {
+                const result = validationResult(request);
+                const errorMessages = getErrorMessages(result);
+
+                if (attributeCount(errorMessages)) {
+                    response.render("edit-profile", { errorMessages: errorMessages });
+                }
+                else {
+                    await usersTable.updateUsername(request.user.id, request.body.username);
+                    await usersTable.updateBiography(request.user.id, request.body.biography);
+                    response.redirect("/settings");
+                }
+
+            }
+            else {
+                next();
+            }
+
     }
-    else {
-        next();
-    }
-}
+];

@@ -32,7 +32,18 @@ const validate = {
 
     confirmedPassword: async (request) => await body("confirmedPassword")
                                                   .equals(request.body.password).withMessage("Passwords do not match")
-                                                  .run(request)
+                                                  .run(request),
+
+    usernameUpdate: () => body("username")
+                      .notEmpty().withMessage("Username is required")
+                      .isLength({ min: MIN_USERNAME_LENGTH }).withMessage(`Username must be at least ${MIN_USERNAME_LENGTH} characters long`)
+                      .isAlphanumeric().withMessage("Username must contain only letters and numbers")
+                      .custom(async (username, { req }) => {
+                          const usernameIsAvailable = await usersTable.usernameIsAvailable(username);
+                          if (!usernameIsAvailable && req.user.username !== username) {
+                              throw new Error("Username already in use");
+                          }
+                      })
 };
 
 module.exports = {
