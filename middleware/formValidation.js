@@ -46,7 +46,28 @@ const validate = {
                           if (!usernameIsAvailable && req.user.username !== username) {
                               throw new Error("Username already in use");
                           }
-                      }).run(request)
+                      }).run(request),
+
+    emailUpdate: () => body("email")
+                         .notEmpty().withMessage("Email is required")
+                         .isEmail().withMessage("Please enter a valid email")
+                         .custom(async (email, { req }) => {
+                             const emailIsAvailable = await usersTable.emailIsAvailable(email);
+                             if (!emailIsAvailable && req.user.email !== email) {
+                                 throw new Error("Email already in use");
+                             }
+                         }),
+
+    birthday: () => body("birthday")
+                      .custom(async birthday => {
+                          if (birthday !== "") {
+                              const currentDate = new Date();
+                              const birthDate = new Date(birthday);
+                              if (birthDate >= currentDate) {
+                                  throw new Error("Birthday cannot be in the future");
+                              }
+                          }
+                      })
 };
 
 module.exports = {

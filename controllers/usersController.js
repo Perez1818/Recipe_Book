@@ -140,20 +140,33 @@ exports.getAccountSettings = async (request, response, next) => {
     response.render("edit-account");
 }
 
-exports.updateAccount = async (request, response, next) => {
-    const invalidUser = {
-        email: request.body.email,
-        password: request.body.password,
-        confirmedPassword: request.body.confirmedPassword,
-        currentPassword: request.body.currentPassword,
-        birthday: request.body.birthday
-    };
+exports.updateAccount = [
+        validate.emailUpdate(),
+        validate.birthday(),
 
-    console.log(invalidUser.email);
-    console.log(invalidUser.password);
-    console.log(invalidUser.confirmedPassword);
-    console.log(invalidUser.currentPassword);
-    console.log(invalidUser.birthday);
+        async (request, response, next) => {
+            const user = request.user;
+            if (user) {
+                const result = validationResult(request);
+                const errorMessages = getErrorMessages(result);
 
-    response.render("edit-account", { invalidUser: invalidUser });
-}
+                const invalidUser = {
+                    email: request.body.email,
+                    password: request.body.password,
+                    confirmedPassword: request.body.confirmedPassword,
+                    currentPassword: request.body.currentPassword,
+                    birthday: request.body.birthday
+                };
+
+                console.log(invalidUser.password);
+                console.log(invalidUser.confirmedPassword);
+                console.log(invalidUser.currentPassword);
+                console.log(invalidUser.birthday);
+
+                response.render("edit-account", { errorMessages: errorMessages, invalidUser: invalidUser });
+            }
+            else {
+                next();
+            }
+    }
+];
