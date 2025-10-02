@@ -2,6 +2,13 @@
 // Object references
 const visibleCountdown = document.getElementById("countdown");
 const timerBar = document.getElementById("timer");
+const estimatedTimeBoldedText2 = document.getElementById("time-in-bold");
+
+
+function getEstimatedTime() {
+    return;
+}
+
 
 // Time variables
 let minutes = 5;
@@ -13,6 +20,7 @@ const targetTime = Date.now() + msToRun;
 // Assigns rate at which to call updateTimer and updateTimerBar and the IDs to stop calls
 timerId = setInterval(updateTimer, SECOND);
 timerBarId = setInterval(updateTimerBar, SECOND / 20);
+
 
 // Returns unit of time with extra "0" if it consists of one digit
 function padTime(timeUnit) {
@@ -44,24 +52,36 @@ function updateTimer() {
     // Pads seconds with "0s" if necessary
     seconds = padTime(seconds);
     // Updates timer to display updated time left
-    visibleCountdown.textContent = `${minutes}:${seconds}`
+    if (seconds >= 0 && minutes >= 0) {
+        visibleCountdown.textContent = `${minutes}:${seconds}`
+    }
+    else {
+        visibleCountdown.textContent = "0:00";
+        
+    }
 
     // Stops timer when time runs out and makes text flash
     if (remainingTimeS <= 0) {
         clearInterval(timerId);
         clearInterval(timerBarId);
 
-        // Plays alarm for 3 seconds before stopping
-        let alarmOffId;
-        alarmOffId = setInterval(flashTimer, SECOND / 4);
-        setTimeout(function() {
-            clearInterval(alarmOffId);
-        }, 3_000);
+        playAlarm();
     }
 }
+
 
 // Updates progress bar animation to be much smoother using ms
 function updateTimerBar() {
     remainingTimeMs = targetTime - Date.now();
     timerBar.value = remainingTimeMs / msToRun;
+}
+
+
+// Plays alarm for 3 seconds before stopping
+function playAlarm() {
+    let alarmOffId;
+    alarmOffId = setInterval(flashTimer, SECOND / 4);
+    setTimeout(function() {
+        clearInterval(alarmOffId);
+    }, 3_000);
 }
