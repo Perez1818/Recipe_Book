@@ -144,30 +144,73 @@ async function fillRecipeViewPage() {
     return { instructions }
 }
 
-function returnExpectedTimeUnit(timeUnit) {
+
+// Returns a consistent time unit for the time unit listed in the recipe
+function getExpectedTimeUnit(timeUnit, timeValue=-1) {
     switch (timeUnit) {
+        // minutes
         case "minutes":
             return "minutes";
         case "mins":
             return "minutes";
+        // minutes / minute
+        case "minute":
+            if (timeValue > 1) {
+                return "minutes"
+            }
+            return "minute";
+        case "min":
+            if (timeValue > 1) {
+                return "minutes"
+            }
+            return "minute"
+        // hours
         case "hours":
             return "hours";
         case "hrs":
             return "hours"
+        // hours / hour
         case "hour":
-            return "hours"
+            if (timeValue > 1) {
+                return "hours"
+            }
+            return "hour"
         case "hr":
-            return "hours"
+            if (timeValue > 1) {
+                return "hours"
+            }
+            return "hour"
+        // Returns empty string for first time value listed in time span (e.g. 25–30 minutes)
         default:
-            return -1
+            return ""
     }
 }
 
 
+// Replaces text with unicode fractions with corresponding non-unicode fractions
+function normalizeUnicodeFractions(str) {
+    const fractions = {
+        "½": '1/2',
+        "⅓": '1/3',
+        "⅔": '2/3',
+        "¼": '1/4',
+        "¾": '3/4',
+        "⅕": '1/5',
+        "⅖": '2/5',
+        "⅗": '3/5',
+        "⅘": '4/5'
+    }
+    return str.replace(/[½⅓⅔¼¾⅕⅖⅗⅘]/g, i => ` ${fractions[i]}`);
+}
+
+
+// Reads all durations specified in current recipe instruction and writes them to notecard
 function getTimeForInstruction() {
     let matches;
-    currentInstruction = currentInstruction.toLowerCase().replace(" to ", "-").replace(" - ", "-");
-    const regex = /\b\d+(?:\s*(?:mins?|minutes?|hrs?|hours?|hour?|hr?))?\s*(?:-|to)\s*\d+\s*(?:mins?|minutes?|hrs?|hours?|hour?|hr?)\b|\b\d+\s*(?:mins?|minutes?|hrs?|hours?|hour?|hr?)\b/gi;
+    currentInstruction = currentInstruction.toLowerCase().replace(/\s*( to |–|—|−| or )\s*/gi, "-");
+    const regex = /\b(\d+(?:\s+\d+\/\d+)?)(?:\s*(?:-|to)\s*(\d+(?:\s+\d+\/\d+)?))?\s*(?:more\s+)?( ?(?:mins?|minutes?|hrs?|hours?|hour?|hr?))\b/gi;
+
+    currentInstruction = normalizeUnicodeFractions(currentInstruction)
     matches = [...currentInstruction.matchAll(regex)];
 
     if (matches[0]) {
@@ -175,26 +218,57 @@ function getTimeForInstruction() {
         estimatedTimeBoldedText.textContent = "";
 
         matches.forEach(
-            (match) => {
-                match = match[0];
-                console.log(match)
+            (m) => {
+                match = m[0];
+                parts = match.split(" ");
+                let timeValue;
+                let timeUnit;
 
-                // Grabs the last word representing the time unit and processes it
-                timeUnit = (match.split(" ")).at(-1)
-                timeUnit = returnExpectedTimeUnit(timeUnit)
+                if (parts.length === 1) {
+                    [, timeValue, timeUnit] = match.match(/^(\d+(?:\s+\d+\/\d+)?)([a-zA-Z]+)$/);
+                    timeUnit = getExpectedTimeUnit(timeUnit, timeValue)
+                }
+                else {
+                    // Grabs the last word representing the time unit and processes it
+                    timeUnit = (match.split(" ")).at(-1)
+                    timeUnit = getExpectedTimeUnit(timeUnit)
+                }
 
                 if (match.includes("-")) {
-                    if ((match.split("-")[0]).includes(" ")){
-                        let [lowerBound, upperBound] = match.split("-");
+                    if ((match.split("-")[0])){
+                        let [lowerBound, upperBound] = match.split(/-/).map(s => s.trim());
+
+                        const singular = unit => unit.replace(/s$/, "");
 
                         function getValuesAndUnits(bound) {
-                            bound = bound.split(" ");
-                            timeUnit = bound.at(-1);
-                            timeUnit = returnExpectedTimeUnit(timeUnit);
-                            timeValue = bound[0];
+                            let parts = bound.trim().split(/\s+/);
+
+                            let timeUnit;
+                            let timeValue;
+
+                            // Case 1: mixed number with fraction (e.g. "2 1/2")
+                            if (parts.length >= 2 && parts[1].includes("/")) {
+                                let whole = parseInt(parts[0], 10);
+                                let [num, denom] = parts[1].split("/").map(Number);
+                                timeValue = whole + (num / denom);
+                                timeUnit = parts[2] || ""; // optional unit if present
+                            }
+                            // Case 2: pure fraction (e.g. "1/2")
+                            else if (parts[0].includes("/")) {
+                                let [num, denom] = parts[0].split("/").map(Number);
+                                timeValue = num / denom;
+                                timeUnit = parts[1] || "";
+                            }
+                            // Case 3: normal integer + unit (e.g. "3 hours")
+                            else {
+                                timeValue = parseInt(parts[0], 10);
+                                timeUnit = match.split(" ").at(-1) || "";
+                            }
+
+                            timeUnit = getExpectedTimeUnit(timeUnit);
 
                             if (timeValue == 1) {
-                                timeUnit = timeUnit.slice(0, -1);
+                                timeUnit = singular(timeUnit);
                             }
 
                             return { timeValue, timeUnit };
@@ -202,6 +276,9 @@ function getTimeForInstruction() {
                         
                         let { timeValue: timeValueLower, timeUnit: timeUnitLower } = getValuesAndUnits(lowerBound);
                         let { timeValue: timeValueUpper, timeUnit: timeUnitUpper } = getValuesAndUnits(upperBound);
+                        if (singular(timeUnitLower) === singular(timeUnitUpper)) {
+                            timeUnitLower = "";
+                        }
                         
                         if (estimatedTimeBoldedText.textContent) {
                             estimatedTimeBoldedText.textContent += ` + (${timeValueLower} ${timeUnitLower} - ${timeValueUpper} ${timeUnitUpper})`
@@ -222,10 +299,12 @@ function getTimeForInstruction() {
                     estimatedTimeElement.style.visibility = "";
                 }
                 else {
-                    timeValue = parseInt(match.split(" ")[0]);
-                    timeUnit = returnExpectedTimeUnit(match.split(" ").at(-1));
+                    if (!timeValue || !timeUnit) {
+                        timeValue = parseInt(match.split(" ")[0]);
+                        timeUnit = getExpectedTimeUnit(match.split(" ").at(-1));
+                    }
 
-                    if (timeUnit === "hours") {
+                    if (timeUnit === "hours" || timeUnit === "hour") {
                         timeValue *= 60;
                     }
                     
@@ -233,7 +312,7 @@ function getTimeForInstruction() {
 
                     let numMinutes;
                     let numHours;
-                    if (timeValue >= 60) {
+                    if (timeValue > 60) {
                         numHours = Math.floor(timeValue / 60);
                         numMinutes = timeValue - (60 * numHours);
                         if (numHours === 1) {
@@ -255,11 +334,20 @@ function getTimeForInstruction() {
                             }
                         }
                         else {
-                            if (estimatedTimeBoldedText.textContent) {
-                                estimatedTimeBoldedText.textContent += ` + ${numHours} hours, ${numMinutes} minutes`;
-                            }
+                            if (numMinutes != 0)
+                                if (estimatedTimeBoldedText.textContent) {
+                                    estimatedTimeBoldedText.textContent += ` + ${numHours} hours, ${numMinutes} minutes`;
+                                }
+                                else {
+                                    estimatedTimeBoldedText.textContent = `${numHours} hours, ${numMinutes} minutes`;
+                                }
                             else {
-                                estimatedTimeBoldedText.textContent = `${numHours} hours, ${numMinutes} minutes`;
+                                if (estimatedTimeBoldedText.textContent) {
+                                    estimatedTimeBoldedText.textContent += ` + ${numHours} hours`;
+                                }
+                                else {
+                                    estimatedTimeBoldedText.textContent = `${numHours} hours`;
+                                }
                             }
                         }
                     }

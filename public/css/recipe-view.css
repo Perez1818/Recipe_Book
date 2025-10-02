@@ -281,6 +281,7 @@ img, video {
 #instructions {
     margin: 20px 0 20px 50px;
     height: 75%;
+    overflow: auto;
 }
 
 #estimated-time {
@@ -297,6 +298,14 @@ img, video {
 
 .clickable:active {
     fill: white;
+}
+
+/* Monthly Report #2 */
+
+#timer-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 
