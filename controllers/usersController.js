@@ -52,7 +52,7 @@ exports.signUpUser = [
         else {
             const userCreated = await usersTable.createUser(request.body.username, request.body.email, request.body.password);
             if (userCreated) {
-                response.redirect("/");
+                response.redirect("/login");
             }
             else {
                 next();
@@ -71,14 +71,14 @@ exports.getLogin = async (request, response) => {
     }
 };
 
-exports.loginUser = passport.authenticate("local", { successRedirect: "/users", failureRedirect: "/login?failed=1" });
+exports.loginUser = passport.authenticate("local", { successRedirect: "/", failureRedirect: "/login?failed=1" });
 
 exports.logoutUser = (request, response, next) => {
     request.logout((error) => {
         if (error) {
             return next(error);
         }
-        response.redirect("/");
+        response.redirect("/login");
     });
 };
 
