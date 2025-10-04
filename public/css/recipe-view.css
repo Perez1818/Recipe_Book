@@ -304,10 +304,38 @@ img, video {
 
 #timer-section {
     display: flex;
-    flex-direction: column;
     align-items: center;
+    background-color: #79B473;
+    padding: 0 40px;
+    border-radius: 30px;
+    height: 50px;
+    width: 80%;
+    gap: 10px;
 }
 
+#timer-section button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    /* padding: 5px 30px; */
+    border-radius: 10px;
+    border: none;
+    width: 50px;
+    height: 30px;
+}
+
+
+#countdown {
+    background-color: white;
+    border-radius: 5px;
+    padding: 5px 20px;
+    text-align: center;
+}
+
+#timer {
+    width: 80%;
+}
 
 /* Daniel's Section */
 

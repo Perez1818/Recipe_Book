@@ -7,6 +7,7 @@ const stepCounter = document.getElementById("step-counter");
 const currentUrl = window.location.href;
 const estimatedTimeElement = document.getElementById("estimated-time");
 const estimatedTimeDescriptor = document.getElementById("description");
+const timerSection = document.getElementById("timer-section")
 const estimatedTimeBoldedText = document.getElementById("time-in-bold");
 
 // Publisher and Date objects
@@ -362,10 +363,12 @@ function getTimeForInstruction() {
                 }
             }
         );
+        return true;
     }
     else {
         estimatedTimeElement.style.visibility = "hidden";
-        estimatedTimeBoldedText.textContent = ""
+        estimatedTimeBoldedText.textContent = "";
+        return false;
     }
 }
 
@@ -383,7 +386,28 @@ async function main() {
     stepFractionPresentation.textContent = `1 / ${instructions.length}`
 
     currentInstruction = instructions[currentStep - 1];
-    getTimeForInstruction(currentInstruction);
+
+    // Checks if timer should be displayed
+    function displayTimer(currentInstruction) {
+        timer = getTimeForInstruction(currentInstruction);
+        visibleCountdown.textContent = calculate_padded_time(getEstimatedTimeInMinutes(0) * 60);
+        timerBar.value = 1;
+
+        // Makes timer section fully visible and interactible
+        if (timer) {
+            timerSection.style.opacity = 1;
+            timerSection.removeAttribute("inert");
+        }
+        // Makes timer partially transparent and not interactible
+        else {
+            visibleCountdown.textContent = "00:00";
+            timerSection.setAttribute("inert", "")
+            timerSection.style.opacity = 0.5;
+        }
+    }
+
+    
+    displayTimer(currentInstruction)
 
     // Allows user to move to the previous step in instructions when left button is clicked
     getPreviousStep.addEventListener("click", () => {
@@ -391,13 +415,12 @@ async function main() {
         let { currentStep, lastStep } = getSteps();
 
         currentInstruction = instructions[currentStep - 1];
-        // getTimeForInstruction(currentInstruction);
 
         if (currentStep != 1) {
             currentStep -= 1;
 
             currentInstruction = instructions[currentStep - 1];
-            getTimeForInstruction(currentInstruction);
+            displayTimer(currentInstruction)
 
             // Updates text displayed for instructions, steps done, and step counter
             instructionsTextElement.textContent = instructions[currentStep - 1]
@@ -425,7 +448,7 @@ async function main() {
             currentStep += 1;
 
             currentInstruction = instructions[currentStep - 1];
-            getTimeForInstruction(currentInstruction);
+            displayTimer(currentInstruction)
 
             // Updates text displayed for instructions, steps done, and step counter
             instructionsTextElement.textContent = instructions[currentStep - 1]
