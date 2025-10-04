@@ -1,18 +1,14 @@
 const usersTable = require("../database/usersTable.js");
 const { validate, validationResult } = require("../middleware/formValidation.js");
 const { passport } = require("../middleware/passport.js");
-const { getCustomUpload, stringArrayToSentence } = require("../middleware/fileUploader.js");
+const { getSingleUpload } = require("../middleware/fileUploader.js");
 
 const PARENT_DIRECTORY = __dirname;
 const UPLOADS_DIRECTORY = `${PARENT_DIRECTORY}/../public/uploads`;
-
-const BYTES_PER_MEGABYTE = 1024 * 1024;
-const BYTES_PER_AVATAR = BYTES_PER_MEGABYTE;
-const ALLOWED_AVATAR_FILE_TYPES = ["png", "jpg", "jpeg"];
 const AVATAR_DIRECTORY = `${UPLOADS_DIRECTORY}/avatar`;
 const AVATAR_FIELD_NAME = "avatar";
 
-const uploadSingleAvatar = getCustomUpload(ALLOWED_AVATAR_FILE_TYPES, AVATAR_DIRECTORY, BYTES_PER_AVATAR, AVATAR_FIELD_NAME);
+const uploadSingleAvatar = getSingleUpload(AVATAR_DIRECTORY, AVATAR_FIELD_NAME);
 
 exports.getIndex = async (request, response) => {
     response.redirect("/static/index.html");
@@ -107,45 +103,38 @@ exports.getUserSettings = async (request, response, next) => {
 }
 
 exports.updateProfile = [
-        async (request, response, next) => {
-            uploadSingleAvatar(request, response, async (error) => {
-                await validate.usernameUpdate(request);
-                const user = request.user;
-                if (user) {
-                    const result = validationResult(request);
-                    const errorMessages = getErrorMessages(result);
-                    
-                    if (error) {
-                        const message = error.code === "LIMIT_FILE_SIZE" ? `File size cannot exceed ${BYTES_PER_AVATAR / BYTES_PER_MEGABYTE}MB` : "Something went wrong";
-                        errorMessages["file"] = message;
-                    }
-                    else if (!request.file) {
-                        const message = `Only ${stringArrayToSentence(ALLOWED_AVATAR_FILE_TYPES)} files are permitted`;
-                        errorMessages["file"] = message;
-                    }
+    async (request, response, next) => {
+        uploadSingleAvatar(request, response, async (error) => {
+            await validate.avatarUpload(request);
+            await validate.usernameUpdate(request);
 
-                    if (attributeCount(errorMessages)) {
-                        const invalidUser = { username: request.body.username, biography: request.body.biography };
-                        response.render("edit-profile", { errorMessages: errorMessages, invalidUser: invalidUser });
-                    }
-
-                    else {
-                        await usersTable.updateUsername(request.user.id, request.body.username);
-                        await usersTable.updateBiography(request.user.id, request.body.biography);
-
-                        if (request.file !== undefined) {
-                            const avatarUrl = `/static/uploads/avatar/${request.file.filename}`;
-                            await usersTable.updateAvatar(request.user.id, avatarUrl);
-                        }
-
-                        response.redirect("/settings");
-                    }
+            const user = request.user;
+            if (user) {
+                const result = validationResult(request);
+                const errorMessages = getErrorMessages(result);
+                
+                if (attributeCount(errorMessages)) {
+                    const invalidUser = { username: request.body.username, biography: request.body.biography };
+                    response.render("edit-profile", { errorMessages: errorMessages, invalidUser: invalidUser });
                 }
+
                 else {
-                    next();
+                    await usersTable.updateUsername(request.user.id, request.body.username);
+                    await usersTable.updateBiography(request.user.id, request.body.biography);
+
+                    if (request.file !== undefined) {
+                        const avatarUrl = `/static/uploads/avatar/${request.file.filename}`;
+                        await usersTable.updateAvatar(request.user.id, avatarUrl);
+                    }
+
+                    response.redirect("/settings");
                 }
-        })
-    }
+            }
+            else {
+                next();
+            }
+    })
+}
 ];
 
 exports.getAccountSettings = async (request, response, next) => {

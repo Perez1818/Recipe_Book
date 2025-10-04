@@ -54,6 +54,19 @@ function getCustomUpload(allowedFileTypes, destinationFolder, bytesPerUpload, fi
     return upload.single(fieldName);
 }
 
+function getSingleUpload(destinationFolder, fieldName) {
+    const storage = multer.diskStorage({
+        destination: destinationFolder,
+        filename: generateFileName
+    });
+
+    const upload = multer({ 
+        storage: storage
+    });
+    
+    return upload.single(fieldName);
+}
+
 function getInvalidFileMessage(file) {
     const ALLOWED_PHOTO_TYPES = ["png", "jpg", "jpeg"];
     const ALLOWED_VIDEO_TYPES = ["mp4"];
@@ -101,4 +114,4 @@ function getMultiUpload() {
     ]);
 }
 
-module.exports = { getCustomUpload, getMultiUpload, getInvalidFileMessage, stringArrayToSentence };
+module.exports = { getCustomUpload, getMultiUpload, getInvalidFileMessage, stringArrayToSentence, getSingleUpload };
