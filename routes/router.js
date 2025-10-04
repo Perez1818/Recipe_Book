@@ -18,9 +18,6 @@ router.post("/settings", usersController.updateProfile);
 router.get("/settings/account", usersController.getAccountSettings);
 router.post("/settings/account", usersController.updateAccount);
 
-router.get("/upload/avatar", filesController.getAvatarUpload);
-router.post("/upload/avatar", filesController.uploadAvatar);
-
 router.get("/upload/multimedia", filesController.getMultimediaUpload);
 router.post("/upload/multimedia", filesController.uploadMultimedia);
 

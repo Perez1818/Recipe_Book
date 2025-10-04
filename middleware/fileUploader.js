@@ -4,7 +4,6 @@ const crypto = require("crypto");
 
 const BYTES_PER_MEGABYTE = 1024 * 1024;
 
-const NUM_FILES_ACCEPTED = 1;
 const PARENT_DIRECTORY = __dirname;
 const UPLOADS_DIRECTORY = `${PARENT_DIRECTORY}/../public/uploads`;
 const MULTIMEDIA_DIRECTORY = `${UPLOADS_DIRECTORY}/multimedia`;
@@ -24,34 +23,6 @@ function stringArrayToSentence(stringArray) {
         return stringArray.slice(0, -1).join(", ") + " and " + stringArray.at(-1);
     }
     return stringArray.join(", ");
-}
-
-function getCustomUpload(allowedFileTypes, destinationFolder, bytesPerUpload, fieldName) {
-    const fileFilter = (request, file, callback) => {
-        const extension = mime.extension(file.mimetype);
-        if (allowedFileTypes.includes(extension)) {
-            callback(null, true);
-        }
-        else {
-            callback(null, false);  // Ensure other request.body fields are preserved. Throwing an error here has the potential to make certain fields undefined (or missing) that were actually sent along with the request.
-            // callback(new Error(`Only ${stringArrayToSentence(allowedFileTypes)} files are permitted`), false);
-        }
-    }
-
-    const storage = multer.diskStorage({
-        destination: destinationFolder,
-        filename: generateFileName
-    });
-
-    const limits = { fileSize: bytesPerUpload, files: NUM_FILES_ACCEPTED };
-
-    const upload = multer({ 
-        storage: storage,
-        limits: limits,
-        fileFilter: fileFilter
-    });
-    
-    return upload.single(fieldName);
 }
 
 function getSingleUpload(destinationFolder, fieldName) {
@@ -114,4 +85,4 @@ function getMultiUpload() {
     ]);
 }
 
-module.exports = { getCustomUpload, getMultiUpload, getInvalidFileMessage, stringArrayToSentence, getSingleUpload };
+module.exports = { getMultiUpload, getInvalidFileMessage, stringArrayToSentence, getSingleUpload };
