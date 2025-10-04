@@ -34,6 +34,7 @@
 
         <form action="/settings" method="post" enctype="multipart/form-data">
             <input type="file" name="avatar">
+            <p><%= getErrorMessage("file") %></p>
 
             <div class="field">
                 <label for="username">Username: </label>

@@ -1,10 +1,18 @@
 const usersTable = require("../database/usersTable.js");
 const { validate, validationResult } = require("../middleware/formValidation.js");
 const { passport } = require("../middleware/passport.js");
+const { getCustomUpload, stringArrayToSentence } = require("../middleware/fileUploader.js");
 
-const filesController = require("../controllers/filesController.js");
+const PARENT_DIRECTORY = __dirname;
+const UPLOADS_DIRECTORY = `${PARENT_DIRECTORY}/../public/uploads`;
+
 const BYTES_PER_MEGABYTE = 1024 * 1024;
 const BYTES_PER_AVATAR = BYTES_PER_MEGABYTE;
+const ALLOWED_AVATAR_FILE_TYPES = ["png", "jpg", "jpeg"];
+const AVATAR_DIRECTORY = `${UPLOADS_DIRECTORY}/avatar`;
+const AVATAR_FIELD_NAME = "avatar";
+
+const uploadSingleAvatar = getCustomUpload(ALLOWED_AVATAR_FILE_TYPES, AVATAR_DIRECTORY, BYTES_PER_AVATAR, AVATAR_FIELD_NAME);
 
 exports.getIndex = async (request, response) => {
     response.redirect("/static/index.html");
@@ -100,7 +108,7 @@ exports.getUserSettings = async (request, response, next) => {
 
 exports.updateProfile = [
         async (request, response, next) => {
-            filesController.uploadSingleAvatar(request, response, async (error) => {
+            uploadSingleAvatar(request, response, async (error) => {
                 await validate.usernameUpdate(request);
                 const user = request.user;
                 if (user) {
@@ -108,7 +116,11 @@ exports.updateProfile = [
                     const errorMessages = getErrorMessages(result);
                     
                     if (error) {
-                        const message = error.code === "LIMIT_FILE_SIZE" ? `File size cannot exceed ${BYTES_PER_AVATAR / BYTES_PER_MEGABYTE}MB` : error.message;
+                        const message = error.code === "LIMIT_FILE_SIZE" ? `File size cannot exceed ${BYTES_PER_AVATAR / BYTES_PER_MEGABYTE}MB` : "Something went wrong";
+                        errorMessages["file"] = message;
+                    }
+                    else if (!request.file) {
+                        const message = `Only ${stringArrayToSentence(ALLOWED_AVATAR_FILE_TYPES)} files are permitted`;
                         errorMessages["file"] = message;
                     }
 

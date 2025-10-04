@@ -33,7 +33,8 @@ function getCustomUpload(allowedFileTypes, destinationFolder, bytesPerUpload, fi
             callback(null, true);
         }
         else {
-            callback(new Error(`Only ${stringArrayToSentence(allowedFileTypes)} files are permitted`));
+            callback(null, false);  // Ensure other request.body fields are preserved. Throwing an error here has the potential to make certain fields undefined (or missing) that were actually sent along with the request.
+            // callback(new Error(`Only ${stringArrayToSentence(allowedFileTypes)} files are permitted`), false);
         }
     }
 
@@ -100,4 +101,4 @@ function getMultiUpload() {
     ]);
 }
 
-module.exports = { getCustomUpload, getMultiUpload, getInvalidFileMessage };
+module.exports = { getCustomUpload, getMultiUpload, getInvalidFileMessage, stringArrayToSentence };
