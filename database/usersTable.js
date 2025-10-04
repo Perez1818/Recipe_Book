@@ -1,11 +1,21 @@
 const dotenv = require("dotenv");
 const pool = require("./pool.js");
 const bcrypt = require("bcryptjs");
+const filesystem = require("fs");
 
 const PARENT_DIRECTORY = __dirname;
-const DEFAULT_AVATAR_URL = "/static/img/Portrait_Placeholder.png";
+const UPLOADS_DIRECTORY = `${PARENT_DIRECTORY}/../public/uploads`;
+const AVATAR_DIRECTORY = `${UPLOADS_DIRECTORY}/avatar`;
 
 dotenv.config({ path: `${PARENT_DIRECTORY}/../.env` });
+
+function deleteFile(filePath) {
+    filesystem.unlink(filePath, (error) => {
+        if (error) {
+            console.error(`Could not delete file: ${error}`);
+        }
+    });
+}
 
 function getOnlyRow(rows) {
     if (rows.length === 1) {
@@ -76,6 +86,10 @@ async function comparePasswords(plaintextPassword, hashedPassword) {
 }
 
 async function updateAvatar(id, fileName) {
+    const user = await getUserById(id);
+    if (user.avatar) {
+        deleteFile(`${AVATAR_DIRECTORY}/${user.avatar}`);
+    }
     return await pool.query("UPDATE users SET avatar = $1 WHERE id = $2;", [fileName, id]);
 }
 
@@ -104,6 +118,7 @@ async function updateBirthday(id, birthday) {
 /* Avoid listing all exports manually
  */
 module.exports = {
+    deleteFile,
     getUserByName,
     getUserByEmail,
     usernameIsAvailable,

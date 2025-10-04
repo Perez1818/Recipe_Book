@@ -2,7 +2,6 @@ const { body, validationResult } = require("express-validator");
 const usersTable = require("../database/usersTable.js");
 const { stringArrayToSentence } = require("./fileUploader.js");
 const mime = require("mime-types");
-const filesystem = require("fs");
 
 const MIN_USERNAME_LENGTH = 3;
 const MIN_PASSWORD_LENGTH = 5;
@@ -10,14 +9,6 @@ const MIN_PASSWORD_LENGTH = 5;
 const ALLOWED_AVATAR_FILE_TYPES = ["png", "jpg", "jpeg"];
 const BYTES_PER_MEGABYTE = 1024 * 1024;
 const BYTES_PER_AVATAR = BYTES_PER_MEGABYTE;
-
-function deleteFile(filePath) {
-    filesystem.unlink(filePath, (error) => {
-        if (error) {
-            console.error(`Could not delete file at "${filePath}": ${error}`);
-        }
-    });
-}
 
 const validate = {
     username: () => body("username")
@@ -106,11 +97,11 @@ const validate = {
                               }
                               const extension = mime.extension(file.mimetype);
                               if (!ALLOWED_AVATAR_FILE_TYPES.includes(extension)) {
-                                  deleteFile(file.path);
+                                  usersTable.deleteFile(file.path);
                                   throw new Error(`Only ${stringArrayToSentence(ALLOWED_AVATAR_FILE_TYPES)} files are permitted`);
                               }
                               if (file.size > BYTES_PER_AVATAR) {
-                                  deleteFile(file.path);
+                                  usersTable.deleteFile(file.path);
                                   throw new Error(`File size cannot exceed ${BYTES_PER_AVATAR / BYTES_PER_MEGABYTE}MB`);
                               }
                           }).run(request)
@@ -118,6 +109,5 @@ const validate = {
 
 module.exports = {
     validate,
-    validationResult,
-    deleteFile
+    validationResult
 }
