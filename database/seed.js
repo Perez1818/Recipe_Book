@@ -20,7 +20,7 @@ async function seedDatabase() {
                   username CITEXT NOT NULL,
                   email CITEXT NOT NULL,
                   password TEXT NOT NULL,
-                  avatar TEXT NOT NULL,
+                  avatar TEXT,
 
                   birthday DATE,
                   biography TEXT,

@@ -123,8 +123,7 @@ exports.updateProfile = [
                     await usersTable.updateBiography(request.user.id, request.body.biography);
 
                     if (request.file !== undefined) {
-                        const avatarUrl = `/static/uploads/avatar/${request.file.filename}`;
-                        await usersTable.updateAvatar(request.user.id, avatarUrl);
+                        await usersTable.updateAvatar(request.user.id, request.file.filename);
                     }
 
                     response.redirect("/settings");

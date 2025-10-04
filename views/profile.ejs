@@ -13,7 +13,7 @@
     </head>
 
     <body>
-        <img src="<%= user.avatar %>" class="avatar" alt="User <%= user.username %>'s avatar">
+        <img src="<%= currentUser.avatar ? `/static/uploads/avatar/${currentUser.avatar}` : "/static/img/Portrait_Placeholder.png" %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
 
         <h1><%= user.username %></h1>
 

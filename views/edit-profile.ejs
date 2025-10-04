@@ -30,7 +30,7 @@
 
         <h1>Edit Profile</h1>
 
-        <img src="<%= currentUser.avatar %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
+        <img src="<%= currentUser.avatar ? `/static/uploads/avatar/${currentUser.avatar}` : "/static/img/Portrait_Placeholder.png" %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
 
         <form action="/settings" method="post" enctype="multipart/form-data">
             <input type="file" name="avatar">
