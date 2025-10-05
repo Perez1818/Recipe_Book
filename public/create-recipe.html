@@ -116,6 +116,13 @@
                             <img id="thumbnail-preview" class="instr-thumb" alt="Thumbnail Preview">
                             <button type="button" id="remove-thumbnail" class="thumb-remove" aria-label="Remove thumbnail">✕</button>
                         </div>
+
+                        <b>Video</b>
+                        <input id="video-input" name="video" type="file" accept=".mp4, .mov">
+                        <div id="video-preview-wrap" class="thumb-wrapper hidden" style="margin-top:10px;">
+                            <video id="recipe-video" class="instr-thumb" alt="Video Preview"></video>
+                            <button type="button" id="remove-video" class="thumb-remove" aria-label="Remove video">✕</button>
+                        </div>
                     </div>
 
                         <!-- EXTRA DETAILS + PUBLISH -->
@@ -211,16 +218,6 @@
                         <b>Step Description:</b>
                         <textarea id="instruction-text"></textarea>
                     </div>
-
-                    <div>
-                        <b>Image of Step (Optional):</b>
-                        <input id="instruction-image" type="file" accept=".png, .jpg, .jpeg">
-                        <div id="instruction-preview" class="thumb-wrapper hidden">
-                            <img id="instruction-image-preview" class="instr-thumb" alt="Step preview">
-                            <button type="button" id="remove-instruction-image" class="thumb-remove">✕</button>
-                        </div>
-                    </div>
-
                     <div>
                         <b>Estimated Time:</b>
                         <div>
