@@ -13,11 +13,16 @@
     </head>
 
     <body>
-        <img src="<%= currentUser.avatar ? `/static/uploads/avatar/${currentUser.avatar}` : "/static/img/Portrait_Placeholder.png" %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
+        <img src="<%= user.avatar ? `/static/uploads/avatar/${user.avatar}` : "/static/img/Portrait_Placeholder.png" %>" class="avatar" alt="User <%= user.username %>'s avatar">
 
         <h1><%= user.username %></h1>
+        <h3>Followers: 0     Following: 0</h3>
+        <h3>Bio: <%= user.biography %></h3>
+        <h3>Points: 0</h3>
 
-        <p>Bio: <%= user.biography %></p>
+        <h2>Recipe Showcase</h2>
+        <img src="<%= user.avatar ? `/static/uploads/avatar/${user.avatar}` : "/static/img/Portrait_Placeholder.png" %>" class="avatar" alt="Recipe photo #1">
+        <p>Recipe 1</p>
 
         <% if (currentUser && currentUser.username === user.username) { %>
             <a href="/settings">Edit Profile</a>
