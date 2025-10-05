@@ -11,8 +11,12 @@ router.get("/login", usersController.getLogin);
 router.post("/login", usersController.loginUser);
 router.get("/logout", usersController.logoutUser);
 
-router.get("/upload/avatar", filesController.getAvatarUpload);
-router.post("/upload/avatar", filesController.uploadAvatar);
+router.get("/user/:username", usersController.getUserProfile);
+router.get("/settings", usersController.getUserSettings);
+router.post("/settings", usersController.updateProfile);
+
+router.get("/settings/account", usersController.getAccountSettings);
+router.post("/settings/account", usersController.updateAccount);
 
 router.get("/upload/multimedia", filesController.getMultimediaUpload);
 router.post("/upload/multimedia", filesController.uploadMultimedia);
