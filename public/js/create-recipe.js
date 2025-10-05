@@ -202,11 +202,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const thumbPreview = document.getElementById('thumbnail-preview');
     const thumbRemove  = document.getElementById('remove-thumbnail');
 
-    const videoWrap    = document.getElementById('video-preview-wrap');
-    const videoEl      = document.getElementById('recipe-video');
 
     let _thumbURL = null;
-    let _videoURL = null;
 
     function showThumbPreview(file) {
         if (_thumbURL) { URL.revokeObjectURL(_thumbURL); _thumbURL = null; }
@@ -218,18 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
         _thumbURL = URL.createObjectURL(file);
         thumbPreview.src = _thumbURL;
         thumbWrap?.classList.remove('hidden');
-    }
-
-    function showVideoPreview(file) {
-        if (_videoURL) { URL.revokeObjectURL(_videoURL); _videoURL = null; }
-        if (!file) {
-            videoEl.removeAttribute('src');
-            videoWrap?.classList.add('hidden');
-            return;
-        }
-        _videoURL = URL.createObjectURL(file);
-        videoEl.src = _videoURL;
-        videoWrap?.classList.remove('hidden');
     }
 
     // require-thumbnail helper used at submit
@@ -250,6 +235,40 @@ document.addEventListener('DOMContentLoaded', () => {
         showThumbPreview(null);
         devToast('Thumbnail removed. A thumbnail is required before submitting.');
     });
+    // Video + preview logic
+   const videoInput   = document.getElementById('video-input');
+    const videoWrap    = document.getElementById('video-preview-wrap');
+    const videoEl      = document.getElementById('recipe-video');
+    const removeVideo  = document.getElementById('remove-video');
+
+    let _videoURL = null;
+
+    function showVideoPreview(file) {
+    if (_videoURL) { URL.revokeObjectURL(_videoURL); _videoURL = null; }
+    if (!file) {
+        videoEl.removeAttribute('src');
+        videoEl.load(); // clear stale frame
+        videoWrap?.classList.add('hidden');
+        return;
+    }
+    _videoURL = URL.createObjectURL(file);
+    videoEl.src = _videoURL;
+    videoWrap?.classList.remove('hidden');
+    }
+
+    // on file select
+    videoInput?.addEventListener('change', (e) => {
+    const file = e.target.files?.[0] || null;
+    showVideoPreview(file);
+    });
+
+    // ✕ button behavior
+    removeVideo?.addEventListener('click', () => {
+    videoInput.value = '';
+    showVideoPreview(null);
+    });
+
+
     // Collect ingredients from both rails (left/right)
     function collectIngredientsFromDOM() {
         const pills = [
@@ -437,7 +456,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // +++ Instructions Logic (ADD + EDIT + IMAGE) +++ //
     let instructionGoesLeft = true;
     let editingInstruction = null;
-    let removeImageRequested = false;
 
     const instrLeft   = document.getElementById('instruction-rail-left');
     const instrRight  = document.getElementById('instruction-rail-right');
@@ -447,11 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const textEl    = document.getElementById('instruction-text');
     const hoursEl   = document.getElementById('instruction-hours');
     const minutesEl = document.getElementById('instruction-minutes');
-    const imageEl   = document.getElementById('instruction-image');
-    const imgPreview = document.getElementById('instruction-image-preview'); 
 
-    const instructionImages = new Map();  // id -> File
-    const instructionURLs   = new Map();  // id -> objectURL
     let instructionIdSeq = 1;
 
     function labelForInstruction(desc, h, m) {
@@ -461,26 +475,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return parts.join(' — ');
     }
 
-    function showEditorPreviewFromFile(file) {
-        if (!file) {
-            imgPreview.src = '';
-            imgPreviewWrapper.classList.add('hidden');
-            return;
-        }
-        const url = URL.createObjectURL(file);
-        imgPreview.src = url;
-        imgPreviewWrapper.classList.remove('hidden');
-        imgPreview.onload = () => URL.revokeObjectURL(url);
-    }
-
     function enterInstructionEdit(pill) {
         editingInstruction = pill;
-        removeImageRequested = false;
         textEl.value    = pill.dataset.text || '';
         hoursEl.value   = pill.dataset.hours || '';
         minutesEl.value = pill.dataset.minutes || '';
-        const id = pill.dataset.id;
-        showEditorPreviewFromFile(instructionImages.get(id));
         addInstrBtn.textContent = 'Save Changes';
         cancelInstr.classList.remove('hidden');
         pill.classList.add('editing');
@@ -492,68 +491,25 @@ document.addEventListener('DOMContentLoaded', () => {
         textEl.value = '';
         hoursEl.value = '';
         minutesEl.value = '';
-        imageEl.value = ''; // clear file input
         addInstrBtn.textContent = '+ Add New Step';
         cancelInstr.classList.add('hidden');
-        if (clearPreview) showEditorPreviewFromFile(null);
-        removeImageRequested = false;  
     }
-
-    // live preview when choosing a new file
-    imageEl?.addEventListener('change', () => {
-        const f = imageEl.files && imageEl.files[0];
-        showEditorPreviewFromFile(f || null);
-    });
-    const imgPreviewWrapper = document.getElementById('instruction-preview');
-    const removeImgBtn = document.getElementById('remove-instruction-image');
-
-    removeImgBtn?.addEventListener('click', () => {
-        imageEl.value = '';                       // clear file input
-        showEditorPreviewFromFile(null);          // hide preview
-        if (editingInstruction) {                 // ### NEW
-            removeImageRequested = true;            // mark removal for Save Changes
-        }
-    });
 
     addInstrBtn?.addEventListener('click', () => {
         const desc = textEl.value.trim();
         const h    = (hoursEl.value || '').trim();
         const m    = (minutesEl.value || '').trim();
-        const newFile = imageEl.files && imageEl.files[0];
 
         if (!desc) { alert('Please enter a step description.'); return; }
 
         // EDIT MODE
         if (editingInstruction) {
             const pill = editingInstruction;
-            const id = pill.dataset.id;
 
             pill.dataset.text    = desc;
             pill.dataset.hours   = h;
             pill.dataset.minutes = m;
             pill.querySelector('span').textContent = labelForInstruction(desc, h, m);
-
-            if (removeImageRequested && instructionImages.has(id)) {
-            const oldURL = instructionURLs.get(id);
-            if (oldURL) URL.revokeObjectURL(oldURL);
-            instructionImages.delete(id);
-            instructionURLs.delete(id);
-            pill.querySelector('img.instr-thumb')?.remove();
-            } else if (newFile) {
-            const oldURL = instructionURLs.get(id);
-            if (oldURL) URL.revokeObjectURL(oldURL);
-            instructionImages.set(id, newFile);
-            const url = URL.createObjectURL(newFile);
-            instructionURLs.set(id, url);
-            let thumb = pill.querySelector('img.instr-thumb');
-            if (!thumb) {
-                thumb = document.createElement('img');
-                thumb.className = 'instr-thumb';
-                pill.insertBefore(thumb, pill.querySelector('.remove'));
-            }
-            thumb.src = url;
-            }
-
             exitInstructionEdit();
             return;
         }
@@ -571,16 +527,6 @@ document.addEventListener('DOMContentLoaded', () => {
         span.textContent = labelForInstruction(desc, h, m);
         pill.appendChild(span);
 
-        if (newFile) {
-            instructionImages.set(id, newFile);
-            const url = URL.createObjectURL(newFile);
-            instructionURLs.set(id, url);
-            const img = document.createElement('img');
-            img.className = 'instr-thumb';
-            img.src = url;
-            pill.appendChild(img);
-        }
-
         const rm = document.createElement('button');
         rm.type = 'button';
         rm.className = 'remove';
@@ -596,10 +542,6 @@ document.addEventListener('DOMContentLoaded', () => {
         rm.addEventListener('click', (e) => {
             e.stopPropagation();
             if (editingInstruction === pill) exitInstructionEdit();
-            const oldURL = instructionURLs.get(id);
-            if (oldURL) URL.revokeObjectURL(oldURL);
-            instructionImages.delete(id);
-            instructionURLs.delete(id);
             pill.remove();
         });
 
