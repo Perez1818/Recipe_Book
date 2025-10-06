@@ -79,7 +79,7 @@ input {
     /* display: none; */
 }
 
-.ingredient-tile-container svg {
+.ingredient-tile-container > svg {
     width: 30px;
     height: fit-content;
     justify-self: flex-start;
