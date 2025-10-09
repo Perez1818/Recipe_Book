@@ -5,6 +5,12 @@ const timerBar = document.getElementById("timer");
 const playBtn = document.getElementById("start-btn");
 const stopBtn = document.getElementById("stop-btn");
 const resetBtn = document.getElementById("reset-btn");
+const moreOptionsBtn = document.getElementById("more-options-btn")
+const dropdownContent = document.getElementsByClassName("dropdown-content")[0];
+const switchTimerBtn = document.getElementById("switch-timer-btn");
+const nextTimerBtn = document.getElementById("next-timer-btn");
+const prevTimerBtn = document.getElementById("prev-timer-btn");
+const managerTimersBtn = document.getElementById("manage-timers-btn")
 
 const SECOND = 1_000;
 
@@ -12,10 +18,20 @@ let targetTime;
 let timerId;
 let timerBarId;
 let msToRun;
+let timerIndex = 0;
+let useUpperboundTimer = false;
+let runningTimers = [];
+let timerRunning = false;
 
-function getEstimatedTimeInMinutes(timerIndex, upperBoundTimerIndex=false) {
+
+function getCurrentTimeBlock(timerIndex) {
     const estimatedTimeBoldedText2 = document.getElementById("time-in-bold").textContent;
     timerValueAndUnits = (estimatedTimeBoldedText2.split("+"))[timerIndex];
+    return timerValueAndUnits
+}
+
+function getEstimatedTimeInMinutes(timerIndex, upperBoundTimerIndex=false) {
+    timerValueAndUnits = getCurrentTimeBlock(timerIndex);
     if (timerValueAndUnits.includes("-")) {
         timerValueAndUnits = timerValueAndUnits.split("-")
         if (!upperBoundTimerIndex) {
@@ -169,9 +185,11 @@ function playAlarm() {
     // NOTE: Set textColor to red, make initialize timer set to black
 }
 
+
 playBtn.addEventListener(
     "click", () => {
         let {hours, minutes, seconds} = getTimeOnTimer();
+        timerRunning = true;
         secondsToRun = (hours * 60 * 60) + (minutes * 60) + seconds
         visibleCountdown.textContent = calculate_padded_time(secondsToRun)
         msToRun = secondsToRun * 1_000;
@@ -184,23 +202,162 @@ playBtn.addEventListener(
 
 stopBtn.addEventListener(
     "click", () => {
+        timerRunning = false;
         clearInterval(timerId);
         clearInterval(timerBarId);
         playBtn.style.display = "block";
         stopBtn.style.display = "none";
     }
-)
+);
 
 resetBtn.addEventListener(
     "click", () => {
-        let minutes = getEstimatedTimeInMinutes(0);
+        let minutes = getEstimatedTimeInMinutes(timerIndex);
         let secondsToRun = minutes * 60;
-        visibleCountdown.textContent = calculate_padded_time(secondsToRun)
+        visibleCountdown.textContent = calculate_padded_time(secondsToRun);
         timerBar.value = 1;
         clearInterval(timerId);
         clearInterval(timerBarId);
         playBtn.style.display = "block";
         stopBtn.style.display = "none";
     }
+);
+
+moreOptionsBtn.addEventListener(
+    "click", () => {
+        dropdownContentVisible = dropdownContent.style.display;
+        if (dropdownContentVisible == "block") {
+            dropdownContent.style.display = "none";
+        }
+        else {
+            dropdownContent.style.display = "block";
+        }
+    }
 )
 
+switchTimerBtn.addEventListener(
+    "click", () => {
+        getNextTimer = null;
+
+        if (!getCurrentTimeBlock(timerIndex).includes("-")) {
+            switchTimerBtn.style.cursor = "not-allowed"
+            switchTimerBtn.style.color = "gray";
+            return;
+        }
+        else {
+            switchTimerBtn.style.cursor = "pointer"
+            switchTimerBtn.style.color = "black";
+        }
+
+        // Toggles for switching bounds
+        useUpperboundTimer = !useUpperboundTimer
+
+        let minutes = getEstimatedTimeInMinutes(timerIndex, upperBoundTimerIndex=useUpperboundTimer);
+        let secondsToRun = minutes * 60;
+        visibleCountdown.textContent = calculate_padded_time(secondsToRun);
+        timerBar.value = 1;
+        clearInterval(timerId);
+        clearInterval(timerBarId);
+        playBtn.style.display = "block";
+        stopBtn.style.display = "none";
+    }
+);
+
+nextTimerBtn.addEventListener(
+    "click", () => {
+        if (timerRunning) {
+
+        }
+
+        getNextTimer = null;
+        // timerRunning = false;
+
+        // Catches error message when next timer for current instruction doesn't exist
+        try {
+            getNextTimer = getEstimatedTimeInMinutes(timerIndex + 1);
+        }
+        catch {
+            nextTimerBtn.style.cursor = "not-allowed"
+            nextTimerBtn.style.color = "gray";
+            return;
+        }
+
+        timerIndex += 1;
+
+        if (!getCurrentTimeBlock(timerIndex).includes("-")) {
+            switchTimerBtn.style.cursor = "not-allowed"
+            switchTimerBtn.style.color = "gray";
+        }
+        else {
+            switchTimerBtn.style.cursor = "pointer"
+            switchTimerBtn.style.color = "black";
+        }
+
+        if (!getCurrentTimeBlock(timerIndex + 1)) {
+            nextTimerBtn.style.cursor = "not-allowed"
+            nextTimerBtn.style.color = "gray";
+        }
+
+        prevTimerBtn.style.cursor = "pointer";
+        prevTimerBtn.style.color = "black"
+        // if (getNextTimer) {
+        let minutes = getEstimatedTimeInMinutes(timerIndex);
+        let secondsToRun = minutes * 60;
+        visibleCountdown.textContent = calculate_padded_time(secondsToRun);
+        timerBar.value = 1;
+        clearInterval(timerId);
+        clearInterval(timerBarId);
+        playBtn.style.display = "block";
+        stopBtn.style.display = "none";
+        // }
+    }
+);
+
+prevTimerBtn.addEventListener(
+    "click", () => {
+        getPrevTimer = null;
+        useUpperboundTimer = false;
+        // timerRunning = false;
+
+        // Catches error message when next timer for current instruction doesn't exist
+        try {
+            getPrevTimer = getEstimatedTimeInMinutes(timerIndex - 1);
+        }
+        catch {
+            prevTimerBtn.style.cursor = "not-allowed"
+            prevTimerBtn.style.color = "gray";
+            return;
+        }
+
+        timerIndex -= 1;
+
+        if (!getCurrentTimeBlock(timerIndex).includes("-")) {
+            switchTimerBtn.style.cursor = "not-allowed"
+            switchTimerBtn.style.color = "gray";
+        }
+        else {
+            switchTimerBtn.style.cursor = "pointer"
+            switchTimerBtn.style.color = "black";
+        }
+
+        if (!getCurrentTimeBlock(timerIndex - 1)) {
+            prevTimerBtn.style.cursor = "not-allowed"
+            prevTimerBtn.style.color = "gray";
+        }
+
+        // if (getPrevTimer) {
+        nextTimerBtn.style.cursor = "pointer";
+        nextTimerBtn.style.color = "black"
+
+
+        let minutes = getEstimatedTimeInMinutes(timerIndex);
+        let secondsToRun = minutes * 60;
+        visibleCountdown.textContent = calculate_padded_time(secondsToRun);
+        timerBar.value = 1;
+        clearInterval(timerId);
+        clearInterval(timerBarId);
+        playBtn.style.display = "block";
+        stopBtn.style.display = "none";
+        // }
+    }
+);

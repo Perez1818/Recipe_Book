@@ -337,6 +337,28 @@ img, video {
     width: 80%;
 }
 
+#dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    border-radius: 50%;
+}
+
+.dropdown-content a {
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    background-color: white;
+}
+
+.dropdown-content a:hover {
+    background-color: whitesmoke;
+}
+
 /* Daniel's Section */
 
 .ingredient-checkbox {

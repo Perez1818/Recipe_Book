@@ -406,8 +406,34 @@ async function main() {
         }
     }
 
+    function initializeTimerButtons() {
+        // TODO: Use popups to manage multiple timers when navigating steps
+        timerIndex = 0;
+        prevTimerBtn.style.cursor = "not-allowed";
+        prevTimerBtn.style.color = "gray";
+        
+        if (!getCurrentTimeBlock(timerIndex).includes("-")) {
+            switchTimerBtn.style.cursor = "not-allowed";
+            switchTimerBtn.style.color = "gray";
+        }
+        else {
+            switchTimerBtn.style.cursor = "pointer";
+            switchTimerBtn.style.color = "black";
+        }
+
+        if (!getCurrentTimeBlock(timerIndex + 1)) {
+            nextTimerBtn.style.cursor = "not-allowed"
+            nextTimerBtn.style.color = "gray";
+        }
+        else {
+            nextTimerBtn.style.cursor = "pointer";
+            nextTimerBtn.style.color = "black";
+        }
+    }
     
-    displayTimer(currentInstruction)
+    displayTimer(currentInstruction);
+    initializeTimerButtons();
+
 
     // Allows user to move to the previous step in instructions when left button is clicked
     getPreviousStep.addEventListener("click", () => {
@@ -415,6 +441,8 @@ async function main() {
         let { currentStep, lastStep } = getSteps();
 
         currentInstruction = instructions[currentStep - 1];
+
+        initializeTimerButtons();
 
         if (currentStep != 1) {
             currentStep -= 1;
@@ -466,6 +494,8 @@ async function main() {
             getPreviousStep.disabled = false;
             getPreviousStep.style.cursor = "pointer";
         }
+
+        initializeTimerButtons();
     })
 
     //dropdown for unit conversion
