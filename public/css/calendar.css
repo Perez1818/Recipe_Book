@@ -230,7 +230,6 @@ main {
 .hide-overflow {
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     text-overflow: ellipsis;
     text-wrap: nowrap;
