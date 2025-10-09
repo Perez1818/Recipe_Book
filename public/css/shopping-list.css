@@ -103,3 +103,49 @@ input {
 .ingredient-tile * {
     margin: 0 15px;
 }
+
+/* Keep the actions rail from stretching the button */
+.ingredient-actions {
+  display: flex;
+  align-items: center;      /* stop vertical stretch */
+  justify-content: center;
+  padding: 0 8px;
+}
+
+/* Compact, blue Buy button */
+.buy-btn {
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  line-height: 1;
+  height: auto;             /* ensure not stretched */
+  color: black;
+  background: #9FB9E0;      /* blue */
+  border: 2px solid black;
+  border-radius: 8px;
+  cursor: pointer;
+  min-width: 0;             /* avoid weird widening in flex */
+}
+
+.buy-btn:hover {
+  border-color: red;
+}
+
+.buy-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.35); /* focus ring */
+}
+
+#confirm-modal[hidden]{ display:none; }
+#confirm-modal{ position:fixed; inset:0; z-index:10000; }
+
+.cm-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.35); }
+
+.cm-dialog{
+  position:relative; margin:15vh auto 0; width:min(420px, 90vw);
+  background:#fffef0; border:2px solid #111; border-radius:12px; padding:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+.cm-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
+.cm-actions button{ padding:6px 12px; border:2px solid #111; border-radius:8px; cursor:pointer; }
+#cm-ok{ background:#3b82f6; color:#fff; border-color:#1d4ed8; }
+#cm-ok:hover{ background:#2563eb; border-color:#1e40af; }

@@ -58,138 +58,54 @@
     <main>
         <hr width="100%">
         <h1>Shopping List</h1>
-        <input type="searchbar" id="search" placeholder="Search for an ingredient">
+        <input type="search" id="search" placeholder="Search for an ingredient">
+        <div id="buy-controls">
+            <label for="retailer" class="sr-only">Retailer</label>
+            <select id="retailer">
+                <option value="kroger">Kroger</option>
+                <option value="walmart">Walmart</option>
+                <option value="target">Target</option>
+                <option value="google">Google Shopping</option>
+            </select>
+        </div>
+        <br>
         <div id="shopping-list">
-            <section id>
+            <section>
                 <h2>Fresh Produce</h2>
-                <div class="ingredient-tile-container">
-                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                    <div class="ingredient-tile">
-                        <img width="25px" height="25px">
-                        <div id="name-quanitity">
-                            <b><p>Fresh Product</p></b>
-                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
-                        </div>
-                        <p class="ingredient-text-container">Text about this product</p>
-                    </div>
-                </div>
             </section>
             <section>
                 <h2>Meat & Seafood</h2>
-                <div class="ingredient-tile-container">
-                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                    <div class="ingredient-tile">
-                        <img width="25px" height="25px">
-                        <div id="name-quanitity">
-                            <b><p>Fresh Product</p></b>
-                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
-                        </div>
-                        <p class="ingredient-text-container">Text about this product</p>
-                    </div>
-                </div>
             </section>
             <section>
                 <h2>Dairy</h2>
-                <div class="ingredient-tile-container">
-                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                    <div class="ingredient-tile">
-                        <img width="25px" height="25px">
-                        <div id="name-quanitity">
-                            <b><p>Fresh Product</p></b>
-                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
-                        </div>
-                        <p class="ingredient-text-container">Text about this product</p>
-                    </div>
-                </div>
             </section>
             <section>
                 <h2>Bread</h2>
-                <div class="ingredient-tile-container">
-                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                    <div class="ingredient-tile">
-                        <img width="25px" height="25px">
-                        <div id="name-quanitity">
-                            <b><p>Fresh Product</p></b>
-                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
-                        </div>
-                        <p class="ingredient-text-container">Text about this product</p>
-                    </div>
-                </div>
             </section>
             <section>
                 <h2>Frozen Goods</h2>
-                <div class="ingredient-tile-container">
-                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                    <div class="ingredient-tile">
-                        <img width="25px" height="25px">
-                        <div id="name-quanitity">
-                            <b><p>Fresh Product</p></b>
-                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
-                        </div>
-                        <p class="ingredient-text-container">Text about this product</p>
-                    </div>
-                </div>
             </section>
             <section>
                 <h2>Canned & Dry Goods</h2>
-                <div class="ingredient-tile-container">
-                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                    <div class="ingredient-tile">
-                        <img width="25px" height="25px">
-                        <div id="name-quanitity">
-                            <b><p>Fresh Product</p></b>
-                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
-                        </div>
-                        <p class="ingredient-text-container">Text about this product</p>
-                    </div>
-                </div>
             </section>
             <section>
                 <h2>Snacks & Beverages</h2>
-                <div class="ingredient-tile-container">
-                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                    <div class="ingredient-tile">
-                        <img width="25px" height="25px">
-                        <div id="name-quanitity">
-                            <b><p>Fresh Product</p></b>
-                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
-                        </div>
-                        <p class="ingredient-text-container">Text about this product</p>
-                    </div>
-                </div>
             </section>
             <section>
                 <h2>Condiments & Spices</h2>
-                <div class="ingredient-tile-container">
-                    <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                    <div class="ingredient-tile">
-                        <img width="25px" height="25px">
-                        <div id="name-quanitity">
-                            <b><p>Fresh Product</p></b>
-                            <input type="number" class="quantity" name="quantity" min="1" max="100" step="1" placeholder="1">
-                        </div>
-                        <p class="ingredient-text-container">Text about this product</p>
-                    </div>
-                </div>
             </section>
         </div>
     </main>
     <script src="./js/shopping-list.js"></script>
+    <div id="confirm-modal" hidden>
+        <div class="cm-backdrop"></div>
+        <div class="cm-dialog">
+            <p id="cm-text"></p>
+            <div class="cm-actions">
+            <button id="cm-cancel" type="button">No</button>
+            <button id="cm-ok" type="button">Yes, remove</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

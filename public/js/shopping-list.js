@@ -70,7 +70,7 @@ function addIngredientTile(item) {
   svg.style.cursor = 'pointer';
   container.appendChild(svg);
 
-  // tile
+  // --- tile (CREATE FIRST, then append)
   const tile = document.createElement('div');
   tile.className = 'ingredient-tile';
 
@@ -97,9 +97,13 @@ function addIngredientTile(item) {
   tile.append(img, nameQty, desc);
   container.appendChild(tile);
 
+  // Buy controls go AFTER the tile
+  addBuyControls(container, item.name);
+
   if (section?.tagName === 'SECTION') section.appendChild(container);
   else listRoot.appendChild(container);
 }
+
 
 /******** AUTOCOMPLETE DROPDOWN ********/
 const DEBOUNCE_MS = 250;
@@ -145,7 +149,7 @@ function renderSuggestions(items, onPick) {
 
   const ul = document.createElement('ul');
   Object.assign(ul.style, {
-    listStyle: 'none', margin: 0, padding: '6px',
+    listStyle: 'none', margin: 0, padding: '6px 12px 6px 24px',
     background: '#fffef0', border: '2px solid #111',
     borderRadius: '10px', boxShadow: '0 2px 0 rgba(0,0,0,.2)',
   });
@@ -156,14 +160,19 @@ function renderSuggestions(items, onPick) {
     li.dataset.index = String(idx);
     li.tabIndex = -1; // allow ArrowUp/Down to focus
     Object.assign(li.style, {
-      display: 'grid', gridTemplateColumns: '34px 1fr',
-      gap: '10px', padding: '8px 10px',
+      display: 'grid', gridTemplateColumns: '112px 1fr',
+      gap: '12px', padding: '10px 12px', alignItems: 'center',
       borderRadius: '8px', cursor: 'pointer'
     });
 
     const img = document.createElement('img');
-    img.src = it.image || ''; img.alt = ''; img.width = 34; img.height = 34;
-    img.style.borderRadius = '8px'; img.style.background = '#d6d6d6';
+    img.src = it.image || '';
+    img.alt = '';
+    img.style.setProperty('width', '96px', 'important');
+    img.style.setProperty('height', '96px', 'important');
+    img.style.objectFit = 'cover';
+    img.style.display = 'block';
+    img.style.borderRadius = '12px';
 
     const wrap = document.createElement('div');
     const title = document.createElement('div'); title.textContent = it.name; title.style.fontWeight = '600';
@@ -180,7 +189,34 @@ function renderSuggestions(items, onPick) {
   host.appendChild(ul);
 }
 
-/* ---- Single debounce (keep only this one) ---- */
+function confirmRemove(name){
+  const host = document.getElementById('confirm-modal');
+  const text = document.getElementById('cm-text');
+  const ok   = document.getElementById('cm-ok');
+  const cancel = document.getElementById('cm-cancel');
+
+  return new Promise((resolve) => {
+    text.textContent = `Did you buy "${name}"? Remove it from your shopping list?`;
+    host.hidden = false;
+
+    const cleanup = (val) => {
+      host.hidden = true;
+      ok.removeEventListener('click', onOk);
+      cancel.removeEventListener('click', onCancel);
+      host.removeEventListener('click', onBackdrop);
+      resolve(val);
+    };
+    const onOk = () => cleanup(true);
+    const onCancel = () => cleanup(false);
+    const onBackdrop = (e) => { if (e.target === host) cleanup(false); };
+
+    ok.addEventListener('click', onOk);
+    cancel.addEventListener('click', onCancel);
+    host.addEventListener('click', onBackdrop);
+  });
+}
+
+
 const debounce = (fn, ms) => {
   let t;
   return (...a) => {
@@ -240,9 +276,130 @@ function initIngredientSearch() {
   });
 }
 
-/* ---- Boot it up ---- */
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initIngredientSearch);
-} else {
-  initIngredientSearch();
+function addBuyButtonsToExisting() {
+  document.querySelectorAll('.ingredient-tile-container').forEach(c => {
+    if (c.querySelector('.buy-btn')) return;
+    const name = c.querySelector('#name-quanitity b p')?.textContent?.trim();
+    if (name) addBuyControls(c, name);
+  });
 }
+
+/* ---- Boot it up ---- */
+function boot() {
+  initIngredientSearch();
+  addBuyButtonsToExisting();
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
+
+
+/******** CHECK PRICES ********/
+function retailerSearchUrl(retailer, query) {
+  const q = encodeURIComponent(query);
+  switch (retailer) {
+    case 'kroger':  return `https://www.kroger.com/search?query=${q}`;
+    case 'walmart': return `https://www.walmart.com/search?q=${q}`;
+    case 'target':  return `https://www.target.com/s?searchTerm=${q}`;
+    case 'google':  return `https://www.google.com/search?tbm=shop&q=${q}`;
+    default:        return `https://www.google.com/search?tbm=shop&q=${q}`;
+  }
+}
+
+function getPreferredRetailer() {
+  // Uses the <select id="retailer"> if present; falls back to Google
+  return document.getElementById('retailer')?.value || 'google';
+}
+
+// Reusable: attach a Buy button to a card
+function addBuyControls(container, name) {
+  const actions = document.createElement('div');
+  actions.className = 'ingredient-actions';
+
+  const buyBtn = document.createElement('button');
+  buyBtn.type = 'button';
+  buyBtn.className = 'buy-btn';
+  buyBtn.textContent = 'Buy';
+  buyBtn.dataset.itemName = name; // used by click handler
+
+  actions.appendChild(buyBtn);
+  container.appendChild(actions);
+}
+
+// BUY → open retailer → confirm removal (single handler)
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.buy-btn');
+  if (!btn) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const card = btn.closest('.ingredient-tile-container');
+  const name =
+    btn.dataset.itemName ||
+    card.querySelector('#name-quanitity b p')?.textContent?.trim() ||
+    'this item';
+
+  // Open retailer page (allowed since inside user click)
+  const retailer = getPreferredRetailer();
+  window.open(retailerSearchUrl(retailer, name), '_blank', 'noopener');
+
+  // Show our modal (it will sit there if user is on the other tab)
+  // When they come back, they can answer it.
+  const shouldRemove = await confirmRemove(name);
+  if (shouldRemove) card.remove();
+});
+
+function getListItems() {
+  return [...document.querySelectorAll('.ingredient-tile-container')].map(c => {
+    const name = c.querySelector('#name-quanitity b p')?.textContent?.trim() || '';
+    const qty  = Number(c.querySelector('input.quantity')?.value || 1);
+    return { name, qty };
+  }).filter(x => x.name);
+}
+
+function renderCheckoutLinks(retailer, items) {
+  const host = document.getElementById('checkout-results');
+  host.innerHTML = '';
+
+  if (!items.length) {
+    host.textContent = 'Your list is empty.';
+    return;
+  }
+
+  const ul = document.createElement('ul');
+  items.forEach(({name, qty}) => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = retailerSearchUrl(retailer, name);
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = `${name} ×${qty}`;
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
+  host.appendChild(ul);
+
+  // Optional "Open all" (opens multiple tabs on click)
+  const openAll = document.createElement('button');
+  openAll.textContent = `Open all in ${retailer}`;
+  openAll.addEventListener('click', () => {
+    // must happen in this click handler to avoid popup blockers
+    items.forEach(({name}) => window.open(retailerSearchUrl(retailer, name), '_blank', 'noopener'));
+  });
+  host.appendChild(openAll);
+
+  // Optional: copy list
+  const copyBtn = document.createElement('button');
+  copyBtn.textContent = 'Copy list';
+  copyBtn.addEventListener('click', async () => {
+    const txt = items.map(i => `• ${i.name} x${i.qty}`).join('\n');
+    await navigator.clipboard.writeText(txt);
+    copyBtn.textContent = 'Copied!';
+    setTimeout(() => (copyBtn.textContent = 'Copy list'), 1200);
+  });
+  host.appendChild(copyBtn);
+}
+
