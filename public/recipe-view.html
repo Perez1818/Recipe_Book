@@ -231,6 +231,8 @@
                             <span id="description">⏱️ Estimated Time: </span>
                             <b id="time-in-bold"></b>
                         </div>
+                        <!-- for text-to-speech -->
+                        <button id="speak-step-btn" type="button" style="margin-top:8px;">🔊 Speak Step</button>
                     </div>
                 </div>
             </div>
@@ -255,7 +257,13 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                     </svg>
-                </button>
+                <!-- add comment to step button -->
+                <button id="add-step-comment" type="button" style="margin-left: 14px; min-width: 90px;">💬 Comment</button>
+            </div>
+            <div id="step-comment-section" style="display:none; margin-top:10px;">
+                <textarea id="step-comment-input" rows="2" style="width:90%;" placeholder="Leave a tip or comment for this step..."></textarea>
+                <button id="submit-step-comment" type="button">Submit</button>
+                <div id="step-comments-list"></div>
             </div>
         </section>
 
@@ -275,6 +283,27 @@
 
     <script> //javascript for star ratings + like button
 
+        //something that helped with local storage: https://www.w3schools.com/jsref/prop_win_localstorage.asp
+        //load rating from local storage
+        const savedRating = localStorage.getItem('userRating');
+        if (savedRating) {
+            document.querySelectorAll('.rating-container .fa-star').forEach((s, i) => {
+                s.classList.toggle('checked', i < savedRating);
+            });
+            document.getElementById('avg-rating').textContent = Number(savedRating).toFixed(1);
+        }
+
+        //load likes from local storage
+        const liked = localStorage.getItem('liked') === 'true';
+        const likeCount = localStorage.getItem('likeCount');
+        const icon = document.querySelector('#likes i');
+        const countSpan = document.getElementById('like-count');
+        if (icon && countSpan) {
+            icon.classList.toggle('liked', liked);
+            if (likeCount !== null) countSpan.textContent = likeCount;
+        }
+
+        //clicking the stars
         document.querySelectorAll('.rating-container .fa-star').forEach(star => {
             star.addEventListener('click', function() {
                 const rating = parseInt(this.getAttribute('data-r-value'));
@@ -282,11 +311,12 @@
                 s.classList.toggle('checked', i < rating);
                 });
                 document.getElementById('avg-rating').textContent = rating.toFixed(1);
+                localStorage.setItem('userRating', rating);
             });
         });
 
+        //clicking the like button
         document.getElementById('likes').addEventListener('click', function(e) {
-            if (!e.target.closest('button')) return;
             const icon = this.querySelector('i');
             const countSpan = document.getElementById('like-count');
             let count = parseInt(countSpan.textContent, 10);
@@ -297,6 +327,8 @@
                 icon.classList.remove('liked');
                 countSpan.textContent = count > 0 ? count - 1 : 0;
             }
+            localStorage.setItem('liked', icon.classList.contains('liked'));
+            localStorage.setItem('likeCount', countSpan.textContent);
         });
     </script>
 </body>

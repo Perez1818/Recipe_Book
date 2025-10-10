@@ -605,3 +605,88 @@ async function main() {
 }
 
 main()
+
+// Store comments in-memory per step (for demo; lacks persistence)
+const stepComments = {};
+
+// Show/hide comment input for the current step
+function showCommentSection(currentStep) {
+    const section = document.getElementById('step-comment-section');
+    const input = document.getElementById('step-comment-input');
+    const list = document.getElementById('step-comments-list');
+    section.style.display = 'block';
+    input.value = '';
+    // Show existing comments for this step
+    const comments = stepComments[currentStep] || [];
+    comments.forEach(c => {
+    const div = document.createElement('div');
+        div.style.margin = '4px 0';
+        div.textContent = `💡 ${c}`;
+        list.appendChild(div);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const commentBtn = document.getElementById('add-step-comment');
+    const submitBtn = document.getElementById('submit-step-comment');
+    const input = document.getElementById('step-comment-input');
+    const section = document.getElementById('step-comment-section');
+    const list = document.getElementById('step-comments-list');
+
+    let currentStep = 1;
+    const stepComments = {};
+
+    function updateCurrentStep() {
+        const [step] = document.getElementById('completion-fraction').textContent.split(' / ');
+        currentStep = parseInt(step, 10);
+    }
+
+    function showCommentSection(currentStep) {
+        section.style.display = 'block';
+        input.value = '';
+        const comments = stepComments[currentStep] || [];
+        list.innerHTML = comments.map(c => `<div style="margin:4px 0;">💡 ${c}</div>`).join('');
+    }
+
+    if (commentBtn) {
+        commentBtn.addEventListener('click', () => {
+            updateCurrentStep();
+            showCommentSection(currentStep);
+        });
+    }
+
+    if (submitBtn) {
+        submitBtn.addEventListener('click', () => {
+            const text = input.value.trim();
+            if (!text) return;
+            if (!stepComments[currentStep]) stepComments[currentStep] = [];
+            stepComments[currentStep].push(text);
+            showCommentSection(currentStep);
+        });
+    }
+
+    // Hide comment section when navigating steps
+    const nav = document.getElementById('navigate-walkthrough');
+    if (nav) {
+        nav.addEventListener('click', (e) => {
+            // Don't hide if the comment button itself was clicked
+            if (e.target === commentBtn) return;
+            section.style.display = 'none';
+        });
+    }
+
+    // Text-to-speech for step instructions
+    // https://forum.freecodecamp.org/t/text-to-speech-with-javascript-and-html/724321
+    const speakBtn = document.getElementById('speak-step-btn');
+    const instructionsEl = document.getElementById('instructions');
+    if (speakBtn && instructionsEl) {
+        speakBtn.addEventListener('click', () => {
+            const text = instructionsEl.innerText || instructionsEl.textContent;
+            const speech = new SpeechSynthesisUtterance(text);
+            speech.volume = 1;
+            speech.rate = 1;
+            speech.pitch = 1;
+            window.speechSynthesis.speak(speech);
+        });
+    }
+});
