@@ -3,6 +3,7 @@ const router = require("./routes/router.js");
 const dotenv = require("dotenv");
 
 const recipesRouter = require("./routes/recipesRouter.js");
+const ingredientsRouter = require("./routes/ingredientsRouter.js");
 
 const sessionMiddleware = require("./middleware/session.js");
 const { passport, configurePassport } = require("./middleware/passport.js");
@@ -35,6 +36,7 @@ app.use(express.json({ limit: "1mb" }));
 // Routes
 app.use("/recipes", recipesRouter);
 app.use("/", router);
+app.use("/", ingredientsRouter);
 
 app.use((error, request, response, next) => {
     console.error(error);
