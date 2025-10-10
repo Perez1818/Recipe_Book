@@ -1,5 +1,58 @@
+/* =============================================================================
+   SHOPPING LIST UI — STYLES OVERVIEW
+   -----------------------------------------------------------------------------
+   Purpose:
+     Styles the Shopping List page: layout, ingredient cards, buy actions,
+     saved-recipes import bar, and the custom confirm modal.
 
+   Layout & Containers
+   - main: centers the page content in a vertical column.
+   - #shopping-list: green panel (700px) with padding + rounded corners.
+   - h2: cream “pill” section headers with black border.
 
+   Ingredient Cards
+   - .ingredient-tile-container: wrapper that holds the minus icon + card.
+   - .ingredient-tile: cream card laid out in a row (image → name/qty → desc).
+   - img: 100×100, rounded.
+   - #name-quanitity: stacks name and .quantity input; centered, fixed width.
+   - .quantity: compact number input (40px wide).
+   - .ingredient-text-container: blue description panel that flex-fills.
+
+   Minus Icon
+   - First child SVG in .ingredient-tile-container: small, left-aligned,
+     clickable; hover state indicates removal.
+
+   Buy Button / Actions
+   - .ingredient-actions: rail that prevents button stretching.
+   - .buy-btn: compact blue pill with black text, red hover border,
+     accessible focus ring.
+
+   Confirm Modal
+   - #confirm-modal (+ .cm-backdrop, .cm-dialog, .cm-actions):
+     full-screen overlay with a cream dialog; “Yes” button is blue.
+     Hidden by default with [hidden]; elevated with z-index.
+
+   Saved Recipes Import
+   - #saved-recipes-bar: cream pill wrapper below search.
+   - .sr-only: visually-hidden label for accessibility.
+   - #saved-recipe: compact select (max ~260px).
+   - #add-saved-ingredients: pill button; clear disabled state styling.
+   - Responsive: wraps neatly on small screens; select can expand to 100%.
+
+   Misc
+   - Buttons: slightly larger default font.
+   - Inputs/Hr: compact vertical spacing.
+   - #buy-controls: small top margin above retailer selector.
+
+   Notes
+   - Colors harmonize with existing palette:
+       cream: rgb(255, 249, 196)
+       blue : #9FB9E0
+       green: #79B473
+   - Borders are 2px solid black for the playful “outlined” look.
+   - Keep IDs/classes in sync with JS (e.g., #name-quanitity, .quantity,
+     .ingredient-tile-container, .buy-btn, #confirm-modal).
+============================================================================= */
 
 main {
     display: flex;
@@ -147,5 +200,67 @@ input {
 }
 .cm-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
 .cm-actions button{ padding:6px 12px; border:2px solid #111; border-radius:8px; cursor:pointer; }
-#cm-ok{ background:#3b82f6; color:#fff; border-color:#1d4ed8; }
+#cm-ok{ background:#3b82f6; color: black; border-color:#1d4ed8; }
 #cm-ok:hover{ background:#2563eb; border-color:#1e40af; }
+
+/* Saved recipes bar – cute + consistent */
+#saved-recipes-bar{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin:8px auto 10px;
+  padding:8px 12px;
+  width:fit-content;
+  background:rgb(255, 249, 196);              /* same cream tone as tiles */
+  border:2px solid #111;
+  border-radius:14px;
+}
+
+/* Hide label but keep for a11y */
+#saved-recipes-bar .sr-only{
+  position:absolute; width:1px; height:1px; overflow:hidden;
+  clip:rect(0 0 0 0); white-space:nowrap;
+}
+
+/* Controls look like your other pills */
+#saved-recipe,
+#add-saved-ingredients{
+  height:32px;
+  padding:0 10px;
+  border:2px solid #111;
+  border-radius:12px;
+  font-size:0.95rem;
+  background: rgb(255, 249, 196);
+  color: black;
+}
+
+/* Button color + disabled state */
+#add-saved-ingredients{    
+  color: black;
+  border-color:black;
+  cursor:pointer;
+}
+
+#add-saved-ingredients:disabled{
+  cursor:not-allowed;
+  color: black;
+}
+
+/* Make the select compact and not super wide */
+#saved-recipe{
+  max-width:260px;
+}
+
+/* Keep spacing tighter above retailer row */
+#buy-controls{ margin-top:6px; }
+
+/* Mobile: stack neatly */
+@media (max-width:640px){
+  #saved-recipes-bar{
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  #saved-recipe{ width:100%; max-width:320px; }
+}
+

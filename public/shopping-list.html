@@ -1,3 +1,89 @@
+<!-- =============================================================================
+  SHOPPING LIST PAGE — HTML OVERVIEW
+  ------------------------------------------------------------------------------
+  Purpose:
+    UI for building and managing a grocery list. Works with shopping-list.js
+    to search ingredients, import from saved recipes, buy items, and persist
+    the list across reloads.
+
+  Top-level Structure
+    <head>
+      - Loads global styles (styles.css) and page styles (shopping-list.css).
+    <body>
+      <header>
+        - App logo + nav icons linking to other pages (Account, Home, Search,
+          Calendar, Shopping List, Bulletin Board, Recipe Maker).
+      </header>
+
+      <main>
+        <hr> + <h1>  : page title area.
+        <input#search>:
+          - Search bar used by JS autocomplete to add ingredients via /api/ingredients.
+
+        Saved Recipes Quick-Add (below search)
+        - <div#saved-recipes-bar>
+            <label.sr-only>           // a11y label (hidden visually)
+            <select#saved-recipe>     // populated from localStorage.bookmarkedRecipes
+            <button#add-saved-ingredients>
+              -> JS fetches TheMealDB recipe, extracts ingredients,
+                 enriches via your ingredient API, then adds tiles.
+
+        Retailer Selector (affects each Buy button)
+        - <div#buy-controls>
+            <select#retailer>         // "kroger", "walmart", "target", "google"
+              JS reads this to decide where the Buy button opens.
+
+        Shopping List Sections (destination columns)
+        - <div#shopping-list>
+            <section><h2>Fresh Produce</h2></section>
+            <section><h2>Meat & Seafood</h2></section>
+            <section><h2>Dairy</h2></section>
+            <section><h2>Bread</h2></section>
+            <section><h2>Frozen Goods</h2></section>
+            <section><h2>Canned & Dry Goods</h2></section>
+            <section><h2>Snacks & Beverages</h2></section>
+            <section><h2>Condiments & Spices</h2></section>
+          - JS maps each ingredient’s aisle → one of these sections and appends
+            an .ingredient-tile-container (minus icon + card + Buy button).
+
+      <script src="./js/shopping-list.js">
+        - Boot order in JS:
+            loadSavedList()              // rebuild from localStorage
+            initIngredientSearch()       // autocomplete wiring
+            addBuyButtonsToExisting()    // ensure Buy buttons on any pre-rendered tiles
+            populateSavedRecipesSelect() // fill the saved recipe dropdown
+            add click -> addIngredientsFromSavedRecipe()
+
+      Confirm Modal (custom, not window.confirm)
+      - <div#confirm-modal hidden>
+          <div.cm-backdrop>             // dark overlay
+          <div.cm-dialog>
+            <p#cm-text>                 // "Did you buy X? Remove it?"
+            <div.cm-actions>
+              <button#cm-cancel>        // No
+              <button#cm-ok>            // Yes, remove
+            </div>
+
+  IDs & Classes used by JS (keep names in sync)
+    #search                  : search input for ingredient API
+    #saved-recipes-bar       : container for saved recipe quick-add UI
+    #saved-recipe            : select populated from localStorage.bookmarkedRecipes
+    #add-saved-ingredients   : button to import ingredients from chosen recipe
+    #retailer                : determines target for Buy button links
+    #shopping-list           : parent container for all sections
+    section > h2             : section titles used to place tiles
+    #confirm-modal, #cm-text, #cm-ok, #cm-cancel : custom confirm dialog controls
+
+  Accessibility & Responsiveness
+    - .sr-only hides labels visually but keeps them for screen readers.
+    - CSS stacks/ wraps the saved-recipes bar on small screens.
+
+  Notes
+    - Do not rename IDs without updating shopping-list.js.
+    - The list state is persisted in localStorage under 'shoppingListV1'.
+============================================================================== -->
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,6 +145,14 @@
         <hr width="100%">
         <h1>Shopping List</h1>
         <input type="search" id="search" placeholder="Search for an ingredient">
+        <!-- Saved recipes quick-add -->
+        <div id="saved-recipes-bar">
+            <label for="saved-recipe" class="sr-only">Saved recipe</label>
+                <select id="saved-recipe" disabled>
+                    <option value="">Saved recipes…</option>
+                </select>
+            <button id="add-saved-ingredients" type="button" disabled>Add ingredients</button>
+        </div>
         <div id="buy-controls">
             <label for="retailer" class="sr-only">Retailer</label>
             <select id="retailer">
