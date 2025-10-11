@@ -65,7 +65,6 @@ async function seedDatabase() {
                   text TEXT NOT NULL,
                   hours INT,
                   minutes INT,
-                  has_image BOOLEAN,
                   PRIMARY KEY (recipe_id, step_num),
                   CONSTRAINT fk_instructions_recipes FOREIGN KEY (recipe_id) REFERENCES recipes (id)
     );`);
