@@ -47,17 +47,20 @@
                    svgMap.addEventListener("click", (event) => {
                        const targetElement = event.target;
                        if (targetElement.nodeName === "path") {
+                           const header = document.querySelector("h1");
                            if (targetElement.classList.length) {
                                const classArray = Array.from(targetElement.classList);
                                const countryName = classArray.join(" ");
-                               console.log(countryName);
+
+                               header.textContent = countryName;
                            }
 
                            else if (targetElement.id) {
                                const attributes = targetElement.attributes;
                                const nameAttribute = attributes.name;
                                const countryName = nameAttribute.nodeValue;
-                               console.log(countryName);
+
+                               header.textContent = countryName;
                            }
                        }
                    });
@@ -69,5 +72,7 @@
     <body>
         <div id="world-container">
         </div>
+        <h1>
+        </h1>
     </body>
 </html>
