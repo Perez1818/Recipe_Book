@@ -1,3 +1,5 @@
+const filesystem = require("fs");
+
 exports.getErrorMessages = (result) => {
     const errors = result.array({ onlyFirstError: true });
 
@@ -16,4 +18,10 @@ exports.attributeCount = (object) => {
     return Object.keys(object).length;
 }
 
-
+exports.deleteFile = (filePath) => {
+    filesystem.unlink(filePath, (error) => {
+        if (error) {
+            console.error(`Could not delete file: ${error}`);
+        }
+    });
+}

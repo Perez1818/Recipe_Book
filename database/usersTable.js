@@ -1,21 +1,13 @@
 const dotenv = require("dotenv");
 const pool = require("./pool.js");
 const bcrypt = require("bcryptjs");
-const filesystem = require("fs");
+const { deleteFile } = require("../middleware/helpers.js");
 
 const PARENT_DIRECTORY = __dirname;
 const UPLOADS_DIRECTORY = `${PARENT_DIRECTORY}/../public/uploads`;
 const AVATAR_DIRECTORY = `${UPLOADS_DIRECTORY}/avatar`;
 
 dotenv.config({ path: `${PARENT_DIRECTORY}/../.env` });
-
-function deleteFile(filePath) {
-    filesystem.unlink(filePath, (error) => {
-        if (error) {
-            console.error(`Could not delete file: ${error}`);
-        }
-    });
-}
 
 function getOnlyRow(rows) {
     if (rows.length === 1) {
@@ -118,7 +110,6 @@ async function updateBirthday(id, birthday) {
 /* Avoid listing all exports manually
  */
 module.exports = {
-    deleteFile,
     getUserByName,
     getUserByEmail,
     usernameIsAvailable,

@@ -1,14 +1,18 @@
 const { body, validationResult } = require("express-validator");
 const usersTable = require("../database/usersTable.js");
 const { stringArrayToSentence } = require("./fileUploader.js");
+const { deleteFile } = require("./helpers.js");
 const mime = require("mime-types");
 
 const MIN_USERNAME_LENGTH = 3;
 const MIN_PASSWORD_LENGTH = 5;
 
 const ALLOWED_AVATAR_FILE_TYPES = ["png", "jpg", "jpeg"];
+const ALLOWED_THUMBNAIL_FILE_TYPES = ALLOWED_AVATAR_FILE_TYPES;
+
 const BYTES_PER_MEGABYTE = 1024 * 1024;
 const BYTES_PER_AVATAR = BYTES_PER_MEGABYTE;
+const BYTES_PER_THUMBNAIL = 5 * BYTES_PER_MEGABYTE;
 
 const validate = {
     username: () => body("username")
@@ -97,14 +101,33 @@ const validate = {
                               }
                               const extension = mime.extension(file.mimetype);
                               if (!ALLOWED_AVATAR_FILE_TYPES.includes(extension)) {
-                                  usersTable.deleteFile(file.path);
+                                  deleteFile(file.path);
                                   throw new Error(`Only ${stringArrayToSentence(ALLOWED_AVATAR_FILE_TYPES)} files are permitted`);
                               }
                               if (file.size > BYTES_PER_AVATAR) {
-                                  usersTable.deleteFile(file.path);
+                                  deleteFile(file.path);
                                   throw new Error(`File size cannot exceed ${BYTES_PER_AVATAR / BYTES_PER_MEGABYTE}MB`);
                               }
-                          }).run(request)
+                          }).run(request),
+
+
+    thumbnailUpload: async (request) => body("file")
+                             .custom(async (unused, { req }) => {
+                                 const file = req.file;
+                                 if (!file) {
+                                     throw new Error(`Thumbnail is required`);
+                                 }
+                                 const extension = mime.extension(file.mimetype);
+                                 if (!ALLOWED_THUMBNAIL_FILE_TYPES.includes(extension)) {
+                                     deleteFile(file.path);
+                                     throw new Error(`Only ${stringArrayToSentence(ALLOWED_THUMBNAIL_FILE_TYPES)} files are permitted`);
+                                 }
+                                 if (file.size > BYTES_PER_THUMBNAIL) {
+                                     deleteFile(file.path);
+                                     throw new Error(`File size cannot exceed ${BYTES_PER_THUMBNAIL / BYTES_PER_MEGABYTE}MB`);
+                                 }
+                             }).run(request)
+
 };
 
 module.exports = {
