@@ -4,25 +4,48 @@
        <title>World</title>
        <meta charset="UTF-8">
 
-        <script>
-           const SVG_MAP_URL = "/static/img/world.svg"
-           const SVG_DOWNSCALE_FACTOR = 1.25;
-           fetch(SVG_MAP_URL)
-                .then(response => response.text())
-                .then(svgMapText => {
-                    // TODO: Stop using innerHTML to incorporate svg
-                    const worldContainer = document.querySelector("div#world-container");
-                    worldContainer.innerHTML = svgMapText;
+       <style>
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
+            svg path {
+                fill: #ececec;
+                stroke: black;
+                stroke-width: 1.5;
+            }
 
-                    const svgMap = document.querySelector("svg");
-                    const initialWidth = svgMap.getAttribute("width");
-                    const initialHeight = svgMap.getAttribute("height");
+            svg path:hover {
+                fill: limegreen;
+                transition: 0.5s;
+                cursor: pointer;
+            }
+       </style>
 
-                    svgMap.setAttribute("width", initialWidth / SVG_DOWNSCALE_FACTOR);
-                    svgMap.setAttribute("height", initialHeight / SVG_DOWNSCALE_FACTOR);
-                }).catch(error => console.error("Error fetching SVG: " + error));
+       <script>
+          const SVG_MAP_URL = "/static/img/world.svg";
+          const SVG_DOWNSCALE_FACTOR = 1.25;
+          fetch(SVG_MAP_URL)
+               .then(response => response.text())
+               .then(svgMapText => {
+                   // TODO: Stop using innerHTML to incorporate svg
+                   const worldContainer = document.querySelector("div#world-container");
+                   worldContainer.innerHTML = svgMapText;
 
-        </script>
+                   const svgMap = document.querySelector("svg");
+
+                   svgMap.removeAttribute("fill");
+                   svgMap.removeAttribute("stroke");
+                   svgMap.removeAttribute("stroke-width");
+
+                   const initialWidth = svgMap.getAttribute("width");
+                   const initialHeight = svgMap.getAttribute("height");
+
+                   svgMap.setAttribute("width", initialWidth / SVG_DOWNSCALE_FACTOR);
+                   svgMap.setAttribute("height", initialHeight / SVG_DOWNSCALE_FACTOR);
+
+               }).catch(error => console.error("Error fetching SVG: " + error));
+       </script>
     </head>
 
     <body>
