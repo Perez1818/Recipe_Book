@@ -1,0 +1,548 @@
+
+/* Helpful source: https://www.linkedin.com/learning/css-essential-training-22688362/getting-started-with-css */
+
+/* Horizontally centers all direct children of main; removes necessity of justify-self: center */
+main > * {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Shares same width across objects */
+#bookmark, #share, #calendar {
+    width: 30px;
+}
+
+#recipe-tutorial {
+    width: 600px;
+    height: 337.5px;
+    background-color: lightgray;
+    border-radius: 10px;
+}
+
+.rating-container {
+    height: fit-content;
+    width: fit-content;
+    margin-bottom: 10px;
+}
+
+/* Applies styling to child elements of rating container */
+.rating-container * {
+    width: 25px;
+    stroke-width: 1px;
+    margin: auto 1px;
+}
+
+/* Source: https://www.w3schools.com/css/css_grid.asp */
+#recipe-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 400px;
+    justify-items: center;
+    text-align: center;
+    margin: 20px;
+    background-color: aliceblue;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+#recipe-details p {
+    margin: 10px 0 0 0;
+}
+
+#avg-rating {
+    margin-left: 20px;
+    font-size: 20px;
+}
+
+#navigate-walkthrough {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 300px;
+    height: fit-content;
+    padding: 15px;
+    border-radius: 30px;
+    background-color: #79B473;
+    margin-top: 20px;
+}
+
+#navigate-walkthrough button {
+    background-color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+}
+
+#completion-progress {
+    margin-top: 20px;
+    width: 50%;
+    height: 20px;
+}
+
+#completion-fraction {
+    display: flex;
+    justify-content: center;
+    width: 100px;
+    background-color: white;
+    height: fit-content;
+    padding: 10px;
+    font-size: 20px;
+    border-radius: 30px;
+}
+
+section {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    flex-direction: column;
+    width: 90%;
+}
+
+img, video {
+    border-radius: 10px;
+}
+
+#recipe-name {
+    display: flex;
+    justify-content: center;
+}
+
+#recipe-thumbnail {
+    display: flex;
+    width: 600px;
+    height: 400px;
+    aspect-ratio: 1 / 1;
+    background-color: lightgray;
+}
+
+#username-and-date {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-bottom: 10px;
+}
+
+#username-link {
+    margin-right: 10px;
+    color: black;
+    text-decoration-color: #79B473;
+}
+
+
+#button-container, #recipe-interactions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50%;
+    margin-bottom: 10px;
+}
+
+#button-container {
+    gap: 75px;
+    position: relative;
+}
+
+#button-container button, #recipe-interactions button {
+    background-color: transparent;
+    border: none;
+}
+
+.display-button-name {
+    width: 50px;
+    position: absolute;
+    bottom: 30px;
+    left: 92px;
+
+}
+
+#recipe-interactions {
+    justify-content: center;
+    gap: 50px;
+}
+
+/* #review-container {
+    display: flex;
+    flex: 1 1 auto;
+    width: 75%;
+    height: 300px;
+    height: fit-content;
+    background-color: #79B473;
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 20px;
+} */
+
+/* Refers to white background inside review container */
+#inner-container {
+    display: flex;
+    width: 100%;
+    height: 100px;
+    justify-self: center;
+    align-self: center;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 10px;
+}
+
+/* Default container to be deleted when reviews are added */
+#no-review-container {
+    display: flex;
+    justify-content: center;
+    width: 75%;
+    height: fit-content;
+    padding: 20px;
+    border-radius: 10px;
+    border: gray solid 3px;
+}
+
+.divider {
+    margin: 20px 0;
+    width: 80%;
+}
+
+.two-column-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+}
+
+/* Source: https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow */
+/* Creates "post-it" notes with layered shadows to give effect of stack of notes */
+.ingredient-card {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    height: 300px;
+    aspect-ratio: 1 / 1;
+    background-color: #FFFF99;
+    margin: 20px;
+    padding: 30px;
+    overflow: auto;
+    box-shadow: 5px 5px 0 2px #fcfcab,
+    10px 10px 0 2px #fcfcab
+    ;
+}
+
+.ingredient-card h3 {
+    align-self: center;
+    margin-bottom: 0;
+}
+
+.ingredient-card h4 {
+    margin-bottom: 0;
+}
+
+.ingredient-card ol {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ingredient-card h4, ol {
+    margin-left: 20px;
+}
+
+/* Source: https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow */
+/* Creates card with layered shadows to give effect of stack of cards */
+.card {
+    display: flex;
+    width: 500px;
+    height: 300px;
+    padding: 30px;
+    aspect-ratio: 1 / 1;
+    background-color: whitesmoke;
+    margin: 20px;
+    border: lightgray solid 1px;
+    overflow: auto;
+    box-shadow: 5px 5px 0 2px rgb(220, 220, 220), 10px 10px 0 2px rgb(220, 220, 220);
+}
+
+/* Source: https://developer.mozilla.org/en-US/docs/Web/CSS/transform */
+.completed {
+    transform: rotate(-45deg);
+}
+
+/* Creates number with white, circular background and black border */
+#step-counter {
+    font-size: 2rem;
+    vertical-align: top;
+    width: 40px;
+    height: 40px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    background-color: white;
+    text-align: center;
+    padding: 5px;
+    border: black solid 3px;
+}
+
+/* Moves instructions towards center of card */
+#instructions {
+    margin: 20px 0 20px 50px;
+    height: 75%;
+    overflow: auto;
+}
+
+#estimated-time {
+    background-color: lightgreen;
+    border-radius: 10px;
+    padding: 10px;
+    width: fit-content;
+}
+
+.clickable:hover {
+    cursor: pointer;
+    fill: lightgray;
+}
+
+.clickable:active {
+    fill: white;
+}
+
+/* Monthly Report #2 */
+
+#timer-section {
+    display: flex;
+    align-items: center;
+    background-color: #79B473;
+    padding: 0 40px;
+    border-radius: 30px;
+    height: 50px;
+    width: 80%;
+    gap: 10px;
+}
+
+#timer-section button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    /* padding: 5px 30px; */
+    border-radius: 10px;
+    border: none;
+    width: 50px;
+    height: 30px;
+}
+
+
+#countdown {
+    background-color: white;
+    border-radius: 5px;
+    padding: 5px 20px;
+    text-align: center;
+}
+
+#timer {
+    width: 80%;
+}
+
+#dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    border-radius: 50%;
+}
+
+.dropdown-content a {
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    background-color: white;
+}
+
+.dropdown-content a:hover {
+    background-color: whitesmoke;
+}
+
+/* Daniel's Section */
+
+.ingredient-checkbox {
+  width: 15px;
+  height: 15px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+/* https://stackoverflow.com/a/56928969 credit to user named Sumit Patel*/
+.ingredient-checkbox:checked + span {
+  text-decoration: line-through;
+  color: gray;
+}
+
+.ingredient-card label {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.fa-star.checked {
+  color: orange;
+}
+
+.fa-thumbs-o-up.liked {
+  color: lightgreen;
+}
+
+/* Tyrese #2 */
+
+/* Leaving a review */
+.rating-container-2 {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    height: fit-content;
+}
+
+.review time {
+    font-size: 13px;
+}
+
+.rating-container-3 svg {
+    width: 20px;
+    stroke-width: 1px;
+}
+
+.rating-container-2 svg {
+    width: 25px;
+    stroke-width: 1px;
+    cursor: pointer
+}
+
+input[type="radio"] {
+    display: none;
+}
+
+.rating-container-2 {
+    display: flex;
+    align-items: center;
+}
+
+#reviews-section {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    justify-self: center;
+    justify-items: center;
+    align-items: center;
+    padding: 20px;
+    border-radius: 10px;
+    border: lightgrey solid 3px;
+    background-color: #8bdc82;
+    margin: 20px;
+    gap: 20px;
+    overflow: hidden;
+}
+
+#reviews-section > * {
+    background-color: white;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+#reviews-section h2 {
+    display: flex;
+    align-self: center;
+    align-items: center;
+}
+
+#num-reviews {
+    margin-right: 0.25em;
+}
+
+.review {
+    display: flex;
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+.review-details {
+    margin: 10px 0 0 20px; /* Margin to top and left */
+}
+
+.review-details * {
+    margin: 0;
+}
+
+.review-details p {
+    margin: 10px 0;
+    word-wrap: break-word;  /* ensures that long words don't overflow */
+    overflow-wrap: break-word;
+    white-space: normal;    /* wraps text */
+}
+
+#feedback-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 15px;
+}
+
+.like-button, .dislike-button {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background-color: transparent;
+    padding-right: 0;
+}
+
+.like-button svg:hover, .dislike-button svg:hover {
+    stroke: gray;
+    fill: none;
+}
+
+#post-button {
+    /* display: flex; */
+    width: fit-content;
+    height: fit-content;
+    border-radius: 30px;
+    padding: 7.5px 10px;
+}
+
+.feedback-number {
+    font-size: 15px;
+}
+
+.profile-pic, #current-user-profile-pic {
+    border-radius: 50%;
+    border: black solid 2px;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+}
+
+#current-user-profile-pic {
+    width: 50px;
+    height: 50px;
+}
+
+#review-to-post {
+    height: 35px;
+    padding: 0 20px;
+    margin: 0;
+}
+
+#post-review-container {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#no-reviews-placeholder {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    height: fit-content;
+    border: gray solid 3px;
+    border-radius: 10px;
+    padding: 20px 0;
+}
