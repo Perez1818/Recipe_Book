@@ -23,11 +23,11 @@
        </style>
 
        <script>
-          const COUNTRIES_CSV_URL = "/static/countries.csv";
+          const COUNTRIES_JSON_URL = "/static/countries.json";
           const SVG_MAP_URL = "/static/img/world.svg";
           const SVG_DOWNSCALE_FACTOR = 1.25;
 
-          fetch(COUNTRIES_CSV_URL)
+          fetch(COUNTRIES_JSON_URL)
                .then(response => response.json())
                .then(countryAbbreviationNames => {
 
@@ -46,7 +46,6 @@
                        return countryNameAbbreviations;
                    }
                    const countryNameAbbreviations = getCountryNameAbbreviations(countryAbbreviationNames);
-                   console.log(countryNameAbbreviations);
 
                    fetch(SVG_MAP_URL)
                         .then(response => response.text())
@@ -74,16 +73,20 @@
                                     if (targetElement.classList.length) {
                                         const classArray = Array.from(targetElement.classList);
                                         const countryName = classArray.join(" ");
-    
-                                        header.textContent = countryName;
+
+                                        const abbreviation = countryNameAbbreviations[countryName];
+
+                                        header.textContent = `${countryName} (${abbreviation})`;
                                     }
     
                                     else if (targetElement.id) {
                                         const attributes = targetElement.attributes;
                                         const nameAttribute = attributes.name;
                                         const countryName = nameAttribute.nodeValue;
+
+                                        const abbreviation = countryNameAbbreviations[countryName];
     
-                                        header.textContent = countryName;
+                                        header.textContent = `${countryName} (${abbreviation})`;
                                     }
                                 }
                             });

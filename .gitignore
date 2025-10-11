@@ -14,3 +14,4 @@ node_modules
 public/uploads/*
 public/img/*.svg
 public/*.csv
+public/*.json
