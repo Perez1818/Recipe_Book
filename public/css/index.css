@@ -186,17 +186,50 @@ h1, h2 {
 }
 
 /* Positions bookmark button to be invisible in the top-right corner of recipe container */
-.bookmark-recipe-button {
+.bookmark-recipe-button, .add-to-collection-button {
     position: absolute;
     top: 0;
-    right: 0;
     border: none;
     background-color: transparent;
 }
 
+.add-to-collection-button {
+    right: 0;
+}
+
+.bookmark-recipe-button {
+    left: 0;
+}
+
 /* Fills in bookmark button that has been bookmarked */
 .bookmark-recipe-button .bookmarked {
-    fill: #E34234;
+    fill: hsl(5, 76%, 55%);
+}
+
+.more-options-icon:hover {
+    color: gray;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    border-radius: 50%;
+}
+
+.dropdown-content a {
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    background-color: white;
+}
+
+.dropdown-content a:hover {
+    background-color: whitesmoke;
 }
 
 

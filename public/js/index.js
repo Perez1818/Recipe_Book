@@ -383,15 +383,30 @@ async function main() {
     // Applies event listeners to each recipe container
     recipeContainersArray.forEach(
         (recipeContainer) => {
+            const recipeBookmark = recipeContainer.getElementsByClassName("bookmark-recipe-icon")[0];
+            const addToCollectionButton = recipeContainer.getElementsByClassName("more-options-icon")[0];
+            const dropdownContent = recipeContainer.querySelector(".dropdown-content");
             recipeContainer.addEventListener("mouseover", () => {
-                recipeBookmark = recipeContainer.getElementsByClassName("bookmark-recipe-icon")[0];
                 recipeBookmark.setAttribute("display", "block");
+                addToCollectionButton.setAttribute("display", "block");
             });
-
             recipeContainer.addEventListener("mouseleave", () => {
-                recipeBookmark = recipeContainer.getElementsByClassName("bookmark-recipe-icon")[0];
                 recipeBookmark.setAttribute("display", "none");
+                addToCollectionButton.setAttribute("display", "none");
+                dropdownContent.style.display = "none";
             });
+            addToCollectionButton.addEventListener(
+                "click", (event) => {
+                    event.stopPropagation();
+                    dropdownContentVisible = dropdownContent.style.display;
+                    if (dropdownContentVisible == "block") {
+                        dropdownContent.style.display = "none";
+                    }
+                    else {
+                        dropdownContent.style.display = "block";
+                    }
+                }
+            );
         }
     );
 
