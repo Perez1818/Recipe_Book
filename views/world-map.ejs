@@ -29,9 +29,24 @@
 
           fetch(COUNTRIES_CSV_URL)
                .then(response => response.json())
-               .then(csvText => {
+               .then(countryAbbreviationNames => {
 
-                   console.log(csvText);
+                   const getCountryNameAbbreviations = (countryAbbreviationNames) => {
+                       const countryNameAbbreviations = {};
+                       for (const abbreviation in countryAbbreviationNames) {
+                           let name = countryAbbreviationNames[abbreviation];
+
+                           if (name in countryNameAbbreviations) {
+                               console.warn(`Could not replace existing abbreviation with '${abbreviation}'. ${name} is already abbreviated as '${countryNameAbbreviations[name]}'.`);
+                           }
+                           else {
+                               countryNameAbbreviations[name] = abbreviation;
+                           }
+                       }
+                       return countryNameAbbreviations;
+                   }
+                   const countryNameAbbreviations = getCountryNameAbbreviations(countryAbbreviationNames);
+                   console.log(countryNameAbbreviations);
 
                    fetch(SVG_MAP_URL)
                         .then(response => response.text())
