@@ -23,49 +23,60 @@
        </style>
 
        <script>
+          const COUNTRIES_CSV_URL = "/static/countries.csv";
           const SVG_MAP_URL = "/static/img/world.svg";
           const SVG_DOWNSCALE_FACTOR = 1.25;
-          fetch(SVG_MAP_URL)
-               .then(response => response.text())
-               .then(svgMapText => {
-                   // TODO: Stop using innerHTML to incorporate svg
-                   const worldContainer = document.querySelector("div#world-container");
-                   worldContainer.innerHTML = svgMapText;
 
-                   const svgMap = document.querySelector("svg");
+          fetch(COUNTRIES_CSV_URL)
+               .then(response => response.json())
+               .then(csvText => {
 
-                   svgMap.removeAttribute("fill");
-                   svgMap.removeAttribute("stroke");
-                   svgMap.removeAttribute("stroke-width");
+                   console.log(csvText);
 
-                   const initialWidth = svgMap.getAttribute("width");
-                   const initialHeight = svgMap.getAttribute("height");
+                   fetch(SVG_MAP_URL)
+                        .then(response => response.text())
+                        .then(svgMapText => {
+                            // TODO: Stop using innerHTML to incorporate svg
+                            const worldContainer = document.querySelector("div#world-container");
+                            worldContainer.innerHTML = svgMapText;
+    
+                            const svgMap = document.querySelector("svg");
+    
+                            svgMap.removeAttribute("fill");
+                            svgMap.removeAttribute("stroke");
+                            svgMap.removeAttribute("stroke-width");
+    
+                            const initialWidth = svgMap.getAttribute("width");
+                            const initialHeight = svgMap.getAttribute("height");
+    
+                            svgMap.setAttribute("width", initialWidth / SVG_DOWNSCALE_FACTOR);
+                            svgMap.setAttribute("height", initialHeight / SVG_DOWNSCALE_FACTOR);
+    
+                            svgMap.addEventListener("click", (event) => {
+                                const targetElement = event.target;
+                                if (targetElement.nodeName === "path") {
+                                    const header = document.querySelector("h1");
+                                    if (targetElement.classList.length) {
+                                        const classArray = Array.from(targetElement.classList);
+                                        const countryName = classArray.join(" ");
+    
+                                        header.textContent = countryName;
+                                    }
+    
+                                    else if (targetElement.id) {
+                                        const attributes = targetElement.attributes;
+                                        const nameAttribute = attributes.name;
+                                        const countryName = nameAttribute.nodeValue;
+    
+                                        header.textContent = countryName;
+                                    }
+                                }
+                            });
+    
+                        }).catch(error => console.error("Error fetching SVG: " + error));
+    
+                  }).catch(error => console.error("Error fetching CSV: " + error));
 
-                   svgMap.setAttribute("width", initialWidth / SVG_DOWNSCALE_FACTOR);
-                   svgMap.setAttribute("height", initialHeight / SVG_DOWNSCALE_FACTOR);
-
-                   svgMap.addEventListener("click", (event) => {
-                       const targetElement = event.target;
-                       if (targetElement.nodeName === "path") {
-                           const header = document.querySelector("h1");
-                           if (targetElement.classList.length) {
-                               const classArray = Array.from(targetElement.classList);
-                               const countryName = classArray.join(" ");
-
-                               header.textContent = countryName;
-                           }
-
-                           else if (targetElement.id) {
-                               const attributes = targetElement.attributes;
-                               const nameAttribute = attributes.name;
-                               const countryName = nameAttribute.nodeValue;
-
-                               header.textContent = countryName;
-                           }
-                       }
-                   });
-
-               }).catch(error => console.error("Error fetching SVG: " + error));
        </script>
     </head>
 
