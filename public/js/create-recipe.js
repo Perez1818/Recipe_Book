@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
             t.textContent = msg;
             t.style.display = 'block';
             clearTimeout(t._hide);
-            t._hide = setTimeout(() => { t.style.display = 'none'; }, 1500);
+            t._hide = setTimeout(() => { t.style.display = 'none'; }, 7500);
         };
     }
 
