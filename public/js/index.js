@@ -12,6 +12,18 @@ let currentAreaIndex = 0;
 // Adds a new recipe carousel to the page
 async function createNewCarousel(lookupMethod, filter, recentlyViewed = false) {
     const clonedCarousel = initialCarousel.cloneNode(true);
+    const images = clonedCarousel.querySelectorAll("img");
+    const recipeNames = clonedCarousel.getElementsByClassName("recipe-name");
+    const authors = clonedCarousel.getElementsByClassName("username");
+    const ingredients = clonedCarousel.querySelectorAll("p");
+
+    for (i = 0; i < images.length; i++) {
+        images[i].setAttribute("src", "");
+        recipeNames[i].textContent = "Recipe Name";
+        authors[i].textContent = "@AnonymousPublisher";
+        ingredients[i].textContent = "A placeholder for the description of some recipe.";
+    }
+
     clonedCarousel.setAttribute("id", `${filter.toLowerCase()}-recipe-container`);
     clonedCarousel.dataset.lookupMethod = lookupMethod;
     clonedCarousel.dataset.filter = filter;
