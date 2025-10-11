@@ -160,7 +160,7 @@ img, video {
     gap: 50px;
 }
 
-#review-container {
+/* #review-container {
     display: flex;
     flex: 1 1 auto;
     width: 75%;
@@ -170,7 +170,7 @@ img, video {
     border-radius: 10px;
     padding: 30px;
     margin-bottom: 20px;
-}
+} */
 
 /* Refers to white background inside review container */
 #inner-container {
@@ -386,4 +386,163 @@ img, video {
 
 .fa-thumbs-o-up.liked {
   color: lightgreen;
+}
+
+/* Tyrese #2 */
+
+/* Leaving a review */
+.rating-container-2 {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    height: fit-content;
+}
+
+.review time {
+    font-size: 13px;
+}
+
+.rating-container-3 svg {
+    width: 20px;
+    stroke-width: 1px;
+}
+
+.rating-container-2 svg {
+    width: 25px;
+    stroke-width: 1px;
+    cursor: pointer
+}
+
+input[type="radio"] {
+    display: none;
+}
+
+.rating-container-2 {
+    display: flex;
+    align-items: center;
+}
+
+#reviews-section {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    justify-self: center;
+    justify-items: center;
+    align-items: center;
+    padding: 20px;
+    border-radius: 10px;
+    border: lightgrey solid 3px;
+    background-color: #8bdc82;
+    margin: 20px;
+    gap: 20px;
+    overflow: hidden;
+}
+
+#reviews-section > * {
+    background-color: white;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+#reviews-section h2 {
+    display: flex;
+    align-self: center;
+    align-items: center;
+}
+
+#num-reviews {
+    margin-right: 0.25em;
+}
+
+.review {
+    display: flex;
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+.review-details {
+    margin: 10px 0 0 20px; /* Margin to top and left */
+}
+
+.review-details * {
+    margin: 0;
+}
+
+.review-details p {
+    margin: 10px 0;
+    word-wrap: break-word;  /* ensures that long words don't overflow */
+    overflow-wrap: break-word;
+    white-space: normal;    /* wraps text */
+}
+
+#feedback-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 15px;
+}
+
+.like-button, .dislike-button {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background-color: transparent;
+    padding-right: 0;
+}
+
+.like-button svg:hover, .dislike-button svg:hover {
+    stroke: gray;
+    fill: none;
+}
+
+#post-button {
+    /* display: flex; */
+    width: fit-content;
+    height: fit-content;
+    border-radius: 30px;
+    padding: 7.5px 10px;
+}
+
+.feedback-number {
+    font-size: 15px;
+}
+
+.profile-pic, #current-user-profile-pic {
+    border-radius: 50%;
+    border: black solid 2px;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+}
+
+#current-user-profile-pic {
+    width: 50px;
+    height: 50px;
+}
+
+#review-to-post {
+    height: 35px;
+    padding: 0 20px;
+    margin: 0;
+}
+
+#post-review-container {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#no-reviews-placeholder {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    height: fit-content;
+    border: gray solid 3px;
+    border-radius: 10px;
+    padding: 20px 0;
 }
