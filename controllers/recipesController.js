@@ -35,10 +35,11 @@ async function createRecipe(req, res) {
     await client.query('BEGIN');
 
     const r = await client.query(
-      `INSERT INTO recipes (name, description, cook_minutes, serving_size, tags, is_published)
-       VALUES ($1,$2,$3,$4,$5,$6)
+      `INSERT INTO recipes (user_id, name, description, cook_minutes, serving_size, tags, is_published)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)
        RETURNING id`,
       [
+        req.user.id,
         String(name).trim(),
         String(description).trim(),
         Number(cookTimeMinutes) || 0,
@@ -60,9 +61,9 @@ async function createRecipe(req, res) {
     for (let i = 0; i < asArray(instructions).length; i++) {
       const s = instructions[i] || {};
       await client.query(
-        `INSERT INTO instructions (recipe_id, step_num, text, hours, minutes, has_image)
-         VALUES ($1,$2,$3,$4,$5,$6)`,
-        [recipeId, i + 1, s.text || '', Number(s.hours || 0), Number(s.minutes || 0), !!s.hasImage]
+        `INSERT INTO instructions (recipe_id, step_num, text, hours, minutes)
+         VALUES ($1,$2,$3,$4,$5)`,
+        [recipeId, i + 1, s.text || '', Number(s.hours || 0), Number(s.minutes || 0)]
       );
     }
 
