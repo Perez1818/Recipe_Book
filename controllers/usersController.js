@@ -2,6 +2,7 @@ const usersTable = require("../database/usersTable.js");
 const { validate, validationResult } = require("../middleware/formValidation.js");
 const { passport } = require("../middleware/passport.js");
 const { getSingleUpload } = require("../middleware/fileUploader.js");
+const { getErrorMessages, attributeCount } = require("../middleware/helpers.js");
 
 const PARENT_DIRECTORY = __dirname;
 const UPLOADS_DIRECTORY = `${PARENT_DIRECTORY}/../public/uploads`;
@@ -17,24 +18,6 @@ exports.getIndex = async (request, response) => {
 exports.getSignUp = async (request, response) => {
     response.render("signup");
 };
-
-function getErrorMessages(result) {
-    const errors = result.array({ onlyFirstError: true });
-
-    const errorMessages = {};
-
-    for (let error of errors) {
-        let fieldName = error.path;
-        let errorMessage = error.msg;
-        errorMessages[fieldName] = errorMessage;
-    }
-
-    return errorMessages;
-}
-
-function attributeCount(object) {
-    return Object.keys(object).length;
-}
 
 exports.signUpUser = [
     validate.username(),
