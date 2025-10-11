@@ -5,17 +5,21 @@
        <meta charset="UTF-8">
 
         <script>
-           const svgMapUrl = "/static/img/world.svg"
-           fetch(svgMapUrl)
+           const SVG_MAP_URL = "/static/img/world.svg"
+           const SVG_DOWNSCALE_FACTOR = 1.25;
+           fetch(SVG_MAP_URL)
                 .then(response => response.text())
                 .then(svgMapText => {
-                    const parser = new DOMParser();
-                    const svgMapDocument = parser.parseFromString(svgMapText, "image/svg+xml");
-                    const svgMapElement = svgMapDocument.documentElement;
-
+                    // TODO: Stop using innerHTML to incorporate svg
                     const worldContainer = document.querySelector("div#world-container");
-                    worldContainer.append(svgMapElement);
+                    worldContainer.innerHTML = svgMapText;
 
+                    const svgMap = document.querySelector("svg");
+                    const initialWidth = svgMap.getAttribute("width");
+                    const initialHeight = svgMap.getAttribute("height");
+
+                    svgMap.setAttribute("width", initialWidth / SVG_DOWNSCALE_FACTOR);
+                    svgMap.setAttribute("height", initialHeight / SVG_DOWNSCALE_FACTOR);
                 }).catch(error => console.error("Error fetching SVG: " + error));
 
         </script>
@@ -23,7 +27,6 @@
 
     <body>
         <div id="world-container">
-
         </div>
     </body>
 </html>
