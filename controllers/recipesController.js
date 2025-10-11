@@ -72,7 +72,14 @@ async function createRecipe(req, res) {
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('createRecipe error:', err);
-    return res.status(500).json({ error: 'failed_to_create' });
+
+    if (req.user) {
+        return res.status(500).json({ error: 'failed_to_create' });
+    }
+    else {
+        return res.status(500).json({ error: 'You must be logged in to create a recipe.' });
+    }
+
   } finally {
     client.release();
   }
