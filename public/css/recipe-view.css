@@ -304,6 +304,8 @@ img, video {
 
 #timer-section {
     display: flex;
+    position: sticky;
+    top: 10px;
     align-items: center;
     background-color: #79B473;
     padding: 0 40px;
@@ -542,7 +544,6 @@ input[type="radio"] {
     text-align: center;
     width: 100%;
     height: fit-content;
-    border: gray solid 3px;
     border-radius: 10px;
     padding: 20px 0;
 }

@@ -168,7 +168,7 @@
             <h2>Walkthrough</h2>
             <!-- Timer Steps Section -->
             <div id="timer-section">
-                <h3 id="countdown">5:00</h3>
+                <h3 id="countdown"></h3>
                 <button id="start-btn" title="Start timer">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15px" fill="black" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
@@ -208,7 +208,7 @@
                             </svg>
 
                         </a>
-                        <a id="manage-timers-btn" title="Manage timers">
+                        <a id="manage-timers-btn" title="Manage timers" style="display: none">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20px" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
@@ -417,5 +417,27 @@
             localStorage.setItem('likeCount', countSpan.textContent);
         });
     </script>
+
+    <!-- Bookmark Collection Popup -->
+    <!-- Daniel: Source that helped = https://www.w3schools.com/html/html_forms.asp + https://www.w3schools.com/howto/howto_js_popup_form.asp -->
+    <div id="bookmark-popup" style="display:none; position:fixed; top:30%; left:50%; transform:translate(-50%,-50%); background:white; border:1px solid #aaa; border-radius:8px; box-shadow:0 2px 8px #0002; padding:24px; z-index:1000; min-width:300px;">
+        <h3>Save to Collection</h3>
+        <form id="bookmark-form">
+            <label for="collection-select">Choose a collection:</label>
+            <select id="collection-select" style="width:100%; margin:8px 0;">
+                <option value="bookmarks">Bookmarks</option>
+            </select>
+            <div style="margin:8px 0;">
+                <input type="text" id="new-collection-name" placeholder="New collection name" style="width:70%;">
+                <button type="button" id="add-collection-btn">Add</button>
+            </div>
+            <div style="text-align:right;">
+                <button type="button" id="cancel-bookmark-popup">Cancel</button>
+                <button type="submit" id="save-bookmark-btn">Save</button>
+            </div>
+        </form>
+    </div>
+    <div id="bookmark-popup-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#0005; z-index:999;"></div>
+
 </body>
 </html>

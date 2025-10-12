@@ -377,7 +377,6 @@ async function main() {
     let [ getPreviousStep, getNextStep ] = navigateWalkthroughContainer.getElementsByTagName("button");
     let { currentStep, lastStep } = getSteps();
 
-
     progressBar.value = currentStep / lastStep;
     getPreviousStep.style.cursor = "not-allowed";
     getPreviousStep.disabled = true;
@@ -433,7 +432,6 @@ async function main() {
     
     displayTimer(currentInstruction);
     initializeTimerButtons();
-
 
     // Allows user to move to the previous step in instructions when left button is clicked
     getPreviousStep.addEventListener("click", () => {
@@ -497,6 +495,14 @@ async function main() {
 
         initializeTimerButtons();
     })
+
+    const timerOptionsDropdown = timerSection.getElementsByClassName("dropdown-content")[0];
+    timerSection.addEventListener(
+        "mouseleave", () => {
+            console.log(timerOptionsDropdown)
+            timerOptionsDropdown.style.display = "none";
+        }
+    )
 
     //dropdown for unit conversion
     const ingredientCard = document.querySelector('.ingredient-card');
@@ -636,12 +642,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentStep = 1;
     const stepComments = {};
 
-    function updateCurrentStep() {
+    function updateCurrentStep() { //update current step from the displayed step fraction
         const [step] = document.getElementById('completion-fraction').textContent.split(' / ');
         currentStep = parseInt(step, 10);
     }
 
-    function showCommentSection(currentStep) {
+    //https://medium.com/@ayshaismail021/creating-a-simple-comment-box-with-javascript-for-beginners-e865c2dda97e + help from copilot
+    function showCommentSection(currentStep) { //show comment section for current step
         section.style.display = 'block';
         input.value = '';
         const comments = stepComments[currentStep] || [];
@@ -649,23 +656,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (commentBtn) {
-        commentBtn.addEventListener('click', () => {
-            updateCurrentStep();
-            showCommentSection(currentStep);
+        commentBtn.addEventListener('click', () => { //when comment button is clicked
+            updateCurrentStep(); //get current step
+            showCommentSection(currentStep); //show comment section for that step
         });
     }
 
     if (submitBtn) {
         submitBtn.addEventListener('click', () => {
-            const text = input.value.trim();
+            const text = input.value.trim(); //get text and trim whitespace
             if (!text) return;
-            if (!stepComments[currentStep]) stepComments[currentStep] = [];
-            stepComments[currentStep].push(text);
-            showCommentSection(currentStep);
+            if (!stepComments[currentStep]) stepComments[currentStep] = []; //initialize array if it doesn't exist
+            stepComments[currentStep].push(text); //add comment
+            showCommentSection(currentStep); //show updated comments
         });
     }
 
-    // Hide comment section when navigating steps
+    //hide comment section when navigating steps
     const nav = document.getElementById('navigate-walkthrough');
     if (nav) {
         nav.addEventListener('click', (e) => {
@@ -687,6 +694,81 @@ document.addEventListener('DOMContentLoaded', () => {
             speech.rate = 1;
             speech.pitch = 1;
             window.speechSynthesis.speak(speech);
+        });
+    }
+
+    //bookmark popup logic
+    const bookmarkBtn = document.querySelector('#bookmark');
+    const popup = document.getElementById('bookmark-popup');
+    const overlay = document.getElementById('bookmark-popup-overlay');
+    const form = document.getElementById('bookmark-form');
+    const select = document.getElementById('collection-select');
+    const newCollectionInput = document.getElementById('new-collection-name');
+    const addCollectionBtn = document.getElementById('add-collection-btn');
+    const cancelBtn = document.getElementById('cancel-bookmark-popup');
+
+    //load collections from localStorage or default
+    function loadCollections() {
+        let collections = JSON.parse(localStorage.getItem('collections') || '["bookmarks"]');
+        select.innerHTML = '';
+        //https://stackoverflow.com/questions/18417114/add-item-to-dropdown-list-in-html-using-javascript
+        collections.forEach(col => {
+            const opt = document.createElement('option'); //creates a new option element
+            opt.value = col; //sets the value of the option to the collection name
+            opt.textContent = col.charAt(0).toUpperCase() + col.slice(1); //sets the displayed text with first letter capitalized
+            select.appendChild(opt); //adds the option to the select dropdown
+        });
+    }
+
+    //show popup
+    //https://www.w3schools.com/howto/howto_js_popup_form.asp
+    function showPopup() {
+        loadCollections();
+        popup.style.display = 'block';
+        overlay.style.display = 'block';
+        newCollectionInput.value = '';
+        select.focus();
+    }
+
+    //hide popup
+    //https://www.w3schools.com/howto/howto_js_popup_form.asp
+    function hidePopup() {
+        popup.style.display = 'none';
+        overlay.style.display = 'none';
+    }
+
+    //add new collection
+    addCollectionBtn.addEventListener('click', () => { //when the button is clicked
+        const name = newCollectionInput.value.trim(); //get the name and trim whitespace
+        if (!name) return;
+        let collections = JSON.parse(localStorage.getItem('collections') || '["bookmarks"]');
+        if (!collections.includes(name)) { //avoid duplicates
+            collections.push(name); //add to array
+            localStorage.setItem('collections', JSON.stringify(collections)); //save back to localStorage
+            loadCollections(); //reload dropdown
+            select.value = name; //select the new collection
+        }
+        newCollectionInput.value = ''; //clear input
+    });
+
+    //cancel button
+    cancelBtn.addEventListener('click', hidePopup);
+    overlay.addEventListener('click', hidePopup);
+
+    //save bookmark (demo: just alerts for now)
+    form.addEventListener('submit', (e) => { //when form is submitted
+        e.preventDefault(); //prevent it from reloading the page
+        const collection = select.value; //get selected collection
+        // Here you would save the recipe ID to the chosen collection in localStorage or backend
+        alert(`Recipe saved to "${collection}"!`);
+        hidePopup();
+    });
+
+    //show popup on bookmark button click
+    if (bookmarkBtn) {
+        bookmarkBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showPopup();
         });
     }
 });
