@@ -377,7 +377,6 @@ async function main() {
     let [ getPreviousStep, getNextStep ] = navigateWalkthroughContainer.getElementsByTagName("button");
     let { currentStep, lastStep } = getSteps();
 
-
     progressBar.value = currentStep / lastStep;
     getPreviousStep.style.cursor = "not-allowed";
     getPreviousStep.disabled = true;
@@ -433,7 +432,6 @@ async function main() {
     
     displayTimer(currentInstruction);
     initializeTimerButtons();
-
 
     // Allows user to move to the previous step in instructions when left button is clicked
     getPreviousStep.addEventListener("click", () => {
@@ -497,6 +495,14 @@ async function main() {
 
         initializeTimerButtons();
     })
+
+    const timerOptionsDropdown = timerSection.getElementsByClassName("dropdown-content")[0];
+    timerSection.addEventListener(
+        "mouseleave", () => {
+            console.log(timerOptionsDropdown)
+            timerOptionsDropdown.style.display = "none";
+        }
+    )
 
     //dropdown for unit conversion
     const ingredientCard = document.querySelector('.ingredient-card');
