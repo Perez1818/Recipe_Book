@@ -23,13 +23,14 @@ let useUpperboundTimer = false;
 let runningTimers = [];
 let timerRunning = false;
 
-
+// Retrieves time parsed from recipe card
 function getCurrentTimeBlock(timerIndex) {
     const estimatedTimeBoldedText2 = document.getElementById("time-in-bold").textContent;
     timerValueAndUnits = (estimatedTimeBoldedText2.split("+"))[timerIndex];
     return timerValueAndUnits
 }
 
+// Converts the time parsed from recipe card to minutes 
 function getEstimatedTimeInMinutes(timerIndex, upperBoundTimerIndex=false) {
     timerValueAndUnits = getCurrentTimeBlock(timerIndex);
     if (timerValueAndUnits.includes("-")) {
@@ -66,28 +67,25 @@ function getEstimatedTimeInMinutes(timerIndex, upperBoundTimerIndex=false) {
         }
     }
     if (timerValueAndUnits.includes("minute")) {
-        console.log(timerValueAndUnits)
         return parseInt(timerValueAndUnits);
     }
     else {
-        console.log(timerValueAndUnits)
         return parseInt(timerValueAndUnits) * 60;
     }
 }
 
 
+// Returns the hours, minutes, and seconds left on timer
 function getTimeOnTimer() {
     timerText = visibleCountdown.textContent;
     timerText = timerText.split(":").map(text => Number(text));
     console.log(timerText)
     const [ seconds=0, minutes=0, hours=0 ] = timerText.reverse();
-    console.log(hours, minutes, seconds)
-    // Hours, minutes, seconds left
     return { hours, minutes, seconds }
 }
 
 
-// Time variables
+// Initializes time variables
 function initializeTimer() {
     // Assigns rate at which to call updateTimer and updateTimerBar and the IDs to stop calls
     if (timerId | timerBarId) {
@@ -116,6 +114,7 @@ function flashTimer() {
 }
 
 
+// Converts seconds to proper time format (e.g. 30:00)
 function calculate_padded_time(secondsLeft) {
     // Calculates minutes and seconds
     if (secondsLeft >= 3600) {
@@ -185,10 +184,9 @@ async function playAlarm() {
         clearInterval(alarmOffId);
         audio.pause()
     }, 3_000);
-    // NOTE: Set textColor to red, make initialize timer set to black
 }
 
-
+// Simulates the timer running on screen
 playBtn.addEventListener(
     "click", () => {
         let {hours, minutes, seconds} = getTimeOnTimer();
@@ -203,6 +201,7 @@ playBtn.addEventListener(
     }
 );
 
+// Pauses the on-screen timer
 stopBtn.addEventListener(
     "click", () => {
         timerRunning = false;
@@ -213,6 +212,7 @@ stopBtn.addEventListener(
     }
 );
 
+// Resets the on-screen alarm to initial starting time
 resetBtn.addEventListener(
     "click", () => {
         let minutes = getEstimatedTimeInMinutes(timerIndex);
@@ -226,6 +226,7 @@ resetBtn.addEventListener(
     }
 );
 
+// Pulls up dropdown for timer
 moreOptionsBtn.addEventListener(
     "click", () => {
         dropdownContentVisible = dropdownContent.style.display;
@@ -238,6 +239,7 @@ moreOptionsBtn.addEventListener(
     }
 )
 
+// Switches timer to upper/lower bound if present on recipe card
 switchTimerBtn.addEventListener(
     "click", () => {
         getNextTimer = null;
@@ -266,15 +268,10 @@ switchTimerBtn.addEventListener(
     }
 );
 
+// Gets next timer listed on recipe card
 nextTimerBtn.addEventListener(
     "click", () => {
-        if (timerRunning) {
-
-        }
-
         getNextTimer = null;
-        // timerRunning = false;
-
         // Catches error message when next timer for current instruction doesn't exist
         try {
             getNextTimer = getEstimatedTimeInMinutes(timerIndex + 1);
@@ -303,7 +300,7 @@ nextTimerBtn.addEventListener(
 
         prevTimerBtn.style.cursor = "pointer";
         prevTimerBtn.style.color = "black"
-        // if (getNextTimer) {
+
         let minutes = getEstimatedTimeInMinutes(timerIndex);
         let secondsToRun = minutes * 60;
         visibleCountdown.textContent = calculate_padded_time(secondsToRun);
@@ -316,11 +313,11 @@ nextTimerBtn.addEventListener(
     }
 );
 
+// Gets previous timer listed on recipe card
 prevTimerBtn.addEventListener(
     "click", () => {
         getPrevTimer = null;
         useUpperboundTimer = false;
-        // timerRunning = false;
 
         // Catches error message when next timer for current instruction doesn't exist
         try {
@@ -348,7 +345,6 @@ prevTimerBtn.addEventListener(
             prevTimerBtn.style.color = "gray";
         }
 
-        // if (getPrevTimer) {
         nextTimerBtn.style.cursor = "pointer";
         nextTimerBtn.style.color = "black"
 
@@ -361,6 +357,5 @@ prevTimerBtn.addEventListener(
         clearInterval(timerBarId);
         playBtn.style.display = "block";
         stopBtn.style.display = "none";
-        // }
     }
 );
