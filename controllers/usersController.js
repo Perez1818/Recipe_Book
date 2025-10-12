@@ -68,9 +68,11 @@ exports.logoutUser = (request, response, next) => {
 exports.getUserProfile = async (request, response, next) => {
     const user = await usersTable.getUserByName(request.params.username);
     if (user) {
-        response.render("profile", { user: user });
+        const userRecipes = await usersTable.getUserRecipes(user.id);
+        response.render("profile", { user: user, userRecipes: userRecipes });
     }
     else {
+        response.redirect("/");
         next();
     }
 };

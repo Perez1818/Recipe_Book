@@ -74,8 +74,8 @@ async function createRecipe(req, res) {
         Array.isArray(tags) ? tags : [],
         !!publish,
         
-        req.files["thumbnail"][0],
-        req.files.video?.[0] || null,
+        req.files["thumbnail"][0].filename,
+        req.files.video?.[0]?.filename || null,
       ]
     );
     const recipeId = r.rows[0].id;

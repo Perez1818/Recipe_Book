@@ -4,10 +4,15 @@
         <title><%= user.username %></title>
         <meta charset="UTF-8"> 
         <style>
-            .avatar {
+            .avatar, .thumbnail {
                 width: 150px;
                 height: 150px;
                 object-fit: cover;
+            }
+            div.showcase {
+                display: flex;
+                justify-content: space-around;
+                flex-wrap: wrap;
             }
         </style>
     </head>
@@ -21,8 +26,12 @@
         <h3>Points: 0</h3>
 
         <h2>Recipe Showcase</h2>
-        <img src="<%= user.avatar ? `/static/uploads/avatar/${user.avatar}` : "/static/img/Portrait_Placeholder.png" %>" class="avatar" alt="Recipe photo #1">
-        <p>Recipe 1</p>
+        <div class="showcase">
+            <% for (recipe of userRecipes) { %>
+                <img src="<%= `/static/uploads/multimedia/${recipe.thumbnail}` %>" class="thumbnail" alt="<%= recipe.name %> thumbnail">
+                <p><%= recipe.name %></p>
+            <% } %>
+        </div>
 
         <% if (currentUser && currentUser.username === user.username) { %>
             <a href="/settings">Edit Profile</a>
