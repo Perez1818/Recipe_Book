@@ -176,11 +176,14 @@ function updateTimerBar() {
 
 
 // Plays alarm for 3 seconds before stopping
-function playAlarm() {
+async function playAlarm() {
+    const audio = new Audio("audio/Beep_alarm_clock.ogg")
     let alarmOffId;
+    await audio.play()
     alarmOffId = setInterval(flashTimer, SECOND / 4);
     setTimeout(function() {
         clearInterval(alarmOffId);
+        audio.pause()
     }, 3_000);
     // NOTE: Set textColor to red, make initialize timer set to black
 }
