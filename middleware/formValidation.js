@@ -1,7 +1,7 @@
 const { body, validationResult } = require("express-validator");
 const usersTable = require("../database/usersTable.js");
 const { stringArrayToSentence } = require("./fileUploader.js");
-const { deleteFile } = require("./helpers.js");
+const { deleteFile, deleteFiles } = require("./helpers.js");
 const mime = require("mime-types");
 
 const MIN_USERNAME_LENGTH = 3;
@@ -9,10 +9,12 @@ const MIN_PASSWORD_LENGTH = 5;
 
 const ALLOWED_AVATAR_FILE_TYPES = ["png", "jpg", "jpeg"];
 const ALLOWED_THUMBNAIL_FILE_TYPES = ALLOWED_AVATAR_FILE_TYPES;
+const ALLOWED_VIDEO_FILE_TYPES = ["mp4"];
 
 const BYTES_PER_MEGABYTE = 1024 * 1024;
 const BYTES_PER_AVATAR = BYTES_PER_MEGABYTE;
-const BYTES_PER_THUMBNAIL = 5 * BYTES_PER_MEGABYTE;
+const BYTES_PER_THUMBNAIL = 1 * BYTES_PER_MEGABYTE;
+const BYTES_PER_VIDEO = 2 * BYTES_PER_MEGABYTE;
 
 const validate = {
     username: () => body("username")
@@ -111,22 +113,54 @@ const validate = {
                           }).run(request),
 
 
-    thumbnailUpload: async (request) => body("file")
-                             .custom(async (unused, { req }) => {
-                                 const file = req.file;
-                                 if (!file) {
-                                     throw new Error(`Thumbnail is required`);
-                                 }
-                                 const extension = mime.extension(file.mimetype);
-                                 if (!ALLOWED_THUMBNAIL_FILE_TYPES.includes(extension)) {
-                                     deleteFile(file.path);
-                                     throw new Error(`Only ${stringArrayToSentence(ALLOWED_THUMBNAIL_FILE_TYPES)} files are permitted`);
-                                 }
-                                 if (file.size > BYTES_PER_THUMBNAIL) {
-                                     deleteFile(file.path);
-                                     throw new Error(`File size cannot exceed ${BYTES_PER_THUMBNAIL / BYTES_PER_MEGABYTE}MB`);
-                                 }
-                             }).run(request)
+    thumbnailVideoUpload: async (request) => body("file")
+                                  .custom(async (unused, { req }) => {
+                                      const files = req.files;
+
+                                      const thumbnailArray = files["thumbnail"];
+                                      const thumbnail = thumbnailArray ? thumbnailArray[0] : undefined;
+
+                                      const videoArray = files["video"];
+                                      const video = videoArray ? videoArray[0] : undefined;
+
+                                      if (!thumbnail) {
+                                          deleteFiles(thumbnailArray);
+                                          deleteFiles(videoArray);
+                                          throw new Error(`Thumbnail is required`);
+                                      }
+
+                                      const thumbnailExtension = mime.extension(thumbnail.mimetype);
+
+                                      if (!ALLOWED_THUMBNAIL_FILE_TYPES.includes(thumbnailExtension)) {
+                                          deleteFiles(thumbnailArray);
+                                          deleteFiles(videoArray);
+                                          throw new Error(`Only ${stringArrayToSentence(ALLOWED_THUMBNAIL_FILE_TYPES)} files are permitted for thumbnails`);
+                                      }
+
+                                      if (thumbnail.size > BYTES_PER_THUMBNAIL) {
+                                          deleteFiles(thumbnailArray);
+                                          deleteFiles(videoArray);
+                                          throw new Error(`Thumbnail file size cannot exceed ${BYTES_PER_THUMBNAIL / BYTES_PER_MEGABYTE}MB`);
+                                      }
+
+                                      if (!video) {
+                                          return;
+                                      }
+
+                                      const videoExtension = mime.extension(video.mimetype);
+
+                                      if (!ALLOWED_VIDEO_FILE_TYPES.includes(videoExtension)) {
+                                          deleteFiles(thumbnailArray);
+                                          deleteFiles(videoArray);
+                                          throw new Error(`Only ${stringArrayToSentence(ALLOWED_VIDEO_FILE_TYPES)} files are permitted for videos`);
+                                      }
+
+                                      if (video.size > BYTES_PER_VIDEO) {
+                                          deleteFiles(thumbnailArray);
+                                          deleteFiles(videoArray);
+                                          throw new Error(`Video file size cannot exceed ${BYTES_PER_VIDEO / BYTES_PER_MEGABYTE}MB`);
+                                      }
+                                  }).run(request)
 
 };
 
