@@ -1,4 +1,10 @@
 const pool = require("../database/pool.js");
+const { validate, validationResult } = require("../middleware/formValidation.js");
+const { getThumbnailVideoUpload } = require("../middleware/fileUploader.js");
+const { getErrorMessages, attributeCount } = require("../middleware/helpers.js");
+
+
+const uploadThumbnailVideo = getThumbnailVideoUpload();
 
 const asArray = (v) => Array.isArray(v) ? v : [];
 
@@ -8,18 +14,28 @@ async function getRecipeMaker(req, res) {
 
 // POST /recipes
 async function createRecipe(req, res) {
+  uploadThumbnailVideo(req, res, async (error) => {
+  console.log(req.files);
   const client = await pool.connect();
+
+
+  // Parse JSON string fields from multipart/form-data
+  const parseJSON = (s, fallback) => {
+    try { return JSON.parse(s); } catch { return fallback; }
+  };
+
   try {
     const {
       name,
       description,
       cookTimeMinutes = 0,
       servingSize = 1,
-      tags = [],
       publish = false,
-      ingredients = [],
-      instructions = [],
     } = req.body || {};
+
+    const tags          = parseJSON(req.body?.tags, []);
+    const ingredients   = parseJSON(req.body?.ingredients, []);
+    const instructions  = parseJSON(req.body?.instructions, []);
 
     if (!name || !description) {
       return res.status(400).json({ error: 'name and description are required' });
@@ -32,11 +48,22 @@ async function createRecipe(req, res) {
       }
     }
 
+    await validate.thumbnailVideoUpload(req);
+    const user = req.user;
+    if (user) {
+        const result = validationResult(req);
+        const errorMessages = getErrorMessages(result);
+
+        if (attributeCount(errorMessages)) {
+            return res.status(400).json({ error: errorMessages["file"] });
+        }
+    }
+
     await client.query('BEGIN');
 
     const r = await client.query(
-      `INSERT INTO recipes (user_id, name, description, cook_minutes, serving_size, tags, is_published)
-       VALUES ($1,$2,$3,$4,$5,$6,$7)
+      `INSERT INTO recipes (user_id, name, description, cook_minutes, serving_size, tags, is_published, thumbnail, video)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
        RETURNING id`,
       [
         req.user.id,
@@ -46,6 +73,9 @@ async function createRecipe(req, res) {
         Math.max(1, Number(servingSize) || 1),
         Array.isArray(tags) ? tags : [],
         !!publish,
+        
+        req.files["thumbnail"][0],
+        req.files.video?.[0] || null,
       ]
     );
     const recipeId = r.rows[0].id;
@@ -83,6 +113,9 @@ async function createRecipe(req, res) {
   } finally {
     client.release();
   }
+
+  });
+
 }
 
 // PUT /recipes/:id

@@ -56,6 +56,10 @@ async function seedDatabase() {
                   serving_size INT,
                   tags TEXT[],
                   is_published BOOLEAN NOT NULL,
+
+                  thumbnail TEXT NOT NULL,
+                  video TEXT,
+
                   CONSTRAINT fk_recipes_users FOREIGN KEY (user_id) REFERENCES users (id)
     );`);
 

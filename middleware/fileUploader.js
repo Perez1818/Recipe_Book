@@ -71,7 +71,7 @@ function getInvalidFileMessage(file) {
     }
 }
 
-function getMultiUpload() {
+function getThumbnailVideoUpload() {
     const storage = multer.diskStorage({
         destination: MULTIMEDIA_DIRECTORY,
         filename: generateFileName
@@ -80,9 +80,9 @@ function getMultiUpload() {
     const upload = multer({ storage: storage });
 
     return upload.fields([
-        { name: "photo", maxCount: 1 },
+        { name: "thumbnail", maxCount: 1 },
         { name: "video", maxCount: 1 }
     ]);
 }
 
-module.exports = { getMultiUpload, getInvalidFileMessage, stringArrayToSentence, getSingleUpload };
+module.exports = { getThumbnailVideoUpload, getInvalidFileMessage, stringArrayToSentence, getSingleUpload };
