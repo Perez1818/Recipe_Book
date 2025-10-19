@@ -11,6 +11,7 @@
 - Connect PG Simple (connect-pg-simple)
 - Multer (multer)
 - Mime Types (mime-types)
+- Nodemailer (nodemailer)
 
 # Setup
 Open Node.js command prompt and:
