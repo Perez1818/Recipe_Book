@@ -3,6 +3,7 @@ const { validate, validationResult } = require("../middleware/formValidation.js"
 const { passport } = require("../middleware/passport.js");
 const { getSingleUpload } = require("../middleware/fileUploader.js");
 const { getErrorMessages, attributeCount } = require("../middleware/helpers.js");
+const { sendVerificationEmail } = require("../middleware/emailVerification.js");
 
 const PARENT_DIRECTORY = __dirname;
 const UPLOADS_DIRECTORY = `${PARENT_DIRECTORY}/../public/uploads`;
@@ -35,7 +36,11 @@ exports.signUpUser = [
         else {
             const userCreated = await usersTable.createUser(request.body.username, request.body.email, request.body.password);
             if (userCreated) {
-                response.redirect("/login");
+                // response.redirect("/login");
+
+                const user = await usersTable.getUserByName(request.body.username);
+                await sendVerificationEmail(user.email, user.id);
+                response.render("signup", { successMessage: "User successfully registered. Check your email to verify." });
             }
             else {
                 next();
@@ -43,6 +48,19 @@ exports.signUpUser = [
         }
     }
 ];
+
+exports.verifyUser = async (request, response) => {
+    const { userId } = request.params;
+
+    const user = await usersTable.getUserById(userId);
+    if (!user) {
+        return response.status(400).send("Invalid verification link");
+    }
+    else {
+        usersTable.verifyUser(userId);
+        response.redirect("/login?verified=1");
+    }
+};
 
 exports.getLogin = async (request, response) => {
     const failedLoginAttempt = (request.query.failed === "1");
