@@ -27,6 +27,8 @@ BCRYPT_SALT_LENGTH=type_salt_length_here
 
 SERVER_EMAIL=type_server_email_here
 SERVER_EMAIL_APP_PASSWORD=type_server_email_app_password_here
+
+APP_URL=type_app_url_here
 ```
 Finally, install dependencies:
 ```
