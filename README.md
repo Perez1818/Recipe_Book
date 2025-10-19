@@ -24,6 +24,9 @@ DATABASE_CONNECTION_STRING=type_string_here
 SERVER_PORT=type_server_port_number_here
 EXPRESS_SESSION_SECRET=type_session_secret_here
 BCRYPT_SALT_LENGTH=type_salt_length_here
+
+SERVER_EMAIL=type_server_email_here
+SERVER_EMAIL_APP_PASSWORD=type_server_email_app_password_here
 ```
 Finally, install dependencies:
 ```
