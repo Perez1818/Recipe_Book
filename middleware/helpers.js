@@ -27,7 +27,9 @@ exports.deleteFile = (filePath) => {
 }
 
 exports.deleteFiles = (fileArray) => {
-    for (let file of fileArray) {
-        exports.deleteFile(file.path);
+    if (fileArray) {
+        for (let file of fileArray) {
+            exports.deleteFile(file.path);
+        }
     }
 }
