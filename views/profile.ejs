@@ -9,6 +9,7 @@
                 height: 150px;
                 object-fit: cover;
             }
+
             div.showcase {
                 display: flex;
                 justify-content: space-around;
@@ -28,8 +29,10 @@
         <h2>Recipe Showcase</h2>
         <div class="showcase">
             <% for (recipe of userRecipes) { %>
-                <img src="<%= `/static/uploads/multimedia/${recipe.thumbnail}` %>" class="thumbnail" alt="<%= recipe.name %> thumbnail">
-                <p><%= recipe.name %></p>
+                <div class="recipe">
+                    <img src="<%= `/static/uploads/multimedia/${recipe.thumbnail}` %>" class="thumbnail" alt="<%= recipe.name %> thumbnail">
+                    <p><%= recipe.name %></p>
+                </div>
             <% } %>
         </div>
 
