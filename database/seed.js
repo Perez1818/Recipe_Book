@@ -33,6 +33,8 @@ async function seedDatabase() {
                   birthday DATE,
                   biography TEXT,
 
+                  is_verified BOOLEAN DEFAULT false,
+
                   UNIQUE(username),
                   UNIQUE(email)
     );`);
