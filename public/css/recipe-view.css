@@ -538,12 +538,16 @@ input[type="radio"] {
     padding: 20px 0;
 }
 
+/* Daniel #3 */
+#google_translate_element {
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
 /* Tyrese #3 */
-/* .review-buttons {
-    display: flex;
-    flex-direction: row;
-    justify-items: flex-end;
-} */
 
 .review-buttons {
     margin: 20px;
