@@ -17,15 +17,17 @@ let numStarsRated = 0;
 // Initialize number of reviews displayed
 numReviewsCounter.textContent = reviewsSection.querySelectorAll(".review").length - 1;
 
-function main() {
+async function main() {
+    loadExistingReviewsFromDatabase()
 
     // Helper Functions
     function removeInitialReviewContainer() {
-        numReviews = parseInt(numReviewsCounter.textContent);
-        console.log(numReviews);
-        if (numReviews != 0) {
-            noReviews.remove()
-        }
+        noReviews.remove()
+    }
+
+    function getRecipeIdFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("id");
     }
 
     function updatePostButtonState() {
@@ -42,6 +44,154 @@ function main() {
         }
     }
 
+    async function loadExistingReviewsFromDatabase(recipeId) {
+        try {
+            const response = await fetch("/reviews", {
+                method: "GET",
+                headers: { "Content-Type": "application/json" }
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                console.log("Failed to load in reviews:", result.error)
+                return;
+            }
+
+            const reviews = result.items || [];
+
+            // If no reviews are available, placeholder remains
+            if (reviews.length === 0) {
+                return;
+            }
+
+            removeInitialReviewContainer();
+
+            reviews.forEach(
+                (review) => {
+                    renderExistingReview(review);
+                }
+            )
+
+        } catch(err) {
+            console.error(err);
+        }
+    }
+
+    async function addReviewToDatabase(reviewData) {
+        console.log(reviewData)
+        try {
+            const response = await fetch("/reviews", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(reviewData)
+            })
+        
+            const result = await response.json();
+
+            if (response.ok) {
+                console.log("Review successfully added")
+            }
+            else {
+                console.log(result.error)
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function removeReviewFromDatabase(reviewId) {
+    }
+
+    async function updateReviewInDatabase(reviewId) {
+
+    }
+
+    function renderExistingReview(review) {
+        const newReview = firstReview.cloneNode(true);
+        newReview.style.display = "flex";
+
+        const reviewText = newReview.querySelector(".review-text");
+        const timePosted = newReview.querySelector("time");
+        const ratingContainer = newReview.querySelector(".rating-container-3");
+        const starsPosted = ratingContainer.querySelectorAll("svg");
+        const likeButton = newReview.querySelector(".like-button");
+        const dislikeButton = newReview.querySelector(".dislike-button");
+        const numLikes = likeButton.parentElement.querySelector(".feedback-number");
+        const numDislikes = dislikeButton.parentElement.querySelector(".feedback-number");
+
+        // Fill in content from database
+        reviewText.textContent = review.content;
+        numLikes.textContent = review.num_likes || 0;
+        numDislikes.textContent = review.num_dislikes || 0;
+        timePosted.textContent = new Date(review.created_at).toLocaleString();
+
+        // Fill in stars
+        for (let i = 0; i < 5; i++) {
+            const star = starsPosted[i];
+            star.setAttribute("fill", i < review.rating ? "yellow" : "whitesmoke");
+        }
+
+        // Reattach like listeners
+        likeButton.addEventListener("click", () => {
+            const isLiked = likeButton.classList.contains("liked");
+            const isDisliked = dislikeButton.classList.contains("disliked");
+
+            if (isLiked) {
+                likeButton.classList.remove("liked");
+                likeButton.querySelector("svg").setAttribute("stroke", "black");
+                numLikes.textContent = parseInt(numLikes.textContent) - 1;
+            } else {
+                likeButton.classList.add("liked");
+                likeButton.querySelector("svg").setAttribute("stroke", "skyblue");
+                numLikes.textContent = parseInt(numLikes.textContent) + 1;
+
+                if (isDisliked) {
+                    dislikeButton.classList.remove("disliked");
+                    dislikeButton.querySelector("svg").setAttribute("stroke", "black");
+                    numDislikes.textContent = Math.max(0, parseInt(numDislikes.textContent) - 1);
+                }
+            }
+        });
+
+        // Reattach dislike listeners
+        dislikeButton.addEventListener("click", () => {
+            const isDisliked = dislikeButton.classList.contains("disliked");
+            const isLiked = likeButton.classList.contains("liked");
+
+            if (isDisliked) {
+                dislikeButton.classList.remove("disliked");
+                dislikeButton.querySelector("svg").setAttribute("stroke", "black");
+                numDislikes.textContent = parseInt(numDislikes.textContent) - 1;
+            } else {
+                dislikeButton.classList.add("disliked");
+                dislikeButton.querySelector("svg").setAttribute("stroke", "red");
+                numDislikes.textContent = parseInt(numDislikes.textContent) + 1;
+
+                if (isLiked) {
+                    likeButton.classList.remove("liked");
+                    likeButton.querySelector("svg").setAttribute("stroke", "black");
+                    numLikes.textContent = Math.max(0, parseInt(numLikes.textContent) - 1);
+                }
+            }
+        });
+
+        newReview.addEventListener(
+            "mouseenter", () => {
+                const delete_and_edit_buttons = newReview.querySelector(".review-buttons");
+                delete_and_edit_buttons.style.display = "flex";
+            }
+        );
+        newReview.addEventListener(
+            "mouseleave", () => {
+                const delete_and_edit_buttons = newReview.querySelector(".review-buttons");
+                delete_and_edit_buttons.style.display = "none";
+            }
+        );
+
+        // Append to DOM
+        reviewsSection.appendChild(newReview);
+    }
+
+
     function addnewReview() {
         // DOM Elements for Review
         const newReview = firstReview.cloneNode(true);
@@ -51,11 +201,26 @@ function main() {
         const starsPosted = ratingContainer.querySelectorAll("svg");
         const likeButton = newReview.querySelector(".like-button");
         const dislikeButton = newReview.querySelector(".dislike-button");
-        // For managing review likes/dislikes
+        // For managing review likes/dislikes/stars
         const likeSvg = likeButton.querySelector("svg");
         const dislikeSvg = dislikeButton.querySelector("svg");
         const numLikes = likeButton.parentElement.querySelector(".feedback-number");
         const numDislikes = dislikeButton.parentElement.querySelector(".feedback-number")
+        const numStars = Number(currentStarClicked);
+
+        // Tyrese #3
+        newReview.addEventListener(
+            "mouseenter", () => {
+                const delete_and_edit_buttons = newReview.querySelector(".review-buttons");
+                delete_and_edit_buttons.style.display = "flex";
+            }
+        );
+        newReview.addEventListener(
+            "mouseleave", () => {
+                const delete_and_edit_buttons = newReview.querySelector(".review-buttons");
+                delete_and_edit_buttons.style.display = "none";
+            }
+        );
 
         removeInitialReviewContainer()
         newReview.style.display = "flex";
@@ -64,7 +229,6 @@ function main() {
             const timestamp = Date.now();
             timePosted.datetime = timestamp;
             const dateObject = new Date(timestamp)
-            console.log(dateObject.getDay())
             const dateStr = `${dateObject.getMonth() + 1}/${dateObject.getDate()}/${dateObject.getFullYear()}`
             const timeStr = dateObject.toLocaleTimeString()
             const cleanedTimeStr = timeStr.replace(/((?:[^:]*:){2})[^:\s][^ ]*/, "$1").replace(/: +/, " ");
@@ -103,7 +267,7 @@ function main() {
                 // Toggle on like
                 } else {
                     likeButton.classList.add("liked");
-                    likeSvg.setAttribute("stroke", "green");
+                    likeSvg.setAttribute("stroke", "skyblue");
                     numLikes.textContent = parseInt(numLikes.textContent) + 1;
                     // Remove dislike if it was active
                     if (isDisliked) {
@@ -140,6 +304,17 @@ function main() {
             }
         );
 
+        const reviewData = {
+            recipe_id: getRecipeIdFromURL(),
+            user_id: 1,
+            rating: Number(numStars),
+            content: reviewText.textContent,
+            num_likes: Number(numLikes.textContent),
+            num_dislikes: Number(numDislikes.textContent),
+            created_at: generateTimeStr()
+        }
+
+        addReviewToDatabase(reviewData);
     }
 
     // Event Listeners

@@ -160,18 +160,6 @@ img, video {
     gap: 50px;
 }
 
-/* #review-container {
-    display: flex;
-    flex: 1 1 auto;
-    width: 75%;
-    height: 300px;
-    height: fit-content;
-    background-color: #79B473;
-    border-radius: 10px;
-    padding: 30px;
-    margin-bottom: 20px;
-} */
-
 /* Refers to white background inside review container */
 #inner-container {
     display: flex;
@@ -428,14 +416,12 @@ input[type="radio"] {
     display: flex;
     flex-direction: column;
     width: 80%;
-    justify-self: center;
     justify-items: center;
     align-items: center;
     padding: 20px;
     border-radius: 10px;
-    border: lightgrey solid 3px;
     background-color: #8bdc82;
-    margin: 20px;
+    margin: 20px auto;
     gap: 20px;
     overflow: hidden;
 }
@@ -450,6 +436,7 @@ input[type="radio"] {
     display: flex;
     align-self: center;
     align-items: center;
+    margin: 0;
 }
 
 #num-reviews {
@@ -460,6 +447,9 @@ input[type="radio"] {
     display: flex;
     margin-bottom: 5px;
     width: 100%;
+
+    /* Tyrese #3 */
+    position: relative;
 }
 
 .review-details {
@@ -546,4 +536,30 @@ input[type="radio"] {
     height: fit-content;
     border-radius: 10px;
     padding: 20px 0;
+}
+
+/* Tyrese #3 */
+/* .review-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-items: flex-end;
+} */
+
+.review-buttons {
+    margin: 20px;
+
+    /* Positions buttons in top-right corner of review */
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: none;
+}
+
+.review-buttons * {
+    background-color: transparent;
+    border: none;
+}
+
+.delete-button:hover {
+    color: red;
 }

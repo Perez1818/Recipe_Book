@@ -25,6 +25,17 @@ async function seedDatabase() {
                   UNIQUE(email)
     );`);
 
+    await client.query(`CREATE TABLE IF NOT EXISTS reviews(
+                  id SERIAL PRIMARY KEY,
+                  recipe_id INT NOT NULL,
+                  user_id INT NOT NULL,
+                  rating INT CHECK (rating BETWEEN 1 AND 5),
+                  content TEXT NOT NULL,
+                  num_likes INT,
+                  num_dislikes INT,
+                  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`)
+
     await client.query(`CREATE TABLE IF NOT EXISTS recipes(
                   id SERIAL PRIMARY KEY,
                   name TEXT NOT NULL,
