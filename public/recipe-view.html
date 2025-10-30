@@ -12,6 +12,7 @@
     <script defer src="js/recipe-view.js"></script>
     <script defer src="js/timer.js"></script>
     <script defer src="js/recipe-review-handler.js"></script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body>
     <header>
@@ -83,6 +84,9 @@
             <span id="separator">|</span>
             <span id="publishing-date">Uploaded on on August 14, 2025</span>
         </span>
+         <!-- for google translate + source that helped: https://www.w3schools.com/howto/howto_google_translate.asp -->
+         <div id="google_translate_element"></div>
+
          <div class="rating-container">
             <!-- Daniel: source that helped: https://www.w3schools.com/howto/howto_css_star_rating.asp-->
             <span class="fa fa-star" data-r-value="1"></span>
@@ -418,6 +422,15 @@
         });
     </script>
 
+    <!-- w3schools google translate guide: https://www.w3schools.com/howto/howto_google_translate.asp-->
+    <script type="text/javascript">
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    
     <!-- Bookmark Collection Popup -->
     <!-- Daniel: Source that helped = https://www.w3schools.com/html/html_forms.asp + https://www.w3schools.com/howto/howto_js_popup_form.asp -->
     <div id="bookmark-popup" style="display:none; position:fixed; top:30%; left:50%; transform:translate(-50%,-50%); background:white; border:1px solid #aaa; border-radius:8px; box-shadow:0 2px 8px #0002; padding:24px; z-index:1000; min-width:300px;">
