@@ -17,6 +17,11 @@
             <% return ""; %>
         <% } %>
 
+        <% if (locals.successMessage) { %>
+            <p class="success"><%= successMessage %></p>
+        <% } %>
+
+
         <% // Submit form to current route %>
         <form action="" method="post">
             <div class="field">
