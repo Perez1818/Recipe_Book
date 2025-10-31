@@ -7,7 +7,7 @@ const router = Router();
 router.get("/", usersController.getIndex);
 router.get("/signup", usersController.getSignUp);
 router.post("/signup", usersController.signUpUser);
-router.get("/verify/:userId", usersController.verifyUser);
+router.get("/verify", usersController.verifyUser);
 router.get("/login", usersController.getLogin);
 router.post("/login", usersController.loginUser);
 router.get("/logout", usersController.logoutUser);

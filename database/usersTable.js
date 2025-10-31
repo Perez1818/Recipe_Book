@@ -106,12 +106,12 @@ async function updateBirthday(id, birthday) {
     return await pool.query("UPDATE users SET birthday = $1 WHERE id = $2;", [birthday, id]);
 }
 
-async function updateVerifiedStatus(id, verified) {
-    return await pool.query("UPDATE users SET is_verified = $1 WHERE id = $2;", [verified, id]);
+async function updateVerifiedStatus(email, verified) {
+    return await pool.query("UPDATE users SET is_verified = $1 WHERE email = $2;", [verified, email]);
 }
 
-async function verifyUser(id) {
-    return await updateVerifiedStatus(id, true);
+async function verifyUser(email) {
+    return await updateVerifiedStatus(email, true);
 }
 
 async function getUserRecipes(id) {

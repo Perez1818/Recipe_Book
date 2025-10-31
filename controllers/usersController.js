@@ -4,6 +4,7 @@ const { passport } = require("../middleware/passport.js");
 const { getSingleUpload } = require("../middleware/fileUploader.js");
 const { getErrorMessages, attributeCount } = require("../middleware/helpers.js");
 const { sendVerificationEmail } = require("../middleware/emailVerification.js");
+const jwt = require("jsonwebtoken");
 
 const PARENT_DIRECTORY = __dirname;
 const UPLOADS_DIRECTORY = `${PARENT_DIRECTORY}/../public/uploads`;
@@ -39,7 +40,7 @@ exports.signUpUser = [
                 // response.redirect("/login");
 
                 const user = await usersTable.getUserByName(request.body.username);
-                await sendVerificationEmail(user.email, user.id);
+                await sendVerificationEmail(user.email);
                 response.render("signup", { successMessage: "User successfully registered. Check your email to verify." });
             }
             else {
@@ -50,20 +51,30 @@ exports.signUpUser = [
 ];
 
 exports.verifyUser = async (request, response) => {
-    const { userId } = request.params;
-
-    const user = await usersTable.getUserById(userId);
-    if (!user) {
-        return response.status(400).send("Invalid verification link");
-    }
-    else {
-        usersTable.verifyUser(userId);
+    const { token } = request.query;
+    try {
+        const decodedToken = jwt.verify(token, process.env.JSON_WEB_TOKEN_SECRET);
+        const email = decodedToken.email;
+        await usersTable.verifyUser(email);
         response.redirect("/login?verified=1");
+    }
+    catch (error) {
+        response.redirect("login?verified=0");
     }
 };
 
 exports.getLogin = async (request, response) => {
-    response.render("login");
+    const { verified } = request.query;
+    if (verified === "1") {
+        response.render("login", { successMessage: "Email successfully verified. You may now log in." });
+    }
+    else if (verified === "0") {
+        response.render("login", { errorMessages: { credentials: "Invalid token." } });
+    }
+    else {
+        response.render("login");
+    }
+
 };
 
 exports.loginUser = (request, response, next) => {
