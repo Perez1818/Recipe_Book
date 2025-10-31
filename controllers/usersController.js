@@ -63,16 +63,27 @@ exports.verifyUser = async (request, response) => {
 };
 
 exports.getLogin = async (request, response) => {
-    const failedLoginAttempt = (request.query.failed === "1");
-    if (failedLoginAttempt) {
-        response.render("login", { errorMessages: { credentials: "Login failed. Please try again." } });
-    }
-    else {
-        response.render("login");
-    }
+    response.render("login");
 };
 
-exports.loginUser = passport.authenticate("local", { successRedirect: "/", failureRedirect: "/login?failed=1" });
+exports.loginUser = (request, response, next) => {
+    passport.authenticate("local", (error, user, info) => {
+        if (error) {
+            return next(error);
+        }
+        if (!user) {
+            response.render("login", { errorMessages: { credentials: info.message } });
+        }
+        else {
+            request.logIn(user, (error) => {
+                if (error) {
+                    return next(error);
+                }
+                response.redirect("/");
+            });
+        }
+    })(request, response, next);
+}
 
 exports.logoutUser = (request, response, next) => {
     request.logout((error) => {
