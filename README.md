@@ -12,6 +12,7 @@
 - Multer (multer)
 - Mime Types (mime-types)
 - Nodemailer (nodemailer)
+- JSON Web Token (jsonwebtoken)
 
 # Setup
 Open Node.js command prompt and:
@@ -29,6 +30,8 @@ SERVER_EMAIL=type_server_email_here
 SERVER_EMAIL_APP_PASSWORD=type_server_email_app_password_here
 
 APP_URL=type_app_url_here
+
+JSON_WEB_TOKEN_SECRET=type_json_web_token_secret_here
 ```
 Finally, install dependencies:
 ```
