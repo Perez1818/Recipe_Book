@@ -370,9 +370,12 @@ img, video {
   gap: 1px;
 }
 
-.fa-star.checked {
-  color: orange;
+.fa-star {
+    color: lightgray;
 }
+/* .fa-star.checked {
+  color: orange;
+} */
 
 .fa-thumbs-o-up.liked {
   color: lightgreen;

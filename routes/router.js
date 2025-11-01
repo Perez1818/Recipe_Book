@@ -21,4 +21,7 @@ router.post("/settings/account", usersController.updateAccount);
 // router.get("/upload/multimedia", filesController.getMultimediaUpload);
 // router.post("/upload/multimedia", filesController.uploadMultimedia);
 
+router.get("/userDetails/me", usersController.getCurrentUser)
+router.get("/userDetails/:id", usersController.getUserDetailsById);
+
 module.exports = router;

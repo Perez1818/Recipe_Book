@@ -8,6 +8,7 @@ reviewsRouter.get("/recipe/:recipeId", reviewsController.getReviewsByRecipe);   
 reviewsRouter.get("/:id", reviewsController.getReview);   // Get one review by ID
 reviewsRouter.get("/", reviewsController.listReviews);    // Get all reviews
 reviewsRouter.post("/", reviewsController.createReview);
+reviewsRouter.post("/:id/feedback", reviewsController.addReviewFeedback);
 reviewsRouter.put("/:id", reviewsController.updateReview);
 reviewsRouter.delete("/:id", reviewsController.deleteReview);
 

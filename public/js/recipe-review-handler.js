@@ -4,20 +4,72 @@ const reviewToPost = document.getElementById("review-to-post");
 const starRatings = document.querySelectorAll("input[name='stars']");
 const starSvgs = document.querySelectorAll("label svg");
 const postButton = document.getElementById("post-button");
+const likeRecipeButton = document.querySelector("#likes");
 const firstReview = document.getElementsByClassName("review")[0];
+const postReviewSection = document.getElementById("post-review-container");
 const reviewsSection = document.getElementById("reviews-section");
 const numReviewsCounterTop = document.getElementById("num-comments");
 const numReviewsCounterBottom = document.getElementById("num-reviews");
 const noReviews = document.getElementById("no-reviews-placeholder");
 const avgRating = document.getElementById("avg-rating");
+const profilePic = document.getElementById("current-user-profile-pic");
 
 // States
 let lastStarClicked = null;
 let currentStarClicked = null;
 let numStarsRated = 0;
 
+async function getCurrentUserDetails() {
+    const response = await fetch(`/userDetails/me`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+    });
+    const result = await response.json();
+    if (!response.ok) {
+        console.log("Failed to load in user details:", result.error)
+        return;
+    }
+    return result;
+}
+
+async function getUserDetails(id) {
+    const response = await fetch(`/userDetails/${id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+    });
+    const result = await response.json();
+    if (!response.ok) {
+        console.log("Failed to load in user details:", result.error)
+        return;
+    }
+    return result;
+}
 
 async function main() {
+    try {
+        const userResult = await getCurrentUserDetails();
+        const { username, avatar } = userResult;
+
+        if (avatar) {
+            profilePic.src = avatar;
+        }
+    } catch {
+        userResult = null;
+        likeRecipeButton.style.pointerEvents = "None";
+        postReviewSection.title = "You need to be signed in before you can post a review!";
+
+        for (const child of postReviewSection.children) {
+            child.style.pointerEvents = "None";
+            child.title = "You need to be signed in before you can post a review!";
+            child.style.cursor = "not-allowed";
+        }
+        postReviewSection.style.cursor = "not-allowed";
+
+        const ratingContainer = document.getElementsByClassName("rating-container")[0];
+        ratingContainer.style.pointerEvents = "None";
+    }
+
+    await updateRating();
 
     function getRecipeIdFromURL() {
         const params = new URLSearchParams(window.location.search);
@@ -37,12 +89,14 @@ async function main() {
         }
         return result;
     }
-    result = await fetchReviews(getRecipeIdFromURL())
-    console.log(result)
 
     // Helper Functions
     function removeInitialReviewContainer() {
-        noReviews.remove()
+        noReviews.style.display = "none";
+    }
+
+    function addInitialReviewContainer() {
+        noReviews.style.display = "flex";
     }
 
     loadExistingReviewsFromDatabase(getRecipeIdFromURL())
@@ -126,12 +180,17 @@ async function main() {
         p.replaceWith(div);
     }
 
-    function updateRating(reviews) {
+    async function updateRating() {
+        const ratingContainer = document.getElementsByClassName("rating-container")[0];
+        const result = await fetchReviews(getRecipeIdFromURL());
+        const reviews = await result.items || [];
+
         if (reviews.length === 0) {
             avgRating.textContent = "0.0";
             displayAverageStars(ratingContainer, 0);
             numReviewsCounterTop.textContent = 0;
             numReviewsCounterBottom.textContent = 0;
+            addInitialReviewContainer();
             return;
         }
 
@@ -141,9 +200,8 @@ async function main() {
                 sum += parseInt(review.rating)
             }
         )
-        averageRating = (sum / reviews.length).toFixed(1);
+        const averageRating = (sum / reviews.length).toFixed(1);
         avgRating.textContent = averageRating;
-        ratingContainer = document.getElementsByClassName("rating-container")[0];
 
         function displayAverageStars(container, average) {
             const stars = container.querySelectorAll(".fa-star");
@@ -177,12 +235,12 @@ async function main() {
             removeInitialReviewContainer();
 
             reviews.forEach(
-                (review) => {
-                    renderExistingReview(review);
+                async (review) => {
+                    await renderExistingReview(review);
                 }
             )
 
-            updateRating(reviews)
+            await updateRating();
 
         } catch(err) {
             console.error(err);
@@ -201,9 +259,7 @@ async function main() {
 
             if (response.ok) {
                 console.log("Review successfully added");
-                const resultReviews = await fetchReviews(getRecipeIdFromURL());
-                const reviews = resultReviews.items || [];
-                updateRating(reviews)
+                await updateRating();
             }
             else {
                 console.log(result.error)
@@ -215,6 +271,47 @@ async function main() {
         }
     }
 
+    async function toggleFeedback(reviewId, isLike) {
+        try {
+                const response = await fetch(`/reviews/${reviewId}/feedback`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ is_like: isLike })
+            });
+
+            const contentType = response.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+                console.error("Non-JSON response:", await response.text());
+                return false;
+            }
+
+            const result = await response.json();
+            if (!response.ok) {
+                alert(result.error);
+                return false;
+            }
+
+            return true; // success
+        } catch (err) {
+            console.error("toggleFeedback failed:", err);
+            return false;
+        }
+    }
+
+
+
+
+
+    async function refreshReviewFeedback(review, numLikesEl, numDislikesEl) {
+        const response = await fetch(`/reviews/${review.id}`);
+        if (!response.ok) return;
+
+        const updated = await response.json();
+        numLikesEl.textContent = updated.num_likes;
+        numDislikesEl.textContent = updated.num_dislikes;
+    }
+
+
     async function removeReviewFromDatabase(review) {
         try {
             const response = await fetch(
@@ -223,21 +320,14 @@ async function main() {
                     headers: { "Content-Type": "application/json" }
             });
             result = await response.json();
-            if (result.ok) {
-                console.log("Review successfully deleted!")
-                const resultReviews = await fetchReviews(getRecipeIdFromURL());
-                const reviews = resultReviews.items || [];
-                updateRating(reviews)
+            if (response.ok) {
+                console.log("Review successfully deleted!");
+                review.remove();  // Delete from DOM
+                await updateRating();
             }
         } catch (error) {
-            console.error(error)
+            console.error(error);
         }
-
-        // Delete from DOM
-        review.remove();
-
-        numReviewsCounterTop.textContent = parseInt(numReviewsCounterTop.textContent) - 1;
-        numReviewsCounterBottom.textContent = parseInt(numReviewsCounterBottom.textContent) - 1;
     }
 
     async function updateReviewInDatabase(reviewId, updatedContent) {
@@ -256,7 +346,7 @@ async function main() {
         }
     }
 
-    function renderExistingReview(review) {
+    async function renderExistingReview(review) {
         const newReview = firstReview.cloneNode(true);
         newReview.style.display = "flex";
 
@@ -268,14 +358,26 @@ async function main() {
         const dislikeButton = newReview.querySelector(".dislike-button");
         const editButton = newReview.querySelector(".edit-button");
         const deleteButton = newReview.querySelector(".delete-button");
+        const profilePic = newReview.querySelector(".profile-pic");
         const numLikes = likeButton.parentElement.querySelector(".feedback-number");
         const numDislikes = dislikeButton.parentElement.querySelector(".feedback-number");
+        const usernameElement = newReview.querySelector(".username");
+
+        const userId = review.user_id;
+        reviewCreator = await getUserDetails(userId);
+        const username = reviewCreator.username;
+        const avatar = reviewCreator.avatar;
+        usernameElement.textContent = `@${username}`;
+        if (avatar) {
+            profilePic.src = avatar;
+        }
 
         // Fill in content from database
         reviewText.textContent = review.content;
         numLikes.textContent = review.num_likes || 0;
         numDislikes.textContent = review.num_dislikes || 0;
         timePosted.textContent = generateTimeStr(review.created_at);
+
 
         // Fill in stars
         for (let i = 0; i < 5; i++) {
@@ -287,103 +389,87 @@ async function main() {
             updateEditFlag(newReview);
         }
 
-        // Reattach like listeners
         likeButton.addEventListener("click", async () => {
             const isLiked = likeButton.classList.contains("liked");
             const isDisliked = dislikeButton.classList.contains("disliked");
-            numLikesInt = parseInt(numLikes.textContent);
-            numDislikesInt = parseInt(numDislikes.textContent);
 
-            // Already previously liked, so like is removed
+            // tell backend first
+            const success = await toggleFeedback(review.id, true);
+            if (!success) return;
+
+            // visual update on success
             if (isLiked) {
                 likeButton.classList.remove("liked");
                 likeButton.querySelector("svg").setAttribute("stroke", "black");
-                numLikes.textContent = numLikesInt - 1;
-                review.num_likes = numLikesInt - 1;
             } else {
-                // Adds like
                 likeButton.classList.add("liked");
                 likeButton.querySelector("svg").setAttribute("stroke", "skyblue");
-                numLikes.textContent = numLikesInt + 1;
-                review.num_likes = numLikesInt + 1;
-                
-                // Previously disliked, removes dislike
                 if (isDisliked) {
                     dislikeButton.classList.remove("disliked");
                     dislikeButton.querySelector("svg").setAttribute("stroke", "black");
-                    numDislikes.textContent = Math.max(0, numDislikesInt - 1);
-                    review.num_dislikes = numDislikesInt - 1;
                 }
             }
-            updatedContent = {
-                num_likes: review.num_likes,
-                num_dislikes: review.num_dislikes
-            }
-            await updateReviewInDatabase(review.id, updatedContent);
+
+            await refreshReviewFeedback(review, numLikes, numDislikes);
         });
 
-        // Reattach dislike listeners
         dislikeButton.addEventListener("click", async () => {
             const isDisliked = dislikeButton.classList.contains("disliked");
             const isLiked = likeButton.classList.contains("liked");
-            numLikesInt = parseInt(numLikes.textContent);
-            numDislikesInt = parseInt(numDislikes.textContent);
 
-            // Already previously disliked, removes dislike
+            const success = await toggleFeedback(review.id, false);
+            if (!success) return;
+
             if (isDisliked) {
                 dislikeButton.classList.remove("disliked");
                 dislikeButton.querySelector("svg").setAttribute("stroke", "black");
-                numDislikes.textContent = parseInt(numDislikes.textContent) - 1;
-                numDislikes.textContent = numDislikes - 1;
-                review.num_dislikes = numDislikesInt - 1;
             } else {
-                // Adds dislike
                 dislikeButton.classList.add("disliked");
                 dislikeButton.querySelector("svg").setAttribute("stroke", "red");
-                numDislikes.textContent = parseInt(numDislikes.textContent) + 1;
-                numDislikes.textContent = numDislikesInt + 1;
-                review.num_dislikes = numDislikesInt + 1;
-
-                // Previously liked, removes like
                 if (isLiked) {
                     likeButton.classList.remove("liked");
                     likeButton.querySelector("svg").setAttribute("stroke", "black");
-                    numLikes.textContent = Math.max(0, numDislikesInt - 1);
-                    review.num_likes = numLikesInt - 1;
                 }
             }
-            updatedContent = {
-                num_likes: review.num_likes,
-                num_dislikes: review.num_dislikes
-            }
-            await updateReviewInDatabase(review.id, updatedContent);
-        });
 
-        newReview.addEventListener(
-            "mouseenter", () => {
-                const deleteAndEditButtons = newReview.querySelector(".review-buttons");
-                deleteAndEditButtons.style.display = "flex";
-            }
-        );
-        newReview.addEventListener(
-            "mouseleave", () => {
-                const deleteAndEditButtons = newReview.querySelector(".review-buttons");
-                deleteAndEditButtons.style.display = "none";
-            }
-        );
-        editButton.addEventListener(
-            "click", async () => {
-                editReview(editButton);
-            }
-        );
-        deleteButton.addEventListener(
-            "click", async () => {
-                await removeReviewFromDatabase(newReview);
-            }
-        );
+            await refreshReviewFeedback(review, numLikes, numDislikes);
+        });
 
         // Attach ID of review to element for purposes of updating/deletion later
         newReview.id = review.id;
+
+        try {
+            const userResult = await getCurrentUserDetails();
+            const { id } = userResult;
+            // Limits editing/deleting reviews to user's personal reviews
+            if (userId === id) {
+                newReview.addEventListener(
+                "mouseenter", () => {
+                    const deleteAndEditButtons = newReview.querySelector(".review-buttons");
+                    deleteAndEditButtons.style.display = "flex";
+                    }
+                );
+                newReview.addEventListener(
+                    "mouseleave", () => {
+                        const deleteAndEditButtons = newReview.querySelector(".review-buttons");
+                        deleteAndEditButtons.style.display = "none";
+                    }
+                );
+                editButton.addEventListener(
+                    "click", async () => {
+                        editReview(editButton);
+                    }
+                );
+                deleteButton.addEventListener(
+                    "click", async () => {
+                        await removeReviewFromDatabase(newReview);
+                    }
+                );
+            }
+        } catch (err) {
+            console.log(err);
+            newReview.style.pointerEvents = "None";
+        }
 
         // Append to DOM
         reviewsSection.appendChild(newReview);
@@ -401,12 +487,22 @@ async function main() {
         const dislikeButton = newReview.querySelector(".dislike-button");
         const editButton = newReview.querySelector(".edit-button");
         const deleteButton = newReview.querySelector(".delete-button");
+        const usernameElement = newReview.querySelector(".username");
+        const avatarImg = newReview.querySelector(".profile-pic");
         // For managing review likes/dislikes/stars
         const likeSvg = likeButton.querySelector("svg");
         const dislikeSvg = dislikeButton.querySelector("svg");
         const numLikes = likeButton.parentElement.querySelector(".feedback-number");
         const numDislikes = dislikeButton.parentElement.querySelector(".feedback-number")
         const numStars = Number(currentStarClicked);
+
+        const userResult = await getCurrentUserDetails();
+
+        if (!userResult) {
+            return;
+        }
+        
+        const { id, username, avatar } = userResult;
 
         removeInitialReviewContainer()
         newReview.style.display = "flex";
@@ -415,14 +511,33 @@ async function main() {
         reviewText.textContent = reviewToPost.value;
         reviewToPost.value = "";
 
+        usernameElement.textContent = `@${username}`;
+        if (avatar) {
+            avatarImg.src = avatar;
+        }
+
         for (let i = 0; i < 5; i++) {
             const star = starsPosted[i];
             star.setAttribute("fill", i < numStarsRated ? "yellow" : "whitesmoke");
         }
 
+        const reviewData = {
+            recipe_id: getRecipeIdFromURL(),
+            user_id: id,
+            rating: Number(numStars),
+            content: reviewText.textContent,
+            num_likes: Number(numLikes.textContent),
+            num_dislikes: Number(numDislikes.textContent),
+        }
+
+        result = await addReviewToDatabase(reviewData);
+        console.log("Result after adding review to Database:", result);
+        
+        if (result.error) {
+            return;
+        }
+
         reviewsSection.append(newReview);
-        numReviewsCounterTop.textContent = parseInt(numReviewsCounterTop.textContent) + 1;
-        numReviewsCounterBottom.textContent = parseInt(numReviewsCounterBottom.textContent) + 1;
 
         // Reset state
         fillInStars(0);
@@ -431,67 +546,53 @@ async function main() {
         lastStarClicked = null;
         updatePostButtonState();
 
-        likeButton.addEventListener(
-            "click", () => {
-                const isLiked = likeButton.classList.contains("liked");
-                const isDisliked = dislikeButton.classList.contains("disliked");
+        likeButton.addEventListener("click", async () => {
+            const isLiked = likeButton.classList.contains("liked");
+            const isDisliked = dislikeButton.classList.contains("disliked");
 
-                // Toggle off like
-                if (isLiked) {
-                    likeButton.classList.remove("liked");
-                    likeSvg.setAttribute("stroke", "black");
-                    numLikes.textContent = parseInt(numLikes.textContent) - 1;
-                // Toggle on like
-                } else {
-                    likeButton.classList.add("liked");
-                    likeSvg.setAttribute("stroke", "skyblue");
-                    numLikes.textContent = parseInt(numLikes.textContent) + 1;
-                    // Remove dislike if it was active
-                    if (isDisliked) {
-                        dislikeButton.classList.remove("disliked");
-                        dislikeSvg.setAttribute("stroke", "black");
-                        numDislikes.textContent = Math.max(0, parseInt(numDislikes.textContent) - 1);
-                    }
-                }
-            }
-        );
+            const success = await toggleFeedback(newReview.id, true);
+            if (!success) return; // stop if server rejected the action
 
-        dislikeButton.addEventListener(
-            "click", () => {
-                const isDisliked = dislikeButton.classList.contains("disliked");
-                const isLiked = likeButton.classList.contains("liked");
-
-                // Toggle off dislike
+            // toggle visual state only on success
+            if (isLiked) {
+                likeButton.classList.remove("liked");
+                likeSvg.setAttribute("stroke", "black");
+            } else {
+                likeButton.classList.add("liked");
+                likeSvg.setAttribute("stroke", "skyblue");
                 if (isDisliked) {
                     dislikeButton.classList.remove("disliked");
                     dislikeSvg.setAttribute("stroke", "black");
-                    numDislikes.textContent = parseInt(numDislikes.textContent) - 1;
-                // Toggle on dislike
-                } else {
-                    dislikeButton.classList.add("disliked");
-                    dislikeSvg.setAttribute("stroke", "red");
-                    numDislikes.textContent = parseInt(numDislikes.textContent) + 1;
-                    // Remove like if it was active
-                    if (isLiked) {
-                        likeButton.classList.remove("liked");
-                        likeSvg.setAttribute("stroke", "black");
-                        numLikes.textContent = Math.max(0, parseInt(numLikes.textContent) - 1);
-                    }
                 }
             }
-        );
 
-        const reviewData = {
-            recipe_id: getRecipeIdFromURL(),
-            user_id: 1,
-            rating: Number(numStars),
-            content: reviewText.textContent,
-            num_likes: Number(numLikes.textContent),
-            num_dislikes: Number(numDislikes.textContent),
-            created_at: generateTimeStr()
-        }
+            await refreshReviewFeedback(newReview, numLikes, numDislikes);
+        });
 
-        result = await addReviewToDatabase(reviewData);
+
+        dislikeButton.addEventListener("click", async () => {
+            const isDisliked = dislikeButton.classList.contains("disliked");
+            const isLiked = likeButton.classList.contains("liked");
+
+            const success = await toggleFeedback(newReview.id, false);
+            if (!success) return;
+
+            if (isDisliked) {
+                dislikeButton.classList.remove("disliked");
+                dislikeSvg.setAttribute("stroke", "black");
+            } else {
+                dislikeButton.classList.add("disliked");
+                dislikeSvg.setAttribute("stroke", "red");
+                if (isLiked) {
+                    likeButton.classList.remove("liked");
+                    likeSvg.setAttribute("stroke", "black");
+                }
+            }
+
+            await refreshReviewFeedback(newReview, numLikes, numDislikes);
+        });
+
+
         const reviewId = result.review.id;
         newReview.id = reviewId;
         

@@ -69,7 +69,7 @@
         <span id="username-and-date">
             <span>By 
                 <a id="username-link">
-                    <b id="username">@username1234567890</b>
+                    <b id="username"></b>
                 </a>
                 <a id="origin-site-link">
                     <svg id="origin-site-available" width="15px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -397,7 +397,7 @@
             document.querySelectorAll('.rating-container .fa-star').forEach((s, i) => {
                 s.classList.toggle('checked', i < savedRating);
             });
-            document.getElementById('avg-rating').textContent = Number(savedRating).toFixed(1);
+            // document.getElementById('avg-rating').textContent = Number(savedRating).toFixed(1);
         }
 
         //load likes from local storage
@@ -417,7 +417,7 @@
                 document.querySelectorAll('.rating-container .fa-star').forEach((s, i) => {
                 s.classList.toggle('checked', i < rating);
                 });
-                document.getElementById('avg-rating').textContent = rating.toFixed(1);
+                // document.getElementById('avg-rating').textContent = rating.toFixed(1);
                 localStorage.setItem('userRating', rating);
             });
         });

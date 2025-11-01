@@ -55,9 +55,19 @@ async function seedDatabase() {
                   content TEXT NOT NULL,
                   num_likes INT,
                   num_dislikes INT,
-                  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                  edited_flag FALSE
-    );`)
+                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                  edited_flag BOOLEAN DEFAULT FALSE,
+                  CONSTRAINT unique_user_recipe_review UNIQUE (user_id, recipe_id)
+    );`);
+
+    await client.query(`CREATE TABLE IF NOT EXISTS review_feedback(
+                  id SERIAL PRIMARY KEY,
+                  review_id INT NOT NULL REFERENCES reviews(id) ON DELETE CASCADE,
+                  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                  is_like BOOLEAN NOT NULL,
+                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                  CONSTRAINT unique_user_review_feedback UNIQUE (user_id, review_id)
+    );`);
 
     await client.query(`CREATE TABLE IF NOT EXISTS recipes(
                   id SERIAL PRIMARY KEY,

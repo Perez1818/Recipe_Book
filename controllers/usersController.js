@@ -162,3 +162,29 @@ exports.updateAccount = [
             }
     }
 ];
+
+exports.getCurrentUser = async (request, response) => {
+    if (!request.user) {
+        return response.status(401).json({ error: "Not logged in" });
+    }
+    response.json({
+        id: request.user.id,
+        username: request.user.username,
+        avatar: request.user.avatar ? `../uploads/avatar/${request.user.avatar}` : null
+    });
+}
+
+exports.getUserDetailsById = async (request, response) => {
+    const id = Number(request.params.id);
+    if (!id) {
+        return response.status(400).json({ error: 'Number ID required' })
+    }
+    const userDetails = await usersTable.getUserById(id);
+    if (!userDetails) {
+        return res.status(404).json({ error: "User not found" });
+    }
+    response.json({
+        username: userDetails.username,
+        avatar: userDetails.avatar ? `../uploads/avatar/${userDetails.avatar}` : null
+    });
+}

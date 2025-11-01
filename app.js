@@ -47,6 +47,8 @@ app.use((error, request, response, next) => {
     response.status(500).send("Server Error");
 });
 
+app.use("/uploads", express.static(`${PARENT_DIRECTORY}/public/uploads`));
+
 app.listen(SERVER_PORT, (error) => {
     if (error) {
         throw error;
