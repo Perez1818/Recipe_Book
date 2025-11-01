@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Multimedia Upload</title>
+        <style>
+            .error {
+                color: red;
+            }
+
+            .photo {
+                width: 150px;
+                height: 150px;
+                object-fit: cover;
+            }
+            img, button {
+                display: block;
+                margin-bottom: 10px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <form action="/upload/multimedia" method="POST" enctype="multipart/form-data">
+
+        <label for="photo"><%= currentUser.username %>'s new photo</label>
+        <input type="file" name="photo" id="photo" accept="image/*">
+        <div class="error"><%= locals.photoErrorMessage ? photoErrorMessage : "" %></div>
+        <img src="/static/uploads/multimedia/<%= locals.photoName ? photoName : "" %>" class="photo" alt="">
+
+        <label for="video"><%= currentUser.username %>'s new video</label>
+        <input type="file" name="video" id="video" accept="video/*">
+        <div class="error"><%= locals.videoErrorMessage ? videoErrorMessage : "" %></div>
+        <button type="submit">Save</button>
+
+        <video controls width="250">
+            <source src="/static/uploads/multimedia/<%= locals.videoName ? videoName : "" %>" type="video/mp4">
+        </video>
+
+        </form>
+    </body>
+</html>

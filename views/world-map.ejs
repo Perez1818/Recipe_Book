@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+       <title>World</title>
+       <meta charset="UTF-8">
+
+       <style>
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
+            svg path {
+                fill: #ececec;
+                stroke: black;
+                stroke-width: 1.5;
+            }
+
+            svg path:hover {
+                fill: limegreen;
+                transition: 0.5s;
+                cursor: pointer;
+            }
+       </style>
+
+       <script>
+          const COUNTRIES_JSON_URL = "/static/countries.json";
+          const SVG_MAP_URL = "/static/img/world.svg";
+          const SVG_DOWNSCALE_FACTOR = 1.25;
+
+          fetch(COUNTRIES_JSON_URL)
+               .then(response => response.json())
+               .then(countryAbbreviationNames => {
+
+                   const getCountryNameAbbreviations = (countryAbbreviationNames) => {
+                       const countryNameAbbreviations = {};
+                       for (const abbreviation in countryAbbreviationNames) {
+                           let name = countryAbbreviationNames[abbreviation];
+
+                           if (name in countryNameAbbreviations) {
+                               console.warn(`Could not replace existing abbreviation with '${abbreviation}'. ${name} is already abbreviated as '${countryNameAbbreviations[name]}'.`);
+                           }
+                           else {
+                               countryNameAbbreviations[name] = abbreviation;
+                           }
+                       }
+                       return countryNameAbbreviations;
+                   }
+                   const countryNameAbbreviations = getCountryNameAbbreviations(countryAbbreviationNames);
+
+                   fetch(SVG_MAP_URL)
+                        .then(response => response.text())
+                        .then(svgMapText => {
+                            // TODO: Stop using innerHTML to incorporate svg
+                            const worldContainer = document.querySelector("div#world-container");
+                            worldContainer.innerHTML = svgMapText;
+    
+                            const svgMap = document.querySelector("svg");
+    
+                            svgMap.removeAttribute("fill");
+                            svgMap.removeAttribute("stroke");
+                            svgMap.removeAttribute("stroke-width");
+    
+                            const initialWidth = svgMap.getAttribute("width");
+                            const initialHeight = svgMap.getAttribute("height");
+    
+                            svgMap.setAttribute("width", initialWidth / SVG_DOWNSCALE_FACTOR);
+                            svgMap.setAttribute("height", initialHeight / SVG_DOWNSCALE_FACTOR);
+    
+                            svgMap.addEventListener("click", (event) => {
+                                const targetElement = event.target;
+                                if (targetElement.nodeName === "path") {
+                                    const header = document.querySelector("h1");
+                                    if (targetElement.classList.length) {
+                                        const classArray = Array.from(targetElement.classList);
+                                        const countryName = classArray.join(" ");
+
+                                        const abbreviation = countryNameAbbreviations[countryName];
+
+                                        header.textContent = `${countryName} (${abbreviation})`;
+                                    }
+    
+                                    else if (targetElement.id) {
+                                        const attributes = targetElement.attributes;
+                                        const nameAttribute = attributes.name;
+                                        const countryName = nameAttribute.nodeValue;
+
+                                        const abbreviation = countryNameAbbreviations[countryName];
+    
+                                        header.textContent = `${countryName} (${abbreviation})`;
+                                    }
+                                }
+                            });
+    
+                        }).catch(error => console.error("Error fetching SVG: " + error));
+    
+                  }).catch(error => console.error("Error fetching CSV: " + error));
+
+       </script>
+    </head>
+
+    <body>
+        <div id="world-container">
+        </div>
+        <h1>
+        </h1>
+    </body>
+</html>

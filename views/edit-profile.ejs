@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Edit Profile</title>
+        <meta charset="UTF-8"> 
+        <style>
+            .avatar {
+                width: 150px;
+                height: 150px;
+                object-fit: cover;
+            }
+            p {
+                color: red;
+            }
+            a {
+                margin-top: 10px;
+                display: block;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <% function getErrorMessage(fieldName) { %>
+            <% if (locals.errorMessages && errorMessages[fieldName] !== undefined) { %>
+                <% return errorMessages[fieldName]; %>
+            <% } %>
+            <% return ""; %>
+        <% } %>
+
+        <h1>Edit Profile</h1>
+
+        <img src="<%= currentUser.avatar ? `/static/uploads/avatar/${currentUser.avatar}` : "/static/img/Portrait_Placeholder.png" %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
+
+        <form action="/settings" method="post" enctype="multipart/form-data">
+            <input type="file" name="avatar">
+            <p><%= getErrorMessage("file") %></p>
+
+            <div class="field">
+                <label for="username">Username: </label>
+                <input type="text" id="username" name="username" value="<%= locals.invalidUser ? invalidUser.username : currentUser.username %>">
+                <p><%= getErrorMessage("username") %></p>
+            </div>
+
+            <div class="field">
+                <label for="biography">Biography: </label>
+                <input type="text" id="biography" name="biography" value="<%= locals.invalidUser ? invalidUser.biography : currentUser.biography %>">
+            </div>
+
+            <div class="field">
+                <input id="submit-button" type="submit" value="Save">
+            </div>
+        </form>
+
+        <a href="/settings/account">Edit Account</a>
+        <a href="/user/<%= currentUser.username %>">Back</a>
+    </body>
+</html>
