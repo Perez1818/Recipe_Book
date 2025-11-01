@@ -705,6 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const select = document.getElementById('collection-select');
     const newCollectionInput = document.getElementById('new-collection-name');
     const addCollectionBtn = document.getElementById('add-collection-btn');
+    const deleteCollectionBtn = document.getElementById('delete-collection-btn');
     const cancelBtn = document.getElementById('cancel-bookmark-popup');
 
     //load collections from localStorage or default
@@ -718,6 +719,8 @@ document.addEventListener('DOMContentLoaded', () => {
             opt.textContent = col.charAt(0).toUpperCase() + col.slice(1); //sets the displayed text with first letter capitalized
             select.appendChild(opt); //adds the option to the select dropdown
         });
+        //update delete button state after loading
+        updateDeleteButtonState();
     }
 
     //show popup
@@ -728,6 +731,7 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.style.display = 'block';
         newCollectionInput.value = '';
         select.focus();
+        updateDeleteButtonState();
     }
 
     //hide popup
@@ -735,6 +739,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function hidePopup() {
         popup.style.display = 'none';
         overlay.style.display = 'none';
+    }
+
+    //helper to enable/disable delete button (cannot delete "bookmarks")
+    function updateDeleteButtonState() {
+        if (!select || !deleteCollectionBtn) return;
+        const selected = select.value;
+        if (!selected || selected === 'bookmarks') {
+            deleteCollectionBtn.disabled = true;
+            deleteCollectionBtn.style.opacity = '0.5';
+            deleteCollectionBtn.title = 'Default "bookmarks" cannot be deleted';
+        } else {
+            deleteCollectionBtn.disabled = false;
+            deleteCollectionBtn.style.opacity = '1';
+            deleteCollectionBtn.title = `Delete collection "${selected}"`;
+        }
     }
 
     //add new collection
@@ -749,7 +768,29 @@ document.addEventListener('DOMContentLoaded', () => {
             select.value = name; //select the new collection
         }
         newCollectionInput.value = ''; //clear input
+        updateDeleteButtonState();
     });
+
+    //delete selected collection (except 'bookmarks')
+    deleteCollectionBtn.addEventListener('click', () => {
+        const name = select.value;
+        if (!name || name === 'bookmarks') {
+            alert('The "bookmarks" collection cannot be deleted.');
+            return;
+        }
+        if (!confirm(`Delete collection "${name}"? This cannot be undone.`)) return;
+        let collections = JSON.parse(localStorage.getItem('collections') || '["bookmarks"]');
+        collections = collections.filter(c => c !== name);
+        //ensure 'bookmarks' always exists
+        if (!collections.includes('bookmarks')) collections.unshift('bookmarks');
+        localStorage.setItem('collections', JSON.stringify(collections));
+        loadCollections();
+        select.value = 'bookmarks';
+        updateDeleteButtonState();
+    });
+
+    //update delete button state when user chooses another collection
+    select.addEventListener('change', updateDeleteButtonState);
 
     //cancel button
     cancelBtn.addEventListener('click', hidePopup);
@@ -759,7 +800,7 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', (e) => { //when form is submitted
         e.preventDefault(); //prevent it from reloading the page
         const collection = select.value; //get selected collection
-        // Here you would save the recipe ID to the chosen collection in localStorage or backend
+        //here you would save the recipe ID to the chosen collection in localStorage or backend
         alert(`Recipe saved to "${collection}"!`);
         hidePopup();
     });

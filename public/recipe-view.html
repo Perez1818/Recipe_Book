@@ -457,11 +457,12 @@
             <select id="collection-select" style="width:100%; margin:8px 0;">
                 <option value="bookmarks">Bookmarks</option>
             </select>
-            <div style="margin:8px 0;">
+            <div  style="display:flex; justify-content:center; margin-bottom: 8px;">
                 <input type="text" id="new-collection-name" placeholder="New collection name" style="width:70%;">
-                <button type="button" id="add-collection-btn">Add</button>
             </div>
-            <div style="text-align:right;">
+            <div style="text-align:center;">
+                <button type="button" id="add-collection-btn">Add</button>
+                <button type="button" id="delete-collection-btn" disabled>Delete</button>
                 <button type="button" id="cancel-bookmark-popup">Cancel</button>
                 <button type="submit" id="save-bookmark-btn">Save</button>
             </div>
