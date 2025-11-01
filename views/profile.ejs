@@ -4,13 +4,73 @@
         <title><%= user.username %></title>
         <meta charset="UTF-8"> 
         <style>
-            .avatar, .thumbnail {
-                width: 150px;
-                height: 150px;
+            .avatar {
                 object-fit: cover;
+                width: 425px;
+                height: 425px;
+            }
+            .thumbnail {
+                object-fit: cover;
+                width: 450px;
+                height: 450px;
             }
 
-            div.showcase {
+
+            div.profile-container {
+                display: flex;
+            }
+            div.profile-container > * {
+                margin: 10px;
+            }
+
+            div.user-container {
+                background-color: #79B473;
+                padding: 5px;
+            }
+            div.user-container h1 {
+                background-color: white;
+                text-align: center;
+            }
+
+            div.info-container {
+                display: flex;
+                flex-grow: 1;
+                background-color: #79B473;
+            }
+
+            div.info-container > * {
+                flex-grow: 1;
+                margin: 10px;
+            }
+
+            div.info-container h3, div.info-container p {
+                background-color: white;
+                text-align: center;
+            }
+            
+            div.bio-container {
+                display: flex;
+                flex-direction: column;
+            }
+
+            div.bio-container p {
+                padding: 10px;
+                flex-grow: 1;
+                text-align: left;
+                margin-top: 0px;
+            }
+
+            div.right-container {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+            
+            div.profile-container {
+                height: 540px;
+            }
+
+            div.recipes-container {
                 display: flex;
                 justify-content: space-around;
                 flex-wrap: wrap;
@@ -19,25 +79,52 @@
     </head>
 
     <body>
-        <img src="<%= user.avatar ? `/static/uploads/avatar/${user.avatar}` : "/static/img/Portrait_Placeholder.png" %>" class="avatar" alt="User <%= user.username %>'s avatar">
+    <div class="profile-container">
 
-        <h1><%= user.username %></h1>
-        <h3>Followers: 0     Following: 0</h3>
-        <h3>Bio: <%= user.biography %></h3>
-        <h3>Points: 0</h3>
+        <div class="user-container">
 
-        <h2>Recipe Showcase</h2>
-        <div class="showcase">
-            <% for (recipe of userRecipes) { %>
-                <div class="recipe">
-                    <img src="<%= `/static/uploads/multimedia/${recipe.thumbnail}` %>" class="thumbnail" alt="<%= recipe.name %> thumbnail">
-                    <p><%= recipe.name %></p>
-                </div>
-            <% } %>
+            <img src="<%= user.avatar ? `/static/uploads/avatar/${user.avatar}` : "/static/img/Portrait_Placeholder.png" %>" class="avatar" alt="User <%= user.username %>'s avatar">
+            <h1><%= user.username %></h1>
+
         </div>
 
-        <% if (currentUser && currentUser.username === user.username) { %>
-            <a href="/settings">Edit Profile</a>
-        <% } %>
+        <div class="info-container">
+
+            <div class="bio-container">
+                <h3>Bio</h3>
+                <p><%= user.biography || "..." %></p>
+            </div>
+
+            <div class="right-container">
+                <div class="points-container">
+                    <h3>Points</h3>
+                    <h3>0</h3>
+                </div>
+
+                <div class="follow-container">
+                    <h3>0 Following</h3>
+                    <h3>0 Followers</h3>
+                    <% if (currentUser && currentUser.username === user.username) { %>
+                        <h3><a href="/settings">Edit Profile</a></h3>
+                    <% } %>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="showcase-container">
+        <h1>Recipe Showcase</h1>
+        <div class="recipes-container">
+            <% for (recipe of userRecipes) { %>
+            <div class="recipe">
+                <img src="<%= `/static/uploads/multimedia/${recipe.thumbnail}` %>" class="thumbnail" alt="<%= recipe.name %> thumbnail">
+                <h2><%= recipe.name %></h2>
+            </div>
+            <% } %>
+        </div>
+    </div>
+
     </body>
 </html>
