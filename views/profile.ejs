@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title><%= user.username %></title>
+        <meta charset="UTF-8"> 
+        <style>
+            .avatar, .thumbnail {
+                width: 150px;
+                height: 150px;
+                object-fit: cover;
+            }
+
+            div.showcase {
+                display: flex;
+                justify-content: space-around;
+                flex-wrap: wrap;
+            }
+        </style>
+    </head>
+
+    <body>
+        <img src="<%= user.avatar ? `/static/uploads/avatar/${user.avatar}` : "/static/img/Portrait_Placeholder.png" %>" class="avatar" alt="User <%= user.username %>'s avatar">
+
+        <h1><%= user.username %></h1>
+        <h3>Followers: 0     Following: 0</h3>
+        <h3>Bio: <%= user.biography %></h3>
+        <h3>Points: 0</h3>
+
+        <h2>Recipe Showcase</h2>
+        <div class="showcase">
+            <% for (recipe of userRecipes) { %>
+                <div class="recipe">
+                    <img src="<%= `/static/uploads/multimedia/${recipe.thumbnail}` %>" class="thumbnail" alt="<%= recipe.name %> thumbnail">
+                    <p><%= recipe.name %></p>
+                </div>
+            <% } %>
+        </div>
+
+        <% if (currentUser && currentUser.username === user.username) { %>
+            <a href="/settings">Edit Profile</a>
+        <% } %>
+    </body>
+</html>

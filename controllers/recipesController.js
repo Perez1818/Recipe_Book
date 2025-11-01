@@ -1,4 +1,10 @@
 const pool = require("../database/pool.js");
+const { validate, validationResult } = require("../middleware/formValidation.js");
+const { getThumbnailVideoUpload } = require("../middleware/fileUploader.js");
+const { getErrorMessages, attributeCount } = require("../middleware/helpers.js");
+
+
+const uploadThumbnailVideo = getThumbnailVideoUpload();
 
 const asArray = (v) => Array.isArray(v) ? v : [];
 
@@ -8,18 +14,28 @@ async function getRecipeMaker(req, res) {
 
 // POST /recipes
 async function createRecipe(req, res) {
+  uploadThumbnailVideo(req, res, async (error) => {
+  console.log(req.files);
   const client = await pool.connect();
+
+
+  // Parse JSON string fields from multipart/form-data
+  const parseJSON = (s, fallback) => {
+    try { return JSON.parse(s); } catch { return fallback; }
+  };
+
   try {
     const {
       name,
       description,
       cookTimeMinutes = 0,
       servingSize = 1,
-      tags = [],
       publish = false,
-      ingredients = [],
-      instructions = [],
     } = req.body || {};
+
+    const tags          = parseJSON(req.body?.tags, []);
+    const ingredients   = parseJSON(req.body?.ingredients, []);
+    const instructions  = parseJSON(req.body?.instructions, []);
 
     if (!name || !description) {
       return res.status(400).json({ error: 'name and description are required' });
@@ -32,19 +48,34 @@ async function createRecipe(req, res) {
       }
     }
 
+    await validate.thumbnailVideoUpload(req);
+    const user = req.user;
+    if (user) {
+        const result = validationResult(req);
+        const errorMessages = getErrorMessages(result);
+
+        if (attributeCount(errorMessages)) {
+            return res.status(400).json({ error: errorMessages["file"] });
+        }
+    }
+
     await client.query('BEGIN');
 
     const r = await client.query(
-      `INSERT INTO recipes (name, description, cook_minutes, serving_size, tags, is_published)
-       VALUES ($1,$2,$3,$4,$5,$6)
+      `INSERT INTO recipes (user_id, name, description, cook_minutes, serving_size, tags, is_published, thumbnail, video)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
        RETURNING id`,
       [
+        req.user.id,
         String(name).trim(),
         String(description).trim(),
         Number(cookTimeMinutes) || 0,
         Math.max(1, Number(servingSize) || 1),
         Array.isArray(tags) ? tags : [],
         !!publish,
+        
+        req.files["thumbnail"][0].filename,
+        req.files.video?.[0]?.filename || null,
       ]
     );
     const recipeId = r.rows[0].id;
@@ -60,9 +91,9 @@ async function createRecipe(req, res) {
     for (let i = 0; i < asArray(instructions).length; i++) {
       const s = instructions[i] || {};
       await client.query(
-        `INSERT INTO instructions (recipe_id, step_num, text, hours, minutes, has_image)
-         VALUES ($1,$2,$3,$4,$5,$6)`,
-        [recipeId, i + 1, s.text || '', Number(s.hours || 0), Number(s.minutes || 0), !!s.hasImage]
+        `INSERT INTO instructions (recipe_id, step_num, text, hours, minutes)
+         VALUES ($1,$2,$3,$4,$5)`,
+        [recipeId, i + 1, s.text || '', Number(s.hours || 0), Number(s.minutes || 0)]
       );
     }
 
@@ -71,10 +102,20 @@ async function createRecipe(req, res) {
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('createRecipe error:', err);
-    return res.status(500).json({ error: 'failed_to_create' });
+
+    if (req.user) {
+        return res.status(500).json({ error: 'failed_to_create' });
+    }
+    else {
+        return res.status(500).json({ error: 'You must be logged in to create a recipe.' });
+    }
+
   } finally {
     client.release();
   }
+
+  });
+
 }
 
 // PUT /recipes/:id
@@ -227,12 +268,17 @@ async function verifyIngredientsPreview(req, res) {
   }
 }
 
+async function getRecipeView(request, response) {
+    response.redirect("/static/recipe-view.html");
+}
+
 module.exports = {
-  getRecipeMaker,
-  createRecipe,
-  updateRecipe,
-  listRecipes,
-  getRecipe,
-  deleteRecipe,
-  verifyIngredientsPreview,
+    getRecipeMaker,
+    createRecipe,
+    updateRecipe,
+    listRecipes,
+    getRecipe,
+    deleteRecipe,
+    verifyIngredientsPreview,
+    getRecipeView
 };

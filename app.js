@@ -3,6 +3,8 @@ const router = require("./routes/router.js");
 const dotenv = require("dotenv");
 
 const recipesRouter = require("./routes/recipesRouter.js");
+const worldRouter = require("./routes/worldRouter.js");
+const reviewsRouter = require("./routes/reviewsRouter.js")
 
 const sessionMiddleware = require("./middleware/session.js");
 const { passport, configurePassport } = require("./middleware/passport.js");
@@ -34,12 +36,18 @@ app.use(express.json({ limit: "1mb" }));
 
 // Routes
 app.use("/recipes", recipesRouter);
+app.use("/world", worldRouter);
+app.use("/", router);
+
+app.use("/reviews", reviewsRouter);
 app.use("/", router);
 
 app.use((error, request, response, next) => {
     console.error(error);
     response.status(500).send("Server Error");
 });
+
+app.use("/uploads", express.static(`${PARENT_DIRECTORY}/public/uploads`));
 
 app.listen(SERVER_PORT, (error) => {
     if (error) {
