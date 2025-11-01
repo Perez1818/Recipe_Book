@@ -33,7 +33,8 @@ async function seedDatabase() {
                   content TEXT NOT NULL,
                   num_likes INT,
                   num_dislikes INT,
-                  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                  edited_flag FALSE
     );`)
 
     await client.query(`CREATE TABLE IF NOT EXISTS recipes(

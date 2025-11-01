@@ -13,7 +13,7 @@ async function createReview(req, res) {
             content,
             num_likes = 0,
             num_dislikes = 0,
-            created_at
+            created_at,
         } = req.body || {};
 
         if (!recipe_id || !rating) {
@@ -22,10 +22,10 @@ async function createReview(req, res) {
 
         await client.query('BEGIN');
 
-        const r = await client.query(
+        const result = await client.query(
             `INSERT INTO reviews (recipe_id, user_id, rating, content, num_likes, num_dislikes, created_at)
             VALUES ($1,$2,$3,$4,$5,$6,$7)
-            RETURNING recipe_id, user_id, rating, content, num_likes, num_dislikes, created_at`,
+            RETURNING id, recipe_id, user_id, rating, content, num_likes, num_dislikes, created_at`,
             [
                 recipe_id, user_id || null,
                 Number(rating),
@@ -35,10 +35,10 @@ async function createReview(req, res) {
                 created_at || Date.now(),
             ]
         );
-        const id = r.rows[0].id;
+        const newReview = result.rows[0];
 
         await client.query('COMMIT');
-        return res.status(201).json({ id: id, message: 'created' });
+        return res.status(201).json({ message: 'created', review: newReview });
     } catch (err) {
         await client.query('ROLLBACK');
         console.error('createReview error:', err);
@@ -59,44 +59,32 @@ async function updateReview(req, res) {
             });
         }
 
-        const {
-            recipe_id,
-            user_id,
-            rating,
-            content,
-            num_likes = 0,
-            num_dislikes = 0,
-            created_at
-        } = req.body || {};
-
-        if (!recipe_id || !user_id || !rating) {
-            return res.status(400).json({ error: 'recipe_id, user_id, and rating are required' });
+        const { rating, content, num_likes, num_dislikes, edited_flag = false } = req.body || {};
+        
+        if ( rating === undefined && content === undefined && num_likes === undefined && num_dislikes === undefined ) {
+            return res.status(400).json({ error: 'No update fields were provided.' });
         }
 
         await client.query('BEGIN');
 
-        await client.query(
+        const result = await client.query(
         `UPDATE reviews
-            SET rating=$1,
-                content=$2,
-                num_likes=$3,
-                num_dislikes=$4,
-                created_at=$5,
-                updated_at=$6,
-        WHERE id=$7`,
-        [
-            Number(rating),
-            String(content).trim(),
-            Number(num_likes) || 0,
-            Number(num_dislikes) || 0,
-            created_at,
-            updated_at || Date.now(),
-            id
-        ]
+            SET 
+                rating = COALESCE($1, rating),
+                content = COALESCE($2, content),
+                num_likes = COALESCE($3, num_likes),
+                num_dislikes = COALESCE($4, num_dislikes),
+                edited_flag = $5
+             WHERE id=$6`,
+        [rating, content, num_likes, num_dislikes, edited_flag, reviewId]
         );
 
         await client.query('COMMIT');
-        return res.json({ id: id, message: 'updated' });
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({error: "Review not found"})
+        }
+        return res.json({ message: 'updated', review: result.rows[0] });
     } catch (err) {
         await client.query('ROLLBACK');
         console.error('updateReview error:', err);
@@ -122,7 +110,7 @@ async function getReview(req, res) {
     if (!id) return res.status(400).json({ error: 'invalid id' });
 
     const r = await pool.query(
-        `SELECT id, recipe_id, user_id, rating, content, num_likes, num_dislikes, created_at, updated_at
+        `SELECT id, recipe_id, user_id, rating, content, num_likes, num_dislikes, created_at, edited_flag
         FROM reviews WHERE id=$1 DESC`,
         [id]
     );
@@ -138,13 +126,15 @@ async function getReview(req, res) {
 async function getReviewsByRecipe(req, res) {
     const recipeId = Number(req.params.recipeId);
     if (!recipeId) {
-        return res.status(400)
+        return res.status(400).json({ error: "Invalid recipe ID" });
     }
     const r = await pool.query(
-        `SELECT id, recipe_id, user_id, rating, content, num_likes, num_dislikes, created_at, updated_at FROM reviews WHERE id=$1 DESC`,
+        `SELECT id, recipe_id, user_id, rating, content, num_likes, num_dislikes, created_at, edited_flag
+        FROM reviews
+        WHERE recipe_id=$1`,
         [recipeId]
     );
-    return res.json({ items: result.rows })
+    return res.json({ items: r.rows })
 }
 
 async function deleteReview(req, res) {
