@@ -3,12 +3,8 @@
     <head>
         <title>Edit Profile</title>
         <meta charset="UTF-8"> 
+        <link rel="stylesheet" href="/static/css/profile.css">
         <style>
-            .avatar {
-                width: 150px;
-                height: 150px;
-                object-fit: cover;
-            }
             p {
                 color: red;
             }
@@ -28,31 +24,46 @@
             <% return ""; %>
         <% } %>
 
-        <h1>Edit Profile</h1>
-
-        <img src="<%= currentUser.avatar ? `/static/uploads/avatar/${currentUser.avatar}` : "/static/img/Portrait_Placeholder.png" %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
 
         <form action="/settings" method="post" enctype="multipart/form-data">
-            <input type="file" name="avatar">
-            <p><%= getErrorMessage("file") %></p>
+            <div class="profile-container">
 
-            <div class="field">
-                <label for="username">Username: </label>
-                <input type="text" id="username" name="username" value="<%= locals.invalidUser ? invalidUser.username : currentUser.username %>">
-                <p><%= getErrorMessage("username") %></p>
-            </div>
+                <div class="user-container">
 
-            <div class="field">
-                <label for="biography">Biography: </label>
-                <input type="text" id="biography" name="biography" value="<%= locals.invalidUser ? invalidUser.biography : currentUser.biography %>">
-            </div>
+                    <img src="<%= currentUser.avatar ? `/static/uploads/avatar/${currentUser.avatar}` : "/static/img/Portrait_Placeholder.png" %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
+                    <input type="file" name="avatar">
+                    <p><%= getErrorMessage("file") %></p>
 
-            <div class="field">
-                <input id="submit-button" type="submit" value="Save">
+
+                    <div class="field">
+                        <input type="text" id="username" name="username" value="<%= locals.invalidUser ? invalidUser.username : currentUser.username %>">
+                        <p><%= getErrorMessage("username") %></p>
+                    </div>
+
+                </div>
+
+                <div class="info-container">
+
+                    <div class="bio-container">
+                        <h2>Bio</h2>
+                        <input type="text" id="biography" name="biography" value="<%= locals.invalidUser ? invalidUser.biography : currentUser.biography %>">
+                    </div>
+                    <div class="right-container">
+                        <div class="follow-container">
+
+                            <h2><a href="/settings/account">Edit Account</a></h2>
+                            <h2><a href="/user/<%= currentUser.username %>">Profile</a></h2>
+
+                        </div>
+
+                        <div class="field">
+                            <input id="submit-button" type="submit" value="Save">
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </form>
 
-        <a href="/settings/account">Edit Account</a>
-        <a href="/user/<%= currentUser.username %>">Back</a>
     </body>
 </html>
