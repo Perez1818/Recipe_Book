@@ -113,6 +113,61 @@ function setupCarousels(carousels) {
 }
 
 
+// Initialize number of reviews displayed
+async function fetchReviews(recipeId) {
+    const response = await fetch(`/reviews/recipe/${recipeId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+    });
+    const result = await response.json();
+    if (!response.ok) {
+        console.log("Failed to load in reviews:", result.error)
+        return;
+    }
+    return result;
+}
+
+
+function displayAverageStars(container, average) {
+  const stars = Array.from(container.getElementsByClassName("fa-star"));
+  stars.forEach((star, i) => {
+    const fillPercent = Math.min(Math.max(average - i, 0), 1) * 100;
+    const gradId = `grad-${i}-${Math.random().toString(36).slice(2)}`;
+
+    // Create or reuse defs
+    let defs = star.querySelector("defs");
+    if (!defs) {
+      defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+      star.prepend(defs);
+    }
+
+    // Create gradient
+    const grad = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+    grad.setAttribute("id", gradId);
+    grad.setAttribute("x1", "0%");
+    grad.setAttribute("x2", "100%");
+    grad.setAttribute("y1", "0%");
+    grad.setAttribute("y2", "0%");
+
+    // Gold portion
+    const stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+    stop1.setAttribute("offset", `${fillPercent}%`);
+    stop1.setAttribute("stop-color", "gold");
+
+    // Gray portion
+    const stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+    stop2.setAttribute("offset", `${fillPercent}%`);
+    stop2.setAttribute("stop-color", "transparent");
+
+    grad.append(stop1, stop2);
+    defs.innerHTML = ""; // clear any old gradients
+    defs.appendChild(grad);
+
+    // Apply gradient
+    star.setAttribute("fill", `url(#${gradId})`);
+  });
+}
+
 
 // Displays "username" of recipe and attaches link to recipe page
 async function listPublisher(url, recipeContainer) {
@@ -263,6 +318,37 @@ async function setRecipeContainer(recipe, recipeContainer) {
 
     // Writes "username" to recipe container
     await listPublisher(recipeOrigin, recipeContainer);
+
+    const ratingContainer = recipeContainer.getElementsByClassName("rating-container")[0];
+
+    const avgRating = recipeContainer.querySelector("#avg-rating");
+    const numRatings = recipeContainer.querySelector("#num-ratings");
+
+    const result = await fetchReviews(recipeId);
+    const reviews = await result.items || [];
+
+    const reviewsLength = reviews.length;
+
+    sum = 0;
+    reviews.forEach(
+        (review) => {
+            sum += parseInt(review.rating)
+        }
+    )
+
+    const averageRating = (sum / reviewsLength).toFixed(1);
+
+    numRatings.textContent = `(${reviewsLength})`;
+    
+    if (reviewsLength === 0) {
+        displayAverageStars(ratingContainer, 0);
+        avgRating.textContent = (0).toFixed(1);
+    }
+    else {
+        displayAverageStars(ratingContainer, averageRating);
+        avgRating.textContent = averageRating;
+    }
+
 }
 
 // Returns list of ingredients associated with a provided recipe

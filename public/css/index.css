@@ -113,7 +113,7 @@ button:disabled {
     text-align: start;
 }
 
-#avg-rating {
+#num-ratings {
     vertical-align: center;
     font-size: 15px;
 }
