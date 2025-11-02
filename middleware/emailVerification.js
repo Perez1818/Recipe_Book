@@ -22,6 +22,6 @@ exports.sendVerificationEmail = async (email) => {
         from: `"Recipe Book" <${process.env.SERVER_EMAIL}>`,
         to: email,
         subject: "Verify your Recipe Book account",
-        html: `<p>Click below to verify your account:</p><a href="${verificationLink}">${verificationLink}</a>`
+        html: `<p>Click below to verify your email:</p><a href="${verificationLink}">${verificationLink}</a>`
     });
 };
