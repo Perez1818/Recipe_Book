@@ -50,11 +50,20 @@ div.bio-container {
     flex-direction: column;
 }
 
-div.bio-container p, div.bio-container input {
+div.bio-container p, div.bio-container input, div.bio-container textarea, div.follow-container ul {
     padding: 10px;
     flex-grow: 1;
     text-align: left;
     margin-top: 0px;
+}
+
+div.bio-container textarea {
+    resize: none;
+}
+
+div.error-container {
+    background-color: white;
+    padding-left: 10px;
 }
 
 div.right-container {

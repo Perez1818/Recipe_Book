@@ -5,7 +5,7 @@
         <meta charset="UTF-8"> 
         <link rel="stylesheet" href="/static/css/profile.css">
         <style>
-            p {
+            p, li {
                 color: red;
             }
             a {
@@ -32,12 +32,10 @@
 
                     <img src="<%= currentUser.avatar ? `/static/uploads/avatar/${currentUser.avatar}` : "/static/img/Portrait_Placeholder.png" %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
                     <input type="file" name="avatar">
-                    <p><%= getErrorMessage("file") %></p>
 
 
                     <div class="field">
                         <input type="text" id="username" name="username" value="<%= locals.invalidUser ? invalidUser.username : currentUser.username %>">
-                        <p><%= getErrorMessage("username") %></p>
                     </div>
 
                 </div>
@@ -46,7 +44,8 @@
 
                     <div class="bio-container">
                         <h2>Bio</h2>
-                        <input type="text" id="biography" name="biography" value="<%= locals.invalidUser ? invalidUser.biography : currentUser.biography %>">
+                        <textarea id="biography" name="biography"><%= locals.invalidUser ? invalidUser.biography : currentUser.biography %></textarea>
+
                     </div>
                     <div class="right-container">
                         <div class="follow-container">
@@ -56,8 +55,28 @@
 
                         </div>
 
-                        <div class="field">
-                            <input id="submit-button" type="submit" value="Save">
+                        <div class="follow-container">
+
+                            <% if (locals.errorMessages) { %>
+                                    <h2 style="color: red;">Error Summary</h2>
+
+                                    <div class="error-container">
+                                        <ul>
+                                            <% if (getErrorMessage("file")) { %>
+                                                <li><%= getErrorMessage("file") %></li>
+                                            <% } %>
+
+                                            <% if (getErrorMessage("username")) { %>
+                                                <li><%= getErrorMessage("username") %></li>
+                                            <% } %>
+                                        </ul>
+                                    </div>
+                            <% } %>
+
+                            <div class="field">
+                                <input id="submit-button" type="submit" value="Save">
+                            </div>
+
                         </div>
 
                     </div>
