@@ -530,58 +530,94 @@ async function main() {
         'tsp-to-tbsp': 1/3
     };
 
-    function convertMeasurement(measurement, conversionType) {
-        //extract number and unit + source that helped: https://regexone.com/references/javascript
-        const regex = /([\d\.]+)\s*(oz|ounce|ounces|ml|milliliter|milliliters|cup|cups|tbsp|tbs\.?|tablespoon|tablespoons|T|tsp|tsp\.?|teaspoon|teaspoons|t)/i;
-        const match = measurement.match(regex);
-        if (!match) return measurement; //no conversion if no match
-        let value = parseFloat(match[1]); //the number
-        let unit = match[2].toLowerCase().replace(/\.$/, ""); //the unit + turning to lowercase and remove period at end if there is one
+    // Parse quantity like "3 1/3 cup", "1/2cup", "2.5 tbsp", "4 ", "½ tbsp"
+    //had to get help from copilot for this function
+    function parseQuantity(input) {
+        if (!input || typeof input !== 'string') return null;
+        let s = input.trim();
+        // normalize unicode fractions (uses existing function in file)
+        s = normalizeUnicodeFractions(s).trim();
+
+        // Pattern: numeric part (mixed | fraction | decimal | int), optional unit (letters + dots), then rest
+        const m = s.match(/^(\d+\s+\d+\/\d+|\d+\/\d+|\d*\.\d+|\d+)\s*([a-zA-Z\.]+)?\.?\s*(.*)$/);
+        if (!m) return null;
+
+        const rawNumber = m[1];
+        const rawUnit = m[2] || '';
+        const rest = (m[3] || '').trim();
+
+        let value;
+        if (rawNumber.includes(' ')) { // mixed number
+            const [whole, frac] = rawNumber.split(/\s+/);
+            const [num, den] = frac.split('/').map(Number);
+            value = parseInt(whole, 10) + (num / den);
+        } else if (rawNumber.includes('/')) { // simple fraction
+            const [num, den] = rawNumber.split('/').map(Number);
+            value = num / den;
+        } else {
+            value = parseFloat(rawNumber);
+        }
+
+        const unit = rawUnit.toLowerCase().replace(/\.$/, '');
+
+        return { value, unit, rest, rawNumber };
+    }
+
+    function convertMeasurement(original, conversionType) {
+        // original may contain quantity + unit + ingredient; parse it
+        //had to get help from copilot for this function
+        const parsed = parseQuantity(original);
+        if (!parsed) return original; // nothing to convert
+
+        const { value, unit, rest } = parsed;
         let convertedValue, convertedUnit;
-        switch(conversionType) { //https://www.w3schools.com/js/js_switch.asp
+
+        switch (conversionType) {
             case 'oz-to-ml':
-                if (["oz","ounce","ounces"].includes(unit)) {
+                if (["oz", "ounce", "ounces"].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "ml";
                 }
                 break;
             case 'ml-to-oz':
-                if (["ml","milliliter","milliliters"].includes(unit)) {
+                if (["ml", "milliliter", "milliliters"].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "oz";
                 }
                 break;
             case 'cups-to-ml':
-                if (["cup","cups"].includes(unit)) {
+                if (["cup", "cups"].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "ml";
                 }
                 break;
             case 'ml-to-cups':
-                if (["ml","milliliter","milliliters"].includes(unit)) {
+                if (["ml", "milliliter", "milliliters"].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "cups";
                 }
                 break;
             case 'tbsp-to-tsp':
-                if (["tbsp", "tbs", "tablespoon","tablespoons"].includes(unit)) {
+                if (["tbsp", "tbs", "tablespoon", "tablespoons", "tbs."].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "tsp";
                 }
                 break;
             case 'tsp-to-tbsp':
-                if (["tsp","teaspoon","teaspoons","t","tsp."].includes(unit)) {
+                if (["tsp", "teaspoon", "teaspoons", "t", "tsp."].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "tbsp";
                 }
                 break;
             default:
-                return measurement;
+                return original;
         }
-        if (convertedValue !== undefined) {
-            return `${convertedValue.toFixed(2)} ${convertedUnit}`;
-        }
-        return measurement;
+
+        if (convertedValue === undefined) return original; // unit didn't match expected for this conversion
+
+        // Format: two decimals, but remove trailing .00 for whole numbers if desired
+        const formatted = Number.isInteger(convertedValue) ? `${convertedValue}` : convertedValue.toFixed(2);
+        return `${formatted} ${convertedUnit}${rest ? ' ' + rest : ''}`;
     }
 
     dropdown.addEventListener('change', function() {
@@ -591,19 +627,11 @@ async function main() {
             const checkbox = li.querySelector('input.ingredient-checkbox');
             const span = li.querySelector('span');
             if (checkbox && span) {
-                const original = checkbox.getAttribute('data-original');
+                const original = checkbox.getAttribute('data-original') || span.textContent;
                 if (conversionType === 'none') {
-                    span.textContent = original;
+                    span.textContent = original.trim();
                 } else {
-                    // Only convert the measurement part, keep ingredient name
-                    const parts = original.split(' ');
-                    if (parts.length >= 2) {
-                        const measurement = parts.slice(0,2).join(' ');
-                        const rest = parts.slice(2).join(' ');
-                        span.textContent = convertMeasurement(measurement, conversionType) + (rest ? ' ' + rest : '');
-                    } else {
-                        span.textContent = convertMeasurement(original, conversionType);
-                    }
+                    span.textContent = convertMeasurement(original, conversionType);
                 }
             }
         });
