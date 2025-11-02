@@ -19,6 +19,7 @@ let lastStarClicked = null;
 let currentStarClicked = null;
 let numStarsRated = 0;
 
+// Gets details pertaining to current logged in user (if logged in)
 async function getCurrentUserDetails() {
     const response = await fetch(`/userDetails/me`, {
         method: "GET",
@@ -32,6 +33,7 @@ async function getCurrentUserDetails() {
     return result;
 }
 
+// Gets details pertaining to a specific user given their ID
 async function getUserDetails(id) {
     const response = await fetch(`/userDetails/${id}`, {
         method: "GET",
@@ -46,6 +48,7 @@ async function getUserDetails(id) {
 }
 
 async function main() {
+    // Check if user is logged in
     try {
         const userResult = await getCurrentUserDetails();
         const { username, avatar } = userResult;
@@ -54,6 +57,7 @@ async function main() {
             profilePic.src = avatar;
         }
     } catch {
+        // Prevents unregistered users from making any reviews
         userResult = null;
         likeRecipeButton.style.pointerEvents = "None";
         postReviewSection.title = "You need to be signed in before you can post a review!";
@@ -297,10 +301,6 @@ async function main() {
             return false;
         }
     }
-
-
-
-
 
     async function refreshReviewFeedback(review, numLikesEl, numDislikesEl) {
         const response = await fetch(`/reviews/${review.id}`);
@@ -568,7 +568,6 @@ async function main() {
 
             await refreshReviewFeedback(newReview, numLikes, numDislikes);
         });
-
 
         dislikeButton.addEventListener("click", async () => {
             const isDisliked = dislikeButton.classList.contains("disliked");

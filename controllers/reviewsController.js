@@ -63,6 +63,7 @@ async function updateReview(req, res) {
 
         const { rating, content, num_likes, num_dislikes, edited_flag = false } = req.body || {};
         
+        // Ensure at least one field was updated
         if ( rating === undefined && content === undefined && num_likes === undefined && num_dislikes === undefined ) {
             return res.status(400).json({ error: 'No update fields were provided.' });
         }
@@ -125,6 +126,7 @@ async function getReview(req, res) {
     return res.json({ ...r.rows[0] });
 }
 
+// GET /reviews/recipe/:recipId
 async function getReviewsByRecipe(req, res) {
     const recipeId = Number(req.params.recipeId);
     if (!recipeId) {
@@ -139,6 +141,7 @@ async function getReviewsByRecipe(req, res) {
     return res.json({ items: r.rows })
 }
 
+// Remove review from DB
 async function deleteReview(req, res) {
     const id = Number(req.params.id);
     if (!id) return res.status(400).json({ error: 'invalid id' });
@@ -148,6 +151,7 @@ async function deleteReview(req, res) {
     return res.json({ id, message: 'deleted' });
 }
 
+// Add like/dislike information pertaining to users to DB
 async function addReviewFeedback(req, res) {
     const client = await pool.connect();
     try {
@@ -179,35 +183,35 @@ async function addReviewFeedback(req, res) {
             [is_like, reviewId]
         );
         } else {
-        const prev = existing.rows[0].is_like;
+            const prev = existing.rows[0].is_like;
 
-        if (prev === is_like) {
-            // Same reaction  -> remove it
-            await client.query(
-            "DELETE FROM review_feedback WHERE user_id = $1 AND review_id = $2",
-            [userId, reviewId]
-            );
-            await client.query(
-            `UPDATE reviews
-            SET num_likes = num_likes - CASE WHEN $1 THEN 1 ELSE 0 END,
-                num_dislikes = num_dislikes - CASE WHEN $1 THEN 0 ELSE 1 END
-            WHERE id = $2`,
-            [is_like, reviewId]
-            );
-        } else {
-            // Opposite reaction → switch
-            await client.query(
-            "UPDATE review_feedback SET is_like = $1 WHERE user_id = $2 AND review_id = $3",
-            [is_like, userId, reviewId]
-            );
-            await client.query(
-            `UPDATE reviews
-            SET num_likes = num_likes + CASE WHEN $1 THEN 1 ELSE -1 END,
-                num_dislikes = num_dislikes + CASE WHEN $1 THEN -1 ELSE 1 END
-            WHERE id = $2`,
-            [is_like, reviewId]
-            );
-        }
+            if (prev === is_like) {
+                // Same reaction  -> remove it
+                await client.query(
+                "DELETE FROM review_feedback WHERE user_id = $1 AND review_id = $2",
+                [userId, reviewId]
+                );
+                await client.query(
+                `UPDATE reviews
+                SET num_likes = num_likes - CASE WHEN $1 THEN 1 ELSE 0 END,
+                    num_dislikes = num_dislikes - CASE WHEN $1 THEN 0 ELSE 1 END
+                WHERE id = $2`,
+                [is_like, reviewId]
+                );
+            } else {
+                // Opposite reaction → switch
+                await client.query(
+                "UPDATE review_feedback SET is_like = $1 WHERE user_id = $2 AND review_id = $3",
+                [is_like, userId, reviewId]
+                );
+                await client.query(
+                `UPDATE reviews
+                SET num_likes = num_likes + CASE WHEN $1 THEN 1 ELSE -1 END,
+                    num_dislikes = num_dislikes + CASE WHEN $1 THEN -1 ELSE 1 END
+                WHERE id = $2`,
+                [is_like, reviewId]
+                );
+            }
         }
 
         await client.query("COMMIT");
@@ -226,8 +230,6 @@ async function addReviewFeedback(req, res) {
         client.release();
     }
 }
-
-
 
 module.exports = {
     getReview,
