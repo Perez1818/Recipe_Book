@@ -1,0 +1,317 @@
+
+main {
+    justify-content: center;
+}
+
+h2 {
+    display: flex;
+    justify-self: center;
+}
+
+#bookmark, #share, #calendar {
+    width: 30px;
+    /* margin-right: 100px; */
+}
+
+#recipe-tutorial {
+    display: flex;
+    justify-self: center;
+    width: 600px;
+    height: 337.5px;
+    background-color: lightgray;
+    border-radius: 10px;
+}
+
+.rating-container {
+    /* margin-top: 20px; */
+    display: flex;
+    justify-self: center;
+    height: fit-content;
+    margin-bottom: 10px;
+}
+
+.rating-container svg {
+    width: 25px;
+    stroke-width: 1px;
+}
+
+.rating-container {
+    display: flex;
+    align-items: center;
+}
+
+#avg-rating {
+    margin-left: 20px;
+    font-size: 20px;
+}
+
+#username {
+    display: flex;
+    justify-self: center;
+    justify-content: center;
+    gap: 25px;
+    margin-bottom: 10px;
+}
+
+#button-container, #recipe-interactions, #challenge-info-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    justify-self: center;
+    margin-bottom: 10px;
+}
+
+#button-container, #recipe-interactions {
+    width: 50%;
+}
+
+#button-container, #challenge-info-container {
+    /* justify-content: space-around; */
+    gap: 75px;
+    position: relative;
+}
+
+#challenge-info-container {
+    padding: 10px;
+    background-color: aliceblue;
+    border-radius: 10px;
+}
+
+#button-container button, #recipe-interactions button {
+    background-color: transparent;
+    border: none;
+}
+
+#judging-criteria-section {
+    width: 100%;
+}
+
+#submission-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.display-button-name {
+    width: 50px;
+    position: absolute;
+    bottom: 30px;
+    left: 92px;
+
+}
+
+#recipe-interactions {
+    justify-content: center;
+    gap: 50px;
+}
+
+.clickable:hover {
+    cursor: pointer;
+    fill: lightgray;
+}
+
+.clickable:active {
+    fill: white;
+}
+
+#challenge-img {
+    display: flex;
+    width: 600px;
+    height: 400px;
+    background-color: lightgray;
+    border-radius: 5px;
+    justify-self: center;
+    margin-top: 20px;
+}
+
+#time-container {
+    display: flex;
+    /* padding-bottom: 20px; */
+    justify-content: center;
+    gap: 30px;
+    /* margin-bottom: 20px; */
+}
+
+.time-left {
+    display: flex;
+    background-color: black;
+    border-radius: 10px;
+    color: white;
+    padding: 20px;
+    font-size: 30px;
+    margin: 0 auto;
+}
+
+.time-unit-column {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+}
+
+#countdown-section {
+    background-color: whitesmoke;
+}
+
+#countdown-section h2 {
+    padding: 10px;
+    background-color: white;
+    border-radius: 10px;
+    margin-top: 0;
+}
+
+#countdown-section {
+    padding: 20px 0;
+}
+
+#participate-button {
+    border-radius: 10px;
+    padding: 10px;
+    border: none;
+    background-color: white;
+}
+
+#image-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#image-carousel {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+    height: fit-content;
+    padding: 20px;
+    margin-top: 20px;
+    background-color: greenyellow;
+    border-radius: 10px;
+}
+
+.gallery-photo {
+    background-color: lightgray;
+    border-radius: 5px;
+    width: 100px;
+    height: 100px;
+    border: transparent solid 2px;
+}
+
+.gallery-photo:hover {
+    cursor: pointer;
+    border: black solid 2px;
+}
+
+.gallery-photo:active {
+    border: white solid 2px;
+}
+
+#image-carousel button {
+    width: 40px;
+    background-color: transparent;
+    border: none;
+}
+
+#requirements-container {
+    display: flex;
+    justify-self: center;
+    background-color: whitesmoke;
+    width: 400px;
+    height: 400px;
+}
+
+#challenge-details-section, #comments-section {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    justify-self: center;
+    padding: 20px;
+    border: gray solid 3px;
+    border-radius: 10px;
+    margin: 20px 0;
+    gap: 20px;
+}
+
+#challenge-details-section {
+    align-items: center;
+}
+
+#comments-section h2 {
+    display: flex;
+    align-self: center;
+    align-items: center;
+}
+
+#num-comments {
+    text-align: center;
+    background-color: salmon;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    aspect-ratio: 1 / 1;
+    margin-left: 20px;
+    padding: 5px;
+}
+
+.comment {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.comment-details {
+    margin: 10px 0 0 20px; /* Margin to top and left */
+}
+
+#feedback-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 15px;
+}
+
+#like-button, #dislike-button {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background-color: transparent;
+    padding-right: 0;
+}
+
+#reply-button, #cancel-button, #post-button {
+    /* display: flex; */
+    width: fit-content;
+    height: fit-content;
+    border-radius: 30px;
+    padding: 7.5px 10px;
+}
+
+.feedback-number {
+    font-size: 15px;
+}
+
+.profile-pic, #current-user-profile-pic {
+    border-radius: 50%;
+    border: black solid 2px;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+}
+
+#current-user-profile-pic {
+    width: 50px;
+    height: 50px;
+}
+
+#comment-to-post {
+    height: 35px;
+    padding: 0 20px;
+    margin: 0;
+}
+
+#post-comment-container {
+    display: flex;
+    /* justify-content: center; */
+    gap: 20px;
+    align-items: center;
+}
