@@ -4,6 +4,22 @@
         <title><%= user.username %></title>
         <meta charset="UTF-8"> 
         <link rel="stylesheet" href="/static/css/profile.css">
+        <style>
+            * {
+                border-radius: 5px;
+                font-family: sans-serif;
+            }
+
+            div.info-container, div.user-container, div.user-container > *, div.bio-container > *, div.points-container > *, div.follow-container > *,
+            div.showcase-container, div.showcase-title > *, div.recipes-container, img {
+                border-style: solid;
+                border-width: 1px;
+            }
+
+            div.showcase-title > h1 {
+                padding: 2px 5px;
+            }
+        </style>
     </head>
 
     <body>

@@ -12,6 +12,26 @@
                 margin-top: 10px;
                 display: block;
             }
+
+
+            * {
+                border-radius: 5px;
+                font-family: sans-serif;
+            }
+
+            div.user-container, div.info-container, div.bio-container h2, div.follow-container h2, div.error-container, img {
+                border-style: solid;
+                border-width: 1px;
+
+            }
+            div.error-container {
+                border-color: red;
+                margin-bottom: 20px;
+            }
+
+            div.follow-container h2 a {
+                margin-top: 0px;
+            }
         </style>
     </head>
 
@@ -50,8 +70,8 @@
                     <div class="right-container">
                         <div class="follow-container">
 
-                            <h2><a href="/settings/account">Edit Account</a></h2>
-                            <h2><a href="/user/<%= currentUser.username %>">Profile</a></h2>
+                            <h2><a href="/settings/account">Manage Account</a></h2>
+                            <h2><a href="/user/<%= currentUser.username %>">Back</a></h2>
 
                         </div>
 
