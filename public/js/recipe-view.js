@@ -736,17 +736,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteCollectionBtn = document.getElementById('delete-collection-btn');
     const cancelBtn = document.getElementById('cancel-bookmark-popup');
 
-    //load collections from localStorage or default
+    //load collections from localStorage or default + help from copilot to change collections to arrays
     function loadCollections() {
-        let collections = JSON.parse(localStorage.getItem('collections') || '["bookmarks"]');
+        // store as object: { collectionName: [recipeId, ...], ... }
+        let collectionsObj = JSON.parse(localStorage.getItem('collections') || '{"bookmarks":[]}');
+
+        // ensure default exists
+        if (!collectionsObj.hasOwnProperty('bookmarks')) collectionsObj['bookmarks'] = [];
+
         select.innerHTML = '';
-        //https://stackoverflow.com/questions/18417114/add-item-to-dropdown-list-in-html-using-javascript
-        collections.forEach(col => {
+        // use the object keys as collection names
+        Object.keys(collectionsObj).forEach(col => {
             const opt = document.createElement('option'); //creates a new option element
             opt.value = col; //sets the value of the option to the collection name
             opt.textContent = col.charAt(0).toUpperCase() + col.slice(1); //sets the displayed text with first letter capitalized
             select.appendChild(opt); //adds the option to the select dropdown
         });
+
+        // save back in case we added missing default
+        localStorage.setItem('collections', JSON.stringify(collectionsObj));
+
         //update delete button state after loading
         updateDeleteButtonState();
     }
@@ -788,13 +797,26 @@ document.addEventListener('DOMContentLoaded', () => {
     addCollectionBtn.addEventListener('click', () => { //when the button is clicked
         const name = newCollectionInput.value.trim(); //get the name and trim whitespace
         if (!name) return;
-        let collections = JSON.parse(localStorage.getItem('collections') || '["bookmarks"]');
-        if (!collections.includes(name)) { //avoid duplicates
-            collections.push(name); //add to array
-            localStorage.setItem('collections', JSON.stringify(collections)); //save back to localStorage
-            loadCollections(); //reload dropdown
-            select.value = name; //select the new collection
+
+        // load as object of arrays
+        let collectionsObj = JSON.parse(localStorage.getItem('collections') || '{"bookmarks":[]}');
+
+        // Prevent duplicates (case-insensitive)
+        const normalizedNew = name.toLowerCase();
+        const normalizedExisting = Object.keys(collectionsObj).map(c => c.toLowerCase());
+        if (normalizedExisting.includes(normalizedNew)) {
+            alert(`Collection named "${name}" already exists.`);
+            newCollectionInput.value = '';
+            return;
         }
+
+        // create new empty array for the collection so it's ready to hold recipes
+        collectionsObj[name] = [];
+
+        localStorage.setItem('collections', JSON.stringify(collectionsObj)); //save back to localStorage
+        loadCollections(); //reload dropdown
+        select.value = name; //select the new collection
+
         newCollectionInput.value = ''; //clear input
         updateDeleteButtonState();
     });
@@ -807,11 +829,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (!confirm(`Delete collection "${name}"? This cannot be undone.`)) return;
-        let collections = JSON.parse(localStorage.getItem('collections') || '["bookmarks"]');
-        collections = collections.filter(c => c !== name);
+
+        // load object, remove key
+        let collectionsObj = JSON.parse(localStorage.getItem('collections') || '{"bookmarks":[]}');
+        delete collectionsObj[name];
+
         //ensure 'bookmarks' always exists
-        if (!collections.includes('bookmarks')) collections.unshift('bookmarks');
-        localStorage.setItem('collections', JSON.stringify(collections));
+        if (!collectionsObj.hasOwnProperty('bookmarks')) collectionsObj['bookmarks'] = [];
+
+        localStorage.setItem('collections', JSON.stringify(collectionsObj));
         loadCollections();
         select.value = 'bookmarks';
         updateDeleteButtonState();
