@@ -1,314 +1,424 @@
+/* ===== Base / Helpers ===================================================== */
+* { box-sizing: border-box; }
+#calendar-grid { display: contents; } /* let injected cells flow into the grid */
 
-
-main {
-    margin: 20px;
-    padding: 20px;
-    border-radius: 30px;
+.grid-item.is-outside-empty{
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  visibility: hidden;          /* preserve layout, hide visuals */
 }
 
-#calendar-container {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    justify-items: center;
-    background-color: #79B473;
-    padding: 20px;
-    border-radius: 10px;
+.grid-item.is-today{
+  outline: 2px solid #79B473;
+  outline-offset: -2px;
 }
 
-#calendar-container > * {
-    min-width: 0;
+/* Title + HR spacing (tight) */
+h1{ margin: 8px 0 6px; }
+header + hr{ margin: 6px 0 8px; }
+
+/* ===== Month Row (arrows + centered title badge) ========================= */
+#month-row{
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; /* ← title → */
+  align-items: center;
+  column-gap: 12px;
+  max-width: min(900px, 92vw);         /* comfy width in Month */
+  margin: 4px auto 6px;
 }
 
-.grid-item {
-    box-sizing: border-box;
-    margin: 15px;
-    border: 1px solid #000000;
-    border-radius: 10px; 
-    background-color: whitesmoke;
-    overflow: hidden;
+#month-display{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px 12px;
 }
 
-.days-of-week {
-    margin: 0px 0px 0;
+/* Never wrap the editable title */
+#month-display h2,
+#month{ margin: 0; white-space: nowrap; }
+
+/* Wider header in Week/Day so arrows sit far out */
+#month-row[data-view="week"]{ max-width: min(1100px, 96vw); }
+#month-row[data-view="day"] { max-width: min(1000px, 95vw); }
+
+/* Arrows */
+.arrow{ width: 32px; height: 32px; }
+#month-row #prev-month{ justify-self: start; }
+#month-row #next-month{ justify-self: end; }
+.arrow:hover{ cursor: pointer; color: lightgray; }
+
+/* ===== Toolbar (Today + View) ============================================ */
+#calendar-toolbar{
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0 10px;
 }
 
-@media screen and (min-width: 1181px) {
-    .grid-item {
-        width: 145px;
-        height: 145px;
-    }
-    .days-of-week {
-        width: 143.5px;
-        height: 30px;
-        margin: 15px 15px 0;
-    }
+#btn-today{
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 2px solid #79B473;
+  background: #fff;
+  font-weight: 700;
+}
+#btn-today:hover{ background: #f5fff5; cursor: pointer; }
+
+#view-select{
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #bbb;
 }
 
-@media screen and (max-width: 1180px) {
-    .days-of-week, .event {
-        font-size: 14px;
-        width: 120px;
-    }
-    .days-of-week {
-        height: 25px;
-    }
-    .grid-item {
-        width: 120px;
-        height: 120px;
-    }
+/* Visually hidden label for a11y */
+.sr-only{
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
 }
 
-@media screen and (max-width: 1040px) {
-    .days-of-week, .event {
-        font-size: 14px;
-        width: 100px;
-    }
-    .days-of-week {
-        height: 25px;
-    }
-    .grid-item {
-        width: 100px;
-        height: 100px;
-    }
+/* ===== Calendar Container & Views ======================================== */
+main{
+  margin: 20px;
+  padding: 20px;
+  border-radius: 30px;
 }
 
-@media screen and (max-width: 900px) {
-    .days-of-week, .event {
-        font-size: 13px;
-        width: 90px;
-    }
-    .days-of-week {
-        height: 25px;
-    }
-    .grid-item {
-        width: 90px;
-        height: 90px;
-    }
+#calendar-container{
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  justify-items: center;
+  background: #79B473;
+  padding: 12px 20px 20px;  /* tighter top padding */
+  border-radius: 10px;
 }
 
-@media screen and (max-width: 820px) {
-    .days-of-week, .event {
-        font-size: 12px;
-        width: 80px;
-    }
-    .days-of-week {
-        height: 25px;
-    }
-    .grid-item {
-        width: 80px;
-        height: 80px;
-    }
+/* JS sets data-view */
+#calendar-container[data-view="month"]{ grid-template-columns: repeat(7, minmax(0, 1fr)); }
+#calendar-container[data-view="week"] { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+#calendar-container[data-view="day"]  { grid-template-columns: 1fr; }
+
+#calendar-container[data-view="day"] .days-of-week{ display: none; }
+#calendar-container[data-view="week"] .days-of-week,
+#calendar-container[data-view="month"] .days-of-week{ display: block; }
+
+#calendar-container > *{ min-width: 0; }
+
+/* ===== Day Cells & Weekday Chips ======================================== */
+.grid-item{
+  box-sizing: border-box;
+  margin: 15px;
+  border: 1px solid #000;
+  border-radius: 10px;
+  background: whitesmoke;
+  overflow: hidden;
 }
 
-#schedule-event-popup {
-    /* display: flex; */
-    display: none;
-    justify-self: center;
-    position: fixed;
-    width: 50%;
-    height: 80vh;
-    padding: 35px;
-    z-index: 100;
-    background-color: #79B473;
-    border-radius: 10px;
+.days-of-week{
+  background: #fff;
+  border-radius: 5px;
+  font-weight: 900;
+  text-align: center;
+  align-content: center;
+  margin: 0;
 }
 
+/* Make sure the date number is always visible */
+.grid-item .day{
+  color: #000;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+  margin: 15px 0 0 10px;
+}
+
+/* In week/day, ensure nothing overrides the color */
+#calendar-container[data-view="week"] .grid-item .day,
+#calendar-container[data-view="day"]  .grid-item .day{
+  color: #000 !important;
+  opacity: 1;
+}
+
+.grid-item:hover{ cursor: pointer; background: #fff; }
+
+/* ===== Event pill ======================================================== */
+/* Stack multiple events vertically inside a day cell */
+.event{
+  display: flex;               /* vertical list */
+  flex-direction: column;
+  gap: 6px;                    /* space between items */
+  width: 85%;
+  margin: 6px auto 0;
+  padding: 0;
+  background: transparent;     /* container isn't the pill anymore */
+  text-align: left;            /* nicer for times + names */
+}
+
+/* Each pill is its own row */
+.event-pill{
+  display: block;
+  background: azure;
+  color: lightslategray;
+  border-radius: 6px;
+  padding: 6px 8px;
+  line-height: 1.1;
+  cursor: pointer;
+}
+.event-pill:hover{ color: #000; }
+
+/* Optional: if a day has many items, scroll inside the cell */
+.grid-item { position: relative; }
+.grid-item .event { max-height: 80px; overflow: auto; }
+
+
+/* Give more air below the date in tighter views */
+#calendar-container[data-view="week"]  .event,
+#calendar-container[data-view="day"]   .event{
+  margin-top: 10px;
+}
+
+/* Truncation helper */
+.hide-overflow{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
+}
+
+/* ===== Popup (unchanged aside from minor polish) ======================== */
+#schedule-event-popup{
+  display: none;           /* toggled from JS */
+  justify-self: center;
+  position: fixed;
+  width: 50%;
+  height: 80vh;
+  padding: 35px;
+  z-index: 100;
+  background: #79B473;
+  border-radius: 10px;
+}
+#inner-container h1{ text-align: center; }
+
+#inner-container img{
+  display: flex;
+  flex: 1 1 auto;
+  background: lightgray;
+}
+
+#button-container{
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+}
+
+#schedule-event-popup svg{
+  position: absolute;
+  top: 0;
+  right: 0;
+  fill: #fff;
+  width: 50px;
+  z-index: 120;
+}
+
+#close-popup-button:hover{ color: rgb(255, 249, 196); }
+#button-container button{ width: 75px; height: 40px; border-radius: 30px; }
+#cancel-button:hover{ border: rgb(255, 249, 196) solid 3px; }
+
+#inner-container h3{ margin: 0; }
+#inner-container input{
+  width: fit-content;
+  height: fit-content;
+  padding: 10px;
+  border-radius: 5px;
+}
+#serving-input{ width: 100px; }
+
+/* ===== Misc ============================================================= */
+#calendar-icon{ text-align: left; position: absolute; }
+
+/* Keep just one arrow size rule (others above) */
+.arrow{ margin: 0; }
+
+/* ===== Responsive sizes (kept, lightly polished) ======================== */
+@media (min-width:1181px){
+  .grid-item{ width:145px; height:145px; }
+  .days-of-week{ width:143.5px; height:30px; margin:15px 15px 0; }
+}
+@media (max-width:1180px){
+  .days-of-week, .event{ font-size:14px; width:120px; }
+  .days-of-week{ height:25px; }
+  .grid-item{ width:120px; height:120px; }
+}
+@media (max-width:1040px){
+  .days-of-week, .event{ font-size:14px; width:100px; }
+  .days-of-week{ height:25px; }
+  .grid-item{ width:100px; height:100px; }
+}
+@media (max-width:900px){
+  .days-of-week, .event{ font-size:13px; width:90px; }
+  .days-of-week{ height:25px; }
+  .grid-item{ width:90px; height:90px; }
+}
+@media (max-width:820px){
+  .days-of-week, .event{ font-size:12px; width:80px; }
+  .days-of-week{ height:25px; }
+  .grid-item{ width:80px; height:80px; }
+}
+/* ===== Daily view: keep the green box snug and centered ===== */
+#calendar-container[data-view="day"] {
+  grid-template-columns: auto;   /* single column sized to its content */
+  width: max-content;            /* shrink wrap to the card + padding */
+  margin: 0 auto;                /* center the container */
+  padding: 16px 24px;            /* comfortable breathing room */
+  justify-content: center;       /* center the grid track */
+  justify-items: center;         /* center the card in the track */
+}
+
+/* (optional) a slightly larger card in daily view */
+#calendar-container[data-view="day"] .grid-item {
+  width: 180px;
+  height: 180px;
+}
+body.popup-open { overflow: hidden; }
+
+#schedule-event-popup { display: none; }
+#schedule-event-popup.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inset: 0;
+  left: 0; top: 0; right: 0; bottom: 0;
+}
+/* Fullscreen overlay */
 #inner-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    margin: auto;
-    width: 95%;
-    height: 80vh;
-    background-color: white;
-    border-radius: 10px;
-    overflow: auto;
+  position: fixed;
+  inset: 0;                 /* top:0 right:0 bottom:0 left:0 */
+  display: none;            /* hidden by default */
+  place-items: center;      /* grid-centers the panel */
+  background: rgba(0, 0, 0, 0.45); /* backdrop */
+  z-index: 10000;           /* higher than header/nav */
+  overflow: auto;           /* scroll if content is tall */
 }
 
-/* #schedule-event-popup {
-    overflow: auto;
-} */
+/* Show when opening */
+#inner-container.open { display: grid; }
 
-#inner-container h1 {
-    text-align: center;
+/* The white modal card */
+#inner-container .modal-panel {
+  width: max-content;
+  background: #79B473;          /* was #fff */
+  border-radius: 12px;
+  padding: 24px 28px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  color: #0b2b0b; 
+  align-items: center;
+}
+#calendar-popup-header{
+  margin: 0 0 18px 0;
+  text-align: center;           /* new */
+}
+/* Optional: prevent page scroll while modal is open */
+body.modal-open { overflow: hidden; }
+
+.form-grid{
+  width: max-content;        /* shrink-wrap to its columns */
+  margin: 0 auto 18px;       /* horizontally centered */
+  grid-template-columns: 100px 100px;  /* consistent widths (tweak as you like) */
+  gap: 18px 28px;
+}
+#fld-date{ grid-area: date; }
+#fld-time{ grid-area: time; }
+#fld-name{ grid-area: name; }
+#fld-cat { grid-area: cat;  }
+
+.form-field{ display:flex; flex-direction:column; gap:8px; }
+.form-field label{ font-weight:700; }
+
+/* make inputs & the select match and stay compact */
+.form-field input,
+.form-field select{
+  width: 240px !important;
+  max-width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #000;
+  border-radius: 6px;
+  background: #fff;
+  font: inherit;
+}
+/* ---- Repeat section (Google Calendar–style) ---- */
+#fld-repeat { margin-top: 8px; }
+#fld-repeat h3 { margin: 0 0 6px; }
+
+#ev-repeat {
+  min-width: 260px;
+  padding: 8px 10px;
+  border: 1px solid #000;
+  border-radius: 6px;
+  background: #fff;
 }
 
-#inner-container img {
-    display: flex;
-    flex: 1 1 auto;
-    background-color: lightgray;
+/* Custom builder container */
+#repeat-custom {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px dashed #2f5e2f;
+  border-radius: 8px;
+  background: rgba(121, 180, 115, 0.10); /* light green wash */
 }
 
-#button-container {
-    display: flex;
-    width: 100%;
-    margin-bottom: 20px;
-    justify-content: space-around;
+#repeat-custom .form-field { margin-top: 8px; }
+#repeat-custom .form-field label { margin-bottom: 4px; display: block; }
+
+#repeat-custom select,
+#repeat-custom input[type="date"],
+#repeat-custom input[type="number"] {
+  padding: 6px 8px;
+  border: 1px solid #000;
+  border-radius: 6px;
+  background: #fff;
 }
 
-#schedule-event-popup svg {
-    position: absolute;
-    top: 0;
-    right: 0;
-    fill: white;
-    width: 50px;
-    z-index: 120;
+/* Two-column rows used in the custom panel */
+.form-row.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 18px; /* row, column */
 }
 
-.days-of-week {
-    background-color: white;
-    border-radius: 5px;
-    font-weight: 900;
-    text-align: center;
-    align-content: center;
+/* Weekday chips */
+.weekday-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.weekday-pills label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid #000;
+  border-radius: 16px;
+  background: #fff;
+  cursor: pointer;
+  user-select: none;
+}
+.weekday-pills input { margin: 0; }
+
+/* Small screens: stack the two columns */
+@media (max-width: 680px) {
+  .form-row.two-col { grid-template-columns: 1fr; }
 }
 
-.grid-item:hover {
-    cursor: pointer;
-    background-color: white;
-}
+#fld-repeat select { min-width: 260px; }
+#repeat-custom .form-field label { margin-bottom: 4px; display:block; }
+#repeat-custom input[type="number"] { padding:6px 8px; }
 
-.arrow:hover {
-    cursor: pointer;
-    color: lightgray;
-}
-
-.day {
-    margin-top: 15px;
-    margin-left: 10px;
-    margin-bottom: 0;
-}
-
-#month-display {
-    display: flex;
-    justify-self: center; /* Keeps container in the center */
-    justify-content: center;  /* Centers text and SVGs */
-    width: 300px;
-    height: 60px;
-    background-color: white;
-    border-radius: 5px;
-    padding: 5px;
-    margin: 5px;
-}
-
-.event {
-    justify-self: center;
-    border-radius: 5px;
-    width: 85%;
-    text-align: center;
-    color: lightslategray;
-    background-color: azure;
-    padding: 5px;
-    margin: 5px 0;
-    cursor: pointer;
-}
-
-.event:hover {
-    color: black;
-}
-
-.event-container {
-    width: 100%;
-    height: 100%;
-}
-
-#close-popup-button:hover {
-    color: red;
-}
-
-#button-container button {
-    width: 75px;
-    height: 40px;
-    border-radius: 30px;
-}
-
-#cancel-button:hover {
-    border: red solid 3px;
-}
-
-.hide-overflow {
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    text-overflow: ellipsis;
-    text-wrap: nowrap;
-}
-
-#month-display h2 {
-    margin: 0;
-    padding: 0;
-    text-align: center;
-    align-self: center;
-}
-
-#month {
-    margin-left: 30px;
-    margin-right: 30px;
-    width: 165px;
-    height: 30px;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-#inner-container h3 {
-    margin: 0;
-}
-
-#inner-container input {
-    width: fit-content;
-    height: fit-content;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-#serving-input {
-    width: 100px;
-}
-
-.column {
-    display: flex;
-    flex-direction: column;
-}
-
-.center-elements {
-    display: flex;
-    justify-content: center;
-    justify-items: center;
-    text-align: center;
-}
-
-#calendar-popup-header {
-    margin-bottom: 20px;
-}
-
-.column-container, .popup-row {
-    margin-bottom: 20px;
-}
-
-.column-container {
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-}
-
-.popup-row {
-    display: flex;
-    align-items: center;
-    align-content: center;
-    width: 80%;
-}
-
-.popup-row * {
-    margin: 10px;
-}
-
-#calendar-icon {
-    text-align: left;
-    position: absolute;
-}
-
-.arrow {
-    width: 25px;
-    margin: 0;
-}

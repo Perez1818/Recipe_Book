@@ -7,47 +7,108 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/calendar.css">
 </head>
-<body>
-    <div id="schedule-event-popup" class="popup">
-        <svg id="close-popup-button" width="30px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-        </svg>
-
-        <div id="inner-container">
+<body>  <!-- inside #schedule-event-popup -->
+    <div id="inner-container" aria-hidden="true">
+        <div class="modal-panel">
             <h2 id="calendar-popup-header">Add Recipe to Calendar</h2>
-            <img width="150px" height="150px">
-            <div class="column-container">
-                <div class="column center-elements">
-                    <h3>Date</h3>
-                    <input type="date">
+            <div class="form-grid">
+                <div class="form-field" id="fld-date">
+                   <label for="ev-date">Date</label>
+                    <input id="ev-date" type="date">
                 </div>
-                <div class="column center-elements">
-                    <h3>Time</h3>
-                    <input type="time">
+                <div class="form-field" id="fld-time">
+                   <label for="ev-time">Time</label>
+                    <input id="ev-time" type="time">
                 </div>
-            </div>
-            <div class="popup-row">
-                <h3>Recipe Name:</h3>
-                <input>
-            </div>
-            <div class="popup-row">
-                <h3>Category:</h3>
-                <select>
-                    <option value="">Course</option>
-                    <option value="breakfast">Breakfast</option>
-                    <option value="lunch">Lunch</option>
-                    <option value="dinner">Dinner</option>
-                    <option value="snack">Snack</option>
-                    <option value="desert">Desert</option>
-                </select>
-            </div>
-            <div class="popup-row">
-                <h3>Servings</h3>
-                <input id="serving-input" type="number" min="1" width="100px">
+
+                <div class="form-field" id="fld-repeat">
+                    <label for="ev-repeat">Repeat:</label>
+                    <select id="ev-repeat">
+                        <option value="none" selected>Does not repeat</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly on …</option>
+                        <option value="weekday">Every weekday (Monday to Friday)</option>
+                        <option value="monthly_day">Monthly on day 10</option>
+                        <option value="monthly_nth">Monthly on the second Thursday</option>
+                        <option value="yearly">Annually on Nov 13</option>
+                        <option value="custom">Custom…</option>
+                    </select>
+                </div>
+
+                <div id="repeat-custom" style="display:none; margin-top:8px;">
+                    <div class="form-row two-col">
+                        <div class="form-field">
+                            <label><strong>Frequency</strong></label>
+                            <select id="rc-freq">
+                                <option value="DAILY">Daily</option>
+                                <option value="WEEKLY">Weekly</option>
+                                <option value="MONTHLY">Monthly</option>
+                                <option value="YEARLY">Yearly</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label><strong>Every</strong></label>
+                            <input id="rc-interval" type="number" min="1" value="1" style="width:90px"> <span>interval(s)</span>
+                        </div>
+                    </div>
+                    <div class="form-field" id="rc-weekdays" style="display:none;">
+                        <label><strong>Repeat on</strong></label>
+                        <div class="weekday-pills">
+                            <label><input type="checkbox" value="0">Sun</label>
+                            <label><input type="checkbox" value="1">Mon</label>
+                            <label><input type="checkbox" value="2">Tue</label>
+                            <label><input type="checkbox" value="3">Wed</label>
+                            <label><input type="checkbox" value="4">Thu</label>
+                            <label><input type="checkbox" value="5">Fri</label>
+                            <label><input type="checkbox" value="6">Sat</label>
+                        </div>
+                    </div>
+                    <div class="form-field" id="rc-monthly" style="display:none;">
+                        <label><strong>Monthly on</strong></label>
+                        <div>
+                            <label><input type="radio" name="rc-mmode" value="BYMONTHDAY" checked> same day of month</label>
+                            <label style="margin-left:16px;"><input type="radio" name="rc-mmode" value="BYDAY"> same weekday pattern (e.g., 2nd Thu)</label>    
+                        </div>
+                    </div>
+
+                    <div class="form-row two-col" style="margin-top:6px">
+                        <div class="form-field">
+                            <label><strong>Ends</strong></label>
+                            <div>
+                                <label><input type="radio" name="rc-end" value="NEVER" checked> Never</label>
+                                <label style="margin-left:12px;"><input type="radio" name="rc-end" value="COUNT"> After</label>
+                                <input id="rc-count" type="number" min="1" value="5" style="width:80px"> occurrences
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label>&nbsp;</label>
+                            <div>
+                                <label><input type="radio" name="rc-end" value="UNTIL"> On date</label>
+                                <input id="rc-until" type="date">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-field" id="fld-name">
+                    <label for="ev-name">Recipe Name:</label>
+                    <input id="ev-name">
+                </div>
+                <div class="form-field" id="fld-cat">
+                    <label for="ev-category">Category:</label>
+                    <select id="ev-category">
+                        <option value="">Course</option>
+                        <option value="breakfast">Breakfast</option>
+                        <option value="lunch">Lunch</option>
+                        <option value="dinner">Dinner</option>
+                        <option value="snack">Snack</option>
+                        <option value="dessert">Dessert</option>
+                    </select>
+                </div>
             </div>
             <div id="button-container">
-                <button id="cancel-button">Cancel</button>
-                <button>Submit</button>
+                <button id="cancel-button" type="button">Cancel</button>
+                <button id="save-button"   type="button">Save</button>
             </div>
         </div>
     </div>
@@ -101,18 +162,33 @@
     <hr width="100%">
     <h1>Calendar</h1>
     <main>
-        <div id="month-display">
+        <!-- Month row: arrows left/right, title centered -->
+        <div id="month-row">
+            <svg id="prev-month" class="arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
             </svg>
-                <svg class="arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-                </svg>
-                <h2 id="month">
-                    August 2025
-                </h2>
-                <svg class="arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                </svg>
+
+            <!-- keep your style badge; just the title sits inside it -->
+            <div id="month-display">
+                <h2 id="month" contenteditable="true" spellcheck="false">October 2025</h2>
+            </div>
+
+            <svg id="next-month" class="arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+            </svg>
         </div>
+        <!-- Toolbar: Today + View mode -->
+        <div id="calendar-toolbar">
+            <button id="btn-today" type="button">Today</button>
+
+            <label class="sr-only" for="view-select">View</label>
+            <select id="view-select" aria-label="Change view">
+                <option value="month" selected>Monthly</option>
+                <option value="week">Weekly</option>
+                <option value="day">Daily</option>
+            </select>
+        </div>
+
         <div id="calendar-container">
             <p class="days-of-week">Monday</p>
             <p class="days-of-week">Tuesday</p>
@@ -121,114 +197,9 @@
             <p class="days-of-week">Friday</p>
             <p class="days-of-week">Saturday</p>
             <p class="days-of-week">Sunday</p>
-            <div class="grid-item">
-                <p class="day">1</p>
-                <p class="event hide-overflow">Placeholder for event title</p>
-            </div>
-            <div class="grid-item">
-                <p class="day">2</p>
-                <p class="event hide-overflow">Placeholder for event title</p>
-            </div>
-            <div class="grid-item">
-                <p class="day">3</p>
-                <p class="event hide-overflow">Placeholder for event title</p>
-            </div>
-            <div class="grid-item">
-                <p class="day">4</p>
-                <p class="event hide-overflow">Placeholder for event title</p>
-            </div>
-            <div class="grid-item">
-                <p class="day">5</p>
-                <p class="event hide-overflow">Placeholder for event title</p>
-            </div>
-            <div class="grid-item">
-                <p class="day">6</p>
-                <p class="event hide-overflow">Placeholder for event title</p>
-            </div>
-            <div class="grid-item">
-                <p class="day">7</p>
-                <p class="event hide-overflow">Placeholder for event title</p>
-            </div>
-            <div class="grid-item">
-                <p class="day">8</p>
-                <p class="event hide-overflow">Placeholder for event title</p>
-            </div>
-            <div class="grid-item">
-                <p class="day">9</p>
-                <p class="event hide-overflow">Placeholder for event title</p>
-            </div>
-            <div class="grid-item">
-                <p class="day">10</p>
-                <p class="event hide-overflow">Placeholder for event title</p>
-            </div>
-            <div class="grid-item">
-                <p class="day">11</p>
-                <p class="event hide-overflow">Placeholder for event title</p>
-            </div>
-            <div class="grid-item">
-                <p class="day">12</p>
-                <p class="event hide-overflow">Placeholder for event title</p>
-            </div>
-            <div class="grid-item">
-                <p class="day">13</p>
-                <p class="event hide-overflow">Placeholder for event title</p>
-            </div>
-            <div class="grid-item">
-                <p class="day">14</p>
-                <p class="event hide-overflow">Placeholder for event title</p>
-            </div>
-            <div class="grid-item">
-                <p class="day">15</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">16</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">17</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">18</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">19</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">20</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">21</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">22</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">23</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">24</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">25</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">26</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">27</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">28</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">29</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">30</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
-            <div class="grid-item">
-                <p class="day">31</p>
-				<p class="event hide-overflow">Placeholder for event title</p>            </div>
+            <div id="calendar-grid"></div>
         </div>
     </main>
+    <script defer src="js/calendar.js"></script>
 </body>
 </html>
