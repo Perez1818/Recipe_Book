@@ -210,7 +210,7 @@ exports.updateAccount = [
                     if (request.user.email !== request.body.email) {
                         await sendVerificationEmail(request.user.id, request.body.email);
                     }
-                    else if (request.body.password) {
+                    if (request.body.password) {
                         await usersTable.updatePassword(request.user.id, request.body.password);
                     }
                     if (request.body.birthday) {
