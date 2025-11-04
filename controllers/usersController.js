@@ -40,7 +40,7 @@ exports.signUpUser = [
                 // response.redirect("/login");
 
                 const user = await usersTable.getUserByName(request.body.username);
-                await sendVerificationEmail(user.email);
+                await sendVerificationEmail(user.id, user.email);
                 response.render("signup", { successMessage: "User successfully registered. Check your email to verify." });
             }
             else {
@@ -54,12 +54,24 @@ exports.verifyUser = async (request, response) => {
     const { token } = request.query;
     try {
         const decodedToken = jwt.verify(token, process.env.JSON_WEB_TOKEN_SECRET);
+        const id = decodedToken.id;
         const email = decodedToken.email;
-        await usersTable.verifyUser(email);
-        response.redirect("/login?verified=1");
+        await usersTable.verifyUser(id, email);
+
+        if (!request.user) {
+            response.redirect("/login?verified=1");
+        }
+        else {
+            response.redirect("/settings/account?verified=1");
+        }
     }
     catch (error) {
-        response.redirect("login?verified=0");
+        if (!request.user) {
+            response.redirect("/login?verified=0");
+        }
+        else {
+            response.redirect("/settings/account?verified=0");
+        }
     }
 };
 
@@ -162,7 +174,16 @@ exports.updateProfile = [
 ];
 
 exports.getAccountSettings = async (request, response, next) => {
-    response.render("edit-account");
+    const { verified } = request.query;
+    if (verified === "1") {
+        response.render("edit-account", { successMessage: "Email successfully changed." });
+    }
+    else if (verified === "0") {
+        response.render("edit-account", { errorMessages: { credentials: "Invalid token." } });
+    }
+    else {
+        response.render("edit-account");
+    }
 }
 
 exports.updateAccount = [
@@ -186,15 +207,17 @@ exports.updateAccount = [
                     response.render("edit-account", { errorMessages: errorMessages, invalidUser: invalidUser });
                 }
                 else {
-                    await usersTable.updateEmail(request.user.id, request.body.email);
-                    if (request.body.password) {
+                    if (request.user.email !== request.body.email) {
+                        await sendVerificationEmail(request.user.id, request.body.email);
+                    }
+                    else if (request.body.password) {
                         await usersTable.updatePassword(request.user.id, request.body.password);
                     }
                     if (request.body.birthday) {
                         await usersTable.updateBirthday(request.user.id, request.body.birthday);
                     }
 
-                    response.redirect("/settings/account");
+                    response.render("edit-account", { successMessage: `Confirmation sent to ${request.body.email}.` } );
                 }
             }
             else {

@@ -11,9 +11,9 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-exports.sendVerificationEmail = async (email) => {
+exports.sendVerificationEmail = async (id, email) => {
     const token = jwt.sign(
-        { email: email },
+        { id: id, email: email },
         process.env.JSON_WEB_TOKEN_SECRET
     );
 
@@ -21,7 +21,7 @@ exports.sendVerificationEmail = async (email) => {
     await transporter.sendMail({
         from: `"Recipe Book" <${process.env.SERVER_EMAIL}>`,
         to: email,
-        subject: "Verify your Recipe Book account",
+        subject: "Verify your Recipe Book email",
         html: `<p>Click below to verify your email:</p><a href="${verificationLink}">${verificationLink}</a>`
     });
 };

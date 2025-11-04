@@ -26,6 +26,10 @@
 
         <h1>Manage Account</h1>
 
+        <% if (locals.successMessage) { %>
+            <p class="success"><%= successMessage %></p>
+        <% } %>
+
         <form action="/settings/account" method="post">
             <div class="info-container">
 
@@ -57,6 +61,7 @@
                     <label for="birthday">Birthday: </label>
                     <input type="date" id="birthday" name="birthday" value="<%= locals.invalidUser ? invalidUser.birthday : currentUser.birthday %>">
                     <p><%= getErrorMessage("birthday") %></p>
+                    <p><%= getErrorMessage("credentials") %></p>
                 </div>
 
                 <div class="field">
