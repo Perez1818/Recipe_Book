@@ -268,7 +268,7 @@ img, video {
 /* Moves instructions towards center of card */
 #instructions {
     margin: 20px 0 20px 50px;
-    height: 75%;
+    height: 70%;
     overflow: auto;
 }
 
@@ -591,4 +591,16 @@ body {
 
 .edit-review > * {
     display: flex;
+}
+
+#recipe-tag {
+    padding: 10px 20px;
+    background-color: goldenrod;
+    border-radius: 10px;
+    width: fit-content;
+    color: white;
+    font-weight: bold;
+    margin-top: 20px;
+    font-size: 18px;
+    font-style: italic;
 }

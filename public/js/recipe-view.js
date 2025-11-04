@@ -25,10 +25,13 @@ const websiteNotAvailableImg = document.getElementById("origin-site-not-availabl
 // Recipe detail objects
 const recipeName = document.getElementById("recipe-name");
 const username = document.getElementById("username-str");
+const tags = document.getElementById("recipe-tag");
 const thumbnail = document.getElementById("recipe-thumbnail");
 const videoElement = document.getElementById("recipe-tutorial");
 const instructionsTextElement = document.getElementById("instructions");
 const ingredientListElement = document.getElementById("ingredient-list");
+const prepTimeEl = document.getElementById("prep-time-total");
+const cookTimeEl = document.getElementById("cook-time-total");
 
 // Obtains recipe ID from URL
 const [ _, recipeApiId ] = currentUrl.split("?id=");
@@ -130,6 +133,8 @@ async function fillRecipeViewPage() {
     recipeName.textContent = recipe["strMeal"]
     // Publisher
     listPublisher(recipe["strSource"], recipe["dateModified"]);
+    // Category
+    tags.textContent = recipe["strCategory"];
     // Thumbnail
     thumbnail.src = recipe["strMealThumb"];
     // Instructions
@@ -143,48 +148,6 @@ async function fillRecipeViewPage() {
     renderIngredients(ingredients, measurements);
 
     return { instructions }
-}
-
-
-// Returns a consistent time unit for the time unit listed in the recipe
-function getExpectedTimeUnit(timeUnit, timeValue=-1) {
-    switch (timeUnit) {
-        // minutes
-        case "minutes":
-            return "minutes";
-        case "mins":
-            return "minutes";
-        // minutes / minute
-        case "minute":
-            if (timeValue > 1) {
-                return "minutes"
-            }
-            return "minute";
-        case "min":
-            if (timeValue > 1) {
-                return "minutes"
-            }
-            return "minute"
-        // hours
-        case "hours":
-            return "hours";
-        case "hrs":
-            return "hours"
-        // hours / hour
-        case "hour":
-            if (timeValue > 1) {
-                return "hours"
-            }
-            return "hour"
-        case "hr":
-            if (timeValue > 1) {
-                return "hours"
-            }
-            return "hour"
-        // Returns empty string for first time value listed in time span (e.g. 25–30 minutes)
-        default:
-            return ""
-    }
 }
 
 
@@ -205,172 +168,163 @@ function normalizeUnicodeFractions(str) {
 }
 
 
-// Reads all durations specified in current recipe instruction and writes them to notecard
-function getTimeForInstruction() {
-    let matches;
-    currentInstruction = currentInstruction.toLowerCase().replace(/\s*( to |–|—|−| or )\s*/gi, "-");
-    const regex = /\b(\d+(?:\s+\d+\/\d+)?)(?:\s*(?:-|to)\s*(\d+(?:\s+\d+\/\d+)?))?\s*(?:more\s+)?( ?(?:mins?|minutes?|hrs?|hours?|hour?|hr?))\b/gi;
+function findTimeMatches(text) {
+  const regex =
+    /\b(\d+(?:\s+\d+\/\d+)?)(?:\s*(?:-|to)\s*(\d+(?:\s+\d+\/\d+)?))?\s*(?:more\s+)?(mins?|minutes?|hrs?|hours?|hour?|hr?)\b/gi;
+  return [...text.matchAll(regex)];
+}
 
-    currentInstruction = normalizeUnicodeFractions(currentInstruction)
-    matches = [...currentInstruction.matchAll(regex)];
 
-    if (matches[0]) {
-        timeValue = 0;
-        estimatedTimeBoldedText.textContent = "";
+function parseTimeSegment(match) {
+    const [full, lower, upper, unitRaw] = match;
+    const unit = normalizeTimeUnit(unitRaw);
+    const singular = unit.replace(/s$/, "");
 
-        matches.forEach(
-            (m) => {
-                match = m[0];
-                parts = match.split(" ");
-                let timeValue;
-                let timeUnit;
-
-                if (parts.length === 1) {
-                    [, timeValue, timeUnit] = match.match(/^(\d+(?:\s+\d+\/\d+)?)([a-zA-Z]+)$/);
-                    timeUnit = getExpectedTimeUnit(timeUnit, timeValue)
-                }
-                else {
-                    // Grabs the last word representing the time unit and processes it
-                    timeUnit = (match.split(" ")).at(-1)
-                    timeUnit = getExpectedTimeUnit(timeUnit)
-                }
-
-                if (match.includes("-")) {
-                    if ((match.split("-")[0])){
-                        let [lowerBound, upperBound] = match.split(/-/).map(s => s.trim());
-
-                        const singular = unit => unit.replace(/s$/, "");
-
-                        function getValuesAndUnits(bound) {
-                            let parts = bound.trim().split(/\s+/);
-
-                            let timeUnit;
-                            let timeValue;
-
-                            // Case 1: mixed number with fraction (e.g. "2 1/2")
-                            if (parts.length >= 2 && parts[1].includes("/")) {
-                                let whole = parseInt(parts[0], 10);
-                                let [num, denom] = parts[1].split("/").map(Number);
-                                timeValue = whole + (num / denom);
-                                timeUnit = parts[2] || ""; // optional unit if present
-                            }
-                            // Case 2: pure fraction (e.g. "1/2")
-                            else if (parts[0].includes("/")) {
-                                let [num, denom] = parts[0].split("/").map(Number);
-                                timeValue = num / denom;
-                                timeUnit = parts[1] || "";
-                            }
-                            // Case 3: normal integer + unit (e.g. "3 hours")
-                            else {
-                                timeValue = parseInt(parts[0], 10);
-                                timeUnit = match.split(" ").at(-1) || "";
-                            }
-
-                            timeUnit = getExpectedTimeUnit(timeUnit);
-
-                            if (timeValue == 1) {
-                                timeUnit = singular(timeUnit);
-                            }
-
-                            return { timeValue, timeUnit };
-                        }
-                        
-                        let { timeValue: timeValueLower, timeUnit: timeUnitLower } = getValuesAndUnits(lowerBound);
-                        let { timeValue: timeValueUpper, timeUnit: timeUnitUpper } = getValuesAndUnits(upperBound);
-                        if (singular(timeUnitLower) === singular(timeUnitUpper)) {
-                            timeUnitLower = "";
-                        }
-                        
-                        if (estimatedTimeBoldedText.textContent) {
-                            estimatedTimeBoldedText.textContent += ` + (${timeValueLower} ${timeUnitLower} - ${timeValueUpper} ${timeUnitUpper})`
-                        }
-                        else {
-                            estimatedTimeBoldedText.textContent = `${timeValueLower} ${timeUnitLower} - ${timeValueUpper} ${timeUnitUpper}`;
-                        }
-                    }
-                    else {
-                        if (estimatedTimeBoldedText.textContent) {
-                            estimatedTimeBoldedText.textContent += ` + ${match.split(" ")[0]} ${timeUnit}`;
-                        }
-                        else {
-                            estimatedTimeBoldedText.textContent = `${match.split(" ")[0]} ${timeUnit}`;
-                        }
-                    }
-
-                    estimatedTimeElement.style.visibility = "";
-                }
-                else {
-                    if (!timeValue || !timeUnit) {
-                        timeValue = parseInt(match.split(" ")[0]);
-                        timeUnit = getExpectedTimeUnit(match.split(" ").at(-1));
-                    }
-
-                    if (timeUnit === "hours" || timeUnit === "hour") {
-                        timeValue *= 60;
-                    }
-                    
-                    estimatedTimeElement.style.visibility = "";
-
-                    let numMinutes;
-                    let numHours;
-                    if (timeValue > 60) {
-                        numHours = Math.floor(timeValue / 60);
-                        numMinutes = timeValue - (60 * numHours);
-                        if (numHours === 1) {
-                            if (estimatedTimeBoldedText.textContent) {
-                                if (numMinutes !== 0) {
-                                    estimatedTimeBoldedText.textContent += ` + 1 hour, ${numMinutes} minutes`;
-                                }
-                                else {
-                                    estimatedTimeBoldedText.textContent += ` + 1 hour`;
-                                }
-                            }
-                            else {
-                                if (numMinutes !== 0) {
-                                    estimatedTimeBoldedText.textContent = `1 hour, ${numMinutes} minutes`;
-                                }
-                                else {
-                                    estimatedTimeBoldedText.textContent = `1 hour`;
-                                }
-                            }
-                        }
-                        else {
-                            if (numMinutes != 0)
-                                if (estimatedTimeBoldedText.textContent) {
-                                    estimatedTimeBoldedText.textContent += ` + ${numHours} hours, ${numMinutes} minutes`;
-                                }
-                                else {
-                                    estimatedTimeBoldedText.textContent = `${numHours} hours, ${numMinutes} minutes`;
-                                }
-                            else {
-                                if (estimatedTimeBoldedText.textContent) {
-                                    estimatedTimeBoldedText.textContent += ` + ${numHours} hours`;
-                                }
-                                else {
-                                    estimatedTimeBoldedText.textContent = `${numHours} hours`;
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        if (estimatedTimeBoldedText.textContent) {
-                            estimatedTimeBoldedText.textContent += ` + ${timeValue} ${timeUnit}`;
-                        }
-                        else {
-                            estimatedTimeBoldedText.textContent = `${timeValue} ${timeUnit}`;
-                        }
-                    }
-                }
-            }
-        );
-        return true;
-    }
-    else {
-        estimatedTimeElement.style.visibility = "hidden";
-        estimatedTimeBoldedText.textContent = "";
-        return false;
+    if (upper) {
+        const lowNum = parseFractional(lower);
+        const highNum = parseFractional(upper);
+        return {
+            lower: lowNum,
+            upper: highNum,
+            unit: singular,
+            hasRange: true,
+        };
+    } else {
+        const value = parseFractional(lower);
+        return {
+            lower: value,
+            upper: null,
+            unit: singular,
+            hasRange: false,
+        };
     }
 }
+
+
+function normalizeTimeUnit(unit) {
+    if (!unit){
+        return "minutes";
+    }
+    if (unit.startsWith("h")){
+        return "hours"
+    };
+    return "minutes";
+}
+
+
+function toMinutesMultiplier(unit) {
+    return unit.startsWith("h") ? 60 : 1;
+}
+
+
+function parseFractional(str) {
+    if (!str) {
+        return 0;
+    }
+    const parts = str.trim().split(" ");
+    if (parts.length === 2 && parts[1].includes("/")) {
+        const [n, d] = parts[1].split("/").map(Number);
+        return parseInt(parts[0], 10) + n / d;
+    }
+    if (str.includes("/")) {
+        const [n, d] = str.split("/").map(Number);
+        return n / d;
+    }
+    return parseFloat(str);
+}
+
+
+function convertMinutesToDisplay(mins) {
+    if (mins >= 60) {
+        const hours = Math.floor(mins / 60);
+        const rem = mins % 60;
+        if (rem === 0) {
+            return `${hours} hour${hours > 1 ? "s" : ""}`;
+        }
+        return `${hours} hour${hours > 1 ? "s" : ""}, ${rem} minute${rem !== 1 ? "s" : ""}`;
+    }
+    return `${mins} minute${mins !== 1 ? "s" : ""}`;
+}
+
+
+function formatTimeSegments(segments) {
+  return segments
+    .map(s => {
+        const unit = s.unit; // "hour" or "minute"
+        const formatValue = val => (val % 1 === 0 ? val : val.toFixed(1));
+
+        if (s.hasRange) {
+            // wrap ranges in parentheses
+            return `(${formatValue(s.lower)} - ${formatValue(s.upper)} ${unit}${s.upper !== 1 ? "s" : ""})`;
+        } else {
+            return `${formatValue(s.lower)} ${unit}${s.lower !== 1 ? "s" : ""}`;
+        }
+    })
+    .join(" + ");
+}
+
+
+// Reads all durations specified in current recipe instruction and writes them to notecard
+// Keep this: returns parsed segments and display text
+function getTimeForInstruction(instruction) {
+    const text = normalizeUnicodeFractions(
+        instruction.toLowerCase().replace(/\s*( to |–|—|−| or )\s*/gi, "-")
+    );
+    const matches = findTimeMatches(text);
+    if (!matches || matches.length === 0) {
+        estimatedTimeElement.style.visibility = "hidden";
+        estimatedTimeBoldedText.textContent = "";
+        return null;
+    }
+
+    const segments = matches.map(parseTimeSegment);
+    const estimatedText = formatTimeSegments(segments);
+
+    estimatedTimeBoldedText.textContent = estimatedText;
+    estimatedTimeElement.style.visibility = "";
+
+    return { segments, estimatedText };
+}
+
+// Convert segments to minutes, picking which bound to use for ranges
+function computeMinutesFromSegments(segments, bound = "lower") {
+    const mult = u => (u.startsWith("hour") ? 60 : 1);
+    return segments.reduce((sum, s) => {
+        const val = s.hasRange
+        ? (bound === "upper" ? s.upper : s.lower)
+        : s.lower;
+        return sum + (val * mult(s.unit));
+    }, 0);
+}
+
+
+function classifyTimeType(instructionText) {
+    // Normalize text to lowercase
+    const text = instructionText.toLowerCase();
+
+    // Regex patterns for prep and cook keywords
+    const prepPattern = /\b(prep|prepare|mix|chop|slice|whisk|stir|combine|marinate|rest|let stand|knead)\b/;
+    const cookPattern = /\b(cook|bake|boil|simmer|roast|grill|fry|saute|steam|broil|toast|heat|reheat)\b/;
+
+    if (cookPattern.test(text)) return "cook";
+    if (prepPattern.test(text)) return "prep";
+
+    // fallback if uncertain
+    return "prep";
+}
+
+
+function getClassifiedTime(instruction, bound = "upper") {
+    const parsed = getTimeForInstruction(instruction);
+    const type = classifyTimeType(instruction);
+    if (!parsed) {
+        return{ type, totalMinutes: 0 };
+    }
+    const totalMinutes = computeMinutesFromSegments(parsed.segments, bound);
+    return { type, totalMinutes };
+}
+
+
 
 async function main() {
     ({instructions} = await fillRecipeViewPage());
@@ -385,6 +339,22 @@ async function main() {
     stepFractionPresentation.textContent = `1 / ${instructions.length}`
 
     currentInstruction = instructions[currentStep - 1];
+
+    let prepTotal = 0;
+    let cookTotal = 0;  
+
+    for (const instruction of instructions) {
+        const { type, totalMinutes } = getClassifiedTime(instruction);
+        if (type === "prep"){
+            prepTotal += totalMinutes;
+        }
+        else if (type === "cook"){
+            cookTotal += totalMinutes;
+        }
+    }
+    
+    prepTimeEl.textContent = convertMinutesToDisplay(prepTotal);
+    cookTimeEl.textContent = convertMinutesToDisplay(cookTotal);
 
     // Checks if timer should be displayed
     function displayTimer(currentInstruction) {
@@ -406,7 +376,6 @@ async function main() {
     }
 
     function initializeTimerButtons() {
-        // TODO: Use popups to manage multiple timers when navigating steps
         timerIndex = 0;
         prevTimerBtn.style.cursor = "not-allowed";
         prevTimerBtn.style.color = "gray";

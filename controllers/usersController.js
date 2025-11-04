@@ -163,6 +163,7 @@ exports.updateAccount = [
     }
 ];
 
+// Obtains the ID, username, and avatar of the current user (if they're logged in)
 exports.getCurrentUser = async (request, response) => {
     if (!request.user) {
         return response.status(401).json({ error: "Not logged in" });
@@ -174,6 +175,7 @@ exports.getCurrentUser = async (request, response) => {
     });
 }
 
+// Provided a user ID, retreives username and avatar
 exports.getUserDetailsById = async (request, response) => {
     const id = Number(request.params.id);
     if (!id) {
