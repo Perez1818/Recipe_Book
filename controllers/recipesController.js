@@ -62,8 +62,8 @@ async function createRecipe(req, res) {
     await client.query('BEGIN');
 
     const r = await client.query(
-      `INSERT INTO recipes (user_id, name, description, cook_minutes, serving_size, tags, is_published, thumbnail, video)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+      `INSERT INTO recipes (user_id, name, description, cook_minutes, serving_size, tags, is_published, thumbnail, video, created_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, CURRENT_TIMESTAMP)
        RETURNING id`,
       [
         req.user.id,
@@ -196,7 +196,7 @@ async function updateRecipe(req, res) {
 // GET /recipes
 async function listRecipes(_req, res) {
   const r = await pool.query(
-    `SELECT id, name, description, cook_minutes, serving_size, tags, is_published, created_at, updated_at
+    `SELECT id, name, description, cook_minutes, serving_size, tags, is_published, created_at
      FROM recipes
      ORDER BY created_at DESC`
   );
@@ -205,27 +205,48 @@ async function listRecipes(_req, res) {
 
 // GET /recipes/:id
 async function getRecipe(req, res) {
-  const id = Number(req.params.id);
-  if (!id) return res.status(400).json({ error: 'invalid id' });
+  try {
+    const id = Number(req.params.id);
+    if (!id) return res.status(400).json({ error: "invalid id" });
 
-  const r = await pool.query(
-    `SELECT id, name, description, cook_minutes, serving_size, tags, is_published, created_at, updated_at
-     FROM recipes WHERE id=$1`,
-    [id]
-  );
-  if (r.rowCount === 0) return res.status(404).json({ error: 'not_found' });
+    const recipe = await pool.query(
+      `SELECT id, user_id, name, description, cook_minutes, serving_size, tags, thumbnail, video,
+              is_published, created_at
+         FROM recipes
+        WHERE id = $1`,
+      [id]
+    );
 
-  const ingredients = await pool.query(
-    `SELECT name, qty, unit FROM ingredients WHERE recipe_id=$1 ORDER BY id ASC`,
-    [id]
-  );
-  const instructions = await pool.query(
-    `SELECT step_num, text, hours, minutes, has_image FROM instructions WHERE recipe_id=$1 ORDER BY step_num ASC`,
-    [id]
-  );
+    if (recipe.rowCount === 0)
+      return res.status(404).json({ error: "not_found" });
 
-  return res.json({ ...r.rows[0], ingredients: ingredients.rows, instructions: instructions.rows });
+    const ingredients = await pool.query(
+      `SELECT name, qty, unit
+         FROM ingredients
+        WHERE recipe_id = $1
+     ORDER BY recipe_id ASC`,
+      [id]
+    );
+
+    const instructions = await pool.query(
+      `SELECT step_num, text, hours, minutes
+         FROM instructions
+        WHERE recipe_id = $1
+     ORDER BY step_num ASC`,
+      [id]
+    );
+
+    res.json({
+      ...recipe.rows[0],
+      ingredients: ingredients.rows,
+      instructions: instructions.rows
+    });
+  } catch (err) {
+    console.error("getRecipe error:", err); // 👈 this will show the actual DB error
+    res.status(500).json({ error: "server_error" });
+  }
 }
+
 
 // DELETE /recipes/:id
 async function deleteRecipe(req, res) {

@@ -47,12 +47,22 @@ function getSteps() {
 
 // Searches for the recipe based on ID provided in URL
 async function searchForRecipe() {
-    const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeApiId}`);
-    if (!response.ok) {
-        throw "Error occurred fetching data!";
+    try {
+        const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeApiId}`);
+        if (!response.ok) {
+            throw "Error occurred fetching data!";
+        }
+        const data = await response.json();
+        return data["meals"][0];
+    } catch {
+        const response = await fetch(`/recipes/${recipeApiId}`);
+        if (!response.ok) {
+            throw "Error occurred fetching data!";
+        }
+        const data = await response.json();
+        console.log(data);
+        return data;
     }
-    const data = await response.json();
-    return data["meals"][0];
 }
 
 // Lists publisher of recipe
@@ -93,15 +103,15 @@ function getIngredients(recipe) {
     let measurements = [];
 
     for (let i = 1; i <= 20; i++) {
-        ingredient = recipe[`strIngredient${i}`]
-        measurement = recipe[`strMeasure${i}`]
-
-        if (ingredient) {
-            ingredients.push(ingredient);
-            measurements.push(measurement)
-        }
-        // Early return when no more ingredients/measurements are left
-        else {
+        try {
+            ingredient = recipe[`strIngredient${i}`] || recipe.ingredients[i - 1].name;
+            measurement = recipe[`strMeasure${i}`] || `${recipe.ingredients[i - 1].qty} ${recipe.ingredients[i - 1].unit}`
+            if (ingredient) {
+                ingredients.push(ingredient);
+                measurements.push(measurement)
+            }
+        } catch {
+            // Early return when no more ingredients/measurements are left
             return {ingredients, measurements}
         }
     }
@@ -130,19 +140,47 @@ async function fillRecipeViewPage() {
     // Fetches recipe (ID provided in link)
     const recipe = await searchForRecipe();
     // Title
-    recipeName.textContent = recipe["strMeal"]
+    recipeName.textContent = recipe.strMeal || recipe.name;
     // Publisher
-    listPublisher(recipe["strSource"], recipe["dateModified"]);
+    const publisher = recipe.strSource || await getUserDetails(recipe.user_id).username;
+    const publishDate = recipe.dateModified || recipe.created_at
+    if (recipe.strSource) {
+        listPublisher(publisher, publishDate);
+    }
+    else {
+        usernameElement.textContent = publisher;
+        dateElement.textContent = `Uploaded on ${new Date(publishDate).toLocaleDateString()}`;
+        websiteNotAvailableImg.remove();
+    }
+    
     // Category
-    tags.textContent = recipe["strCategory"];
+    tags.textContent = recipe.strCategory || recipe.tags;
     // Thumbnail
-    thumbnail.src = recipe["strMealThumb"];
+    thumbnail.src = recipe.strMealThumb || `../uploads/multimedia/${recipe.thumbnail}`;
     // Instructions
-    instructions = recipe["strInstructions"].replace(/\r/g, "").split("\n").filter(str => str !== "").filter(str => str.length > 7)
-    instructionsTextElement.textContent = instructions[0];
+    instructions = recipe.strInstructions || recipe.instructions
+    try {
+        instructions = instructions.replace(/\r/g, "").split("\n").filter(str => str !== "").filter(str => str.length > 7)
+    } catch {
+        instructionsBucket = [];
+        for (const instr of instructions) {
+            instructionsBucket.push(instr);
+        }
+        instructions = instructionsBucket;
+    }
+    instructionsTextElement.textContent = instructions[0].text || instructions[0];
     // Video Tutorial
-    let [ _, tutorialVideoId ] = recipe["strYoutube"].split("?v=");
-    videoElement.setAttribute("src", `https://www.youtube.com/embed/${tutorialVideoId}`)
+    try {
+        let [ _, tutorialVideoId ] = recipe["strYoutube"].split("?v=");
+        videoElement.setAttribute("src", `https://www.youtube.com/embed/${tutorialVideoId}`);
+    } catch {
+        const videoEl = document.createElement("video");
+        videoEl.id = videoElement.id;
+        videoElement.replaceWith(videoEl);
+        videoEl.type = "video/mp4";
+        videoEl.controls = true;
+        videoEl.src = `../uploads/multimedia/${recipe.video}`;
+    }
 
     let {ingredients, measurements} = getIngredients(recipe);
     renderIngredients(ingredients, measurements);
@@ -265,25 +303,49 @@ function formatTimeSegments(segments) {
 
 
 // Reads all durations specified in current recipe instruction and writes them to notecard
-// Keep this: returns parsed segments and display text
 function getTimeForInstruction(instruction) {
-    const text = normalizeUnicodeFractions(
-        instruction.toLowerCase().replace(/\s*( to |–|—|−| or )\s*/gi, "-")
-    );
-    const matches = findTimeMatches(text);
-    if (!matches || matches.length === 0) {
-        estimatedTimeElement.style.visibility = "hidden";
-        estimatedTimeBoldedText.textContent = "";
-        return null;
+    // Case 1: When recipe is created with Recipe Maker and is fetched from local SQL database
+    if (instruction.hours || instruction.minutes) {
+        const hrs = instruction.hours;
+        const mins = instruction.minutes;
+        const totalMinutes = (hrs * 60) + mins;
+
+        // build a segment identical to regex branch
+        const segments = [
+            {
+                lower: totalMinutes,
+                upper: null,
+                unit: "minute",
+                hasRange: false
+            }
+        ];
+
+        const estimatedText = convertMinutesToDisplay(totalMinutes);
+        estimatedTimeBoldedText.textContent = estimatedText;
+        estimatedTimeElement.style.visibility = "";
+
+        return { segments, estimatedText }
     }
+    // Case 2: Recipe fetched from TheMealDB API
+    else {
+        const text = instruction.text || normalizeUnicodeFractions(
+            instruction.toLowerCase().replace(/\s*( to |–|—|−| or )\s*/gi, "-")
+        );
+        
+        const matches = findTimeMatches(text);
+        if (!matches || matches.length === 0) {
+            estimatedTimeElement.style.visibility = "hidden";
+            estimatedTimeBoldedText.textContent = "";
+            return null;
+        }
+        const segments = matches.map(parseTimeSegment);
+        const estimatedText = formatTimeSegments(segments);
 
-    const segments = matches.map(parseTimeSegment);
-    const estimatedText = formatTimeSegments(segments);
+        estimatedTimeBoldedText.textContent = estimatedText;
+        estimatedTimeElement.style.visibility = "";
 
-    estimatedTimeBoldedText.textContent = estimatedText;
-    estimatedTimeElement.style.visibility = "";
-
-    return { segments, estimatedText };
+        return { segments, estimatedText };
+    }
 }
 
 // Convert segments to minutes, picking which bound to use for ranges
@@ -316,6 +378,7 @@ function classifyTimeType(instructionText) {
 
 function getClassifiedTime(instruction, bound = "upper") {
     const parsed = getTimeForInstruction(instruction);
+    instruction = instruction.text || instruction;
     const type = classifyTimeType(instruction);
     if (!parsed) {
         return{ type, totalMinutes: 0 };
@@ -327,7 +390,8 @@ function getClassifiedTime(instruction, bound = "upper") {
 
 
 async function main() {
-    ({instructions} = await fillRecipeViewPage());
+    const { instructions } = await fillRecipeViewPage();
+    console.log(instructions)
     let [ getPreviousStep, getNextStep ] = navigateWalkthroughContainer.getElementsByTagName("button");
     let { currentStep, lastStep } = getSteps();
 
@@ -344,6 +408,7 @@ async function main() {
     let cookTotal = 0;  
 
     for (const instruction of instructions) {
+        console.log(instruction)
         const { type, totalMinutes } = getClassifiedTime(instruction);
         if (type === "prep"){
             prepTotal += totalMinutes;
@@ -355,9 +420,11 @@ async function main() {
     
     prepTimeEl.textContent = convertMinutesToDisplay(prepTotal);
     cookTimeEl.textContent = convertMinutesToDisplay(cookTotal);
+    // console.log(instructions[currentStep])
 
     // Checks if timer should be displayed
     function displayTimer(currentInstruction) {
+        console.log(currentInstruction)
         timer = getTimeForInstruction(currentInstruction);
         visibleCountdown.textContent = calculate_padded_time(getEstimatedTimeInMinutes(0) * 60);
         timerBar.value = 1;
@@ -418,7 +485,7 @@ async function main() {
             displayTimer(currentInstruction)
 
             // Updates text displayed for instructions, steps done, and step counter
-            instructionsTextElement.textContent = instructions[currentStep - 1]
+            instructionsTextElement.textContent = instructions[currentStep - 1].text || instructions[currentStep - 1];
             stepFractionPresentation.textContent = `${currentStep} / ${lastStep}`;
             stepCounter.textContent = currentStep;
             progressBar.value = currentStep / lastStep;
@@ -446,7 +513,7 @@ async function main() {
             displayTimer(currentInstruction)
 
             // Updates text displayed for instructions, steps done, and step counter
-            instructionsTextElement.textContent = instructions[currentStep - 1]
+            instructionsTextElement.textContent = instructions[currentStep - 1].text || instructions[currentStep - 1];
             stepFractionPresentation.textContent = `${currentStep} / ${lastStep}`;
             stepCounter.textContent = currentStep;
             // Updates progress bar to reflect current step
@@ -468,7 +535,6 @@ async function main() {
     const timerOptionsDropdown = timerSection.getElementsByClassName("dropdown-content")[0];
     timerSection.addEventListener(
         "mouseleave", () => {
-            console.log(timerOptionsDropdown)
             timerOptionsDropdown.style.display = "none";
         }
     )

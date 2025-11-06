@@ -186,11 +186,7 @@ async function listPublisher(url, recipeContainer) {
         domainName = url.substring(startIndex, endIndex);
     }
 
-    // Sets username displayed 
-    username = recipeContainer.getElementsByClassName("username")[0];
-    username.textContent = `@${domainName}`;
-    // Creates a reference that takes user to associated recipe page when recipe container clicked
-    username.href = `public-account.html?user=${domainName}`;
+    return domainName;
 }
 
 // 
@@ -208,7 +204,8 @@ function addVisibleRecipesFromCarousel(carousel) {
     // For each recipe container in a carousel, checks if recipe was seen prior
     // New recipes are added to "seenRecipes"
     recipeContainerChildren.forEach((recipeContainer) => {
-        const id = JSON.parse(recipeContainer.dataset.recipeId);
+        const id = JSON.parse(recipeContainer.dataset.recipeId || null);
+
         if (!seenRecipes.includes(id)) {
             seenRecipes.push(id);
         }
@@ -278,6 +275,7 @@ async function fetchRecipesByCuisine(cuisine) {
 
 // Fills in a recipe container with the details of a specific recipe
 async function setRecipeContainer(recipe, recipeContainer) {
+
     // Obtains attributes associated with a particular recipe 
     const { recipeName,
         recipeThumbnail,
@@ -286,7 +284,8 @@ async function setRecipeContainer(recipe, recipeContainer) {
         recipeOrigin,
         recipeCategory,
         recipeCusine } = initializeRecipeVariables(recipe);
-            
+    
+    
     // Associates recipe container with the ID of the recipe it's displaying
     recipeContainer.dataset.recipeId = JSON.stringify(recipeId);
 
@@ -302,7 +301,9 @@ async function setRecipeContainer(recipe, recipeContainer) {
             localStorage.setItem("recipeTags", JSON.stringify(recipeTags));
         }
 
-        window.location.href = `recipe-view.html?id=${recipeId}`;
+        if (recipeContainer.hasAttribute("data-recipe-id")) {
+            window.location.href = `recipe-view.html?id=${recipeId}`;
+        }
     }
 
     // Shows full name of recipe when user hovers over container
@@ -315,9 +316,29 @@ async function setRecipeContainer(recipe, recipeContainer) {
     thumbnail.src = recipeThumbnail;
     recipeDescription = recipeContainer.getElementsByClassName("description")[0];
     recipeDescription.textContent = recipeIngredients.join(", ");
+    recipeOwnerId = recipe.user_id;
 
     // Writes "username" to recipe container
-    await listPublisher(recipeOrigin, recipeContainer);
+    async function getUsername(userId) {
+        const response = await fetch(`/userDetails/${userId}`);
+            if (!response.ok) {
+                throw "Error occurred fetching data!";
+            }
+            const result = await response.json();
+            const username = result.username;
+            return username;
+    }
+    if (!recipeOwnerId) {
+        username = await listPublisher(recipeOrigin, recipeContainer);
+    }
+    else {
+        username = await getUsername(recipeOwnerId);
+    }
+    // Sets username displayed 
+    usernameEl = recipeContainer.getElementsByClassName("username")[0];
+    usernameEl.textContent = `@${username}`;
+    // Creates a reference that takes user to associated recipe page when recipe container clicked
+    usernameEl.href = `public-account.html?user=${username}`;
 
     const ratingContainer = recipeContainer.getElementsByClassName("rating-container")[0];
 
@@ -355,9 +376,18 @@ async function setRecipeContainer(recipe, recipeContainer) {
 function getIngredientsList(recipe){
     recipeIngredients = [];
 
+    if (recipe.ingredients) {
+        for (const ingredient of recipe.ingredients) {
+            recipeIngredients.push(ingredient.name);
+        }
+        return recipeIngredients;
+    }
+
     // Iterates through all ingredients of a recipe and adds them to `recipeIngredients`
-    for (let i = 1; i <= 20; i++){
-        ingredient = recipe[`strIngredient${i}`];
+    const upperbound =  20;
+    for (let i = 1; i <= upperbound; i++){
+        ingredient = recipe[`strIngredient${i}`]
+        
         if (ingredient){
             recipeIngredients.push(ingredient);
         }
@@ -366,20 +396,19 @@ function getIngredientsList(recipe){
             break;
         }
     }
-
     return recipeIngredients;
 }
 
 // Returns an object consisting of all the necessary recipe attributes
 function initializeRecipeVariables(recipe){
     // Accesses recipe attributes and assigns them to variables
-    recipeName = recipe["strMeal"];
-    recipeThumbnail = recipe["strMealThumb"];
-    recipeId = recipe["idMeal"];
+    recipeName = recipe.strMeal || recipe.name;
+    recipeThumbnail = recipe.strMealThumb || `../uploads/multimedia/${recipe.thumbnail}`;
+    recipeId = recipe.idMeal || recipe.id;
     recipeIngredients = getIngredientsList(recipe);
-    recipeOrigin = recipe["strSource"];
-    recipeCategory = recipe["strCategory"];
-    recipeCusine = recipe["strArea"];
+    recipeOrigin = recipe.strSource || null;
+    recipeCategory = recipe.strCategory || recipe.tags;
+    recipeCusine = recipe.strArea || null;
 
     return {
         recipeName,
@@ -406,7 +435,7 @@ async function renderAllCarousels(){
 
 // 
 function checkBookmarked(recipe, recipeContainer) {
-    const recipeId = recipe["idMeal"];
+    const recipeId = recipe.idMeal || recipe.id;
     const bookmark = recipeContainer.getElementsByClassName("bookmark-recipe-icon")[0];
     const isBookmarked = bookmarkedRecipes[recipeId] || false;
 
@@ -435,11 +464,47 @@ async function renderCarousel(carousel, lookupMethod=null, filter=null){
 
     // Checks if carousel is associated with a "lookup method"
     if (!lookupMethod) {
-        // Carousels without a specified "lookup" are filled with random recipes
-        for (let recipeContainer of carouselRecipeContainers) {
-            const recipe = await fetchRecipe();
-            await setRecipeContainer(recipe, recipeContainer);
-            checkBookmarked(recipe, recipeContainer);
+        try {
+            const response = await fetch(`/recipes/`);
+            if (!response.ok) {
+                throw "Error occurred fetching data!";
+            }
+            const result = await response.json();
+            const recipeList = result.items;
+            recipes = [];
+
+            for(let recipe of recipeList) {
+                recipeId = recipe.id;
+
+                const response = await fetch(`/recipes/${recipeId}`);
+                if (!response.ok) {
+                    throw "Error occurred fetching data!";
+                }
+                const result = await response.json();
+                recipes.push(result);
+            }
+
+            for (let i = 0; i <= carouselRecipeContainers.length; i++) {
+                const recipe = recipes[i];
+                const recipeContainer = carouselRecipeContainers[i];
+                
+                if (!recipes[i]) {
+                    break;
+                }
+                
+                if (recipe) {
+                    console.log(recipe)
+                    await setRecipeContainer(recipe, recipeContainer);
+                    checkBookmarked(recipe, recipeContainer);
+                }
+            }
+        } catch {
+            // Carousels without a specified "lookup" are filled with random recipes
+            for (let recipeContainer of carouselRecipeContainers) {
+                const recipe = await fetchRecipe();
+                await setRecipeContainer(recipe, recipeContainer);
+                checkBookmarked(recipe, recipeContainer);
+            }
         }
     // Carousel must be associated with a lookup method
     } else {
@@ -490,6 +555,7 @@ async function renderCarouselWithOldElements(carousel, recipeIds){
 
     for (let [ index, recipeContainer] of carouselRecipeContainers.entries() ) {
         let recipeId = recipeIds[index];
+        
         recipeContainer.onclick = () => {
             window.location.href = `recipe-view.html?id=${recipeId}`;
         }
@@ -638,7 +704,10 @@ async function main() {
     // Applies event listeners to each recipe container
     recipeContainersArray.forEach(
         (recipeContainer) => {
-            addEventListenersToRecipeContainer(recipeContainer);
+            if (recipeContainer.hasAttribute("data-recipe-id")) {
+                addEventListenersToRecipeContainer(recipeContainer);
+                recipeContainer.style.cursor = "";
+            }
         }
     );
 
