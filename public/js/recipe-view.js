@@ -45,6 +45,21 @@ function getSteps() {
 }
 
 
+// Gets details pertaining to a specific user given their ID
+async function getUserDetails(id) {
+    const response = await fetch(`/userDetails/${id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+    });
+    const result = await response.json();
+    if (!response.ok) {
+        console.log("Failed to load in user details:", result.error)
+        return;
+    }
+    return result;
+}
+
+
 // Searches for the recipe based on ID provided in URL
 async function searchForRecipe() {
     try {
@@ -142,7 +157,8 @@ async function fillRecipeViewPage() {
     // Title
     recipeName.textContent = recipe.strMeal || recipe.name;
     // Publisher
-    const publisher = recipe.strSource || await getUserDetails(recipe.user_id).username;
+    recipeOwner = await getUserDetails(recipe.user_id);
+    const publisher = recipe.strSource || recipeOwner.username;
     const publishDate = recipe.dateModified || recipe.created_at
     if (recipe.strSource) {
         listPublisher(publisher, publishDate);
