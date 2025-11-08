@@ -1,0 +1,96 @@
+
+/* Ty */
+
+/* Adds spacing to bottom of page */
+body {
+    padding-bottom: 30px;
+}
+
+h1 {
+    display: flex;
+    justify-content: center;
+}
+
+#username-and-date {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-bottom: 10px;
+}
+
+#username-link {
+    margin-right: 10px;
+    color: black;
+    text-decoration-color: #79B473;
+}
+
+.clickable:hover {
+    cursor: pointer;
+    fill: lightgray;
+}
+
+.clickable:active {
+    fill: white;
+}
+
+/* Shares same width across objects */
+#bookmark, #share, #calendar {
+    width: 30px;
+}
+
+.rating-container {
+    height: fit-content;
+    width: fit-content;
+    margin-bottom: 10px;
+}
+
+/* Applies styling to child elements of rating container */
+.rating-container * {
+    width: 25px;
+    stroke-width: 1px;
+    margin: auto 1px;
+}
+
+#button-container, #recipe-interactions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50%;
+    margin-bottom: 10px;
+}
+
+#button-container {
+    gap: 75px;
+    position: relative;
+}
+
+#button-container button, #recipe-interactions button {
+    background-color: transparent;
+    border: none;
+}
+
+#recipe-interactions {
+    justify-content: center;
+    gap: 50px;
+}
+
+/* Daniel #3 */
+#google_translate_element {
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.fa-star {
+    color: lightgray;
+}
+
+/* .fa-star.checked {
+  color: orange;
+} */
+
+.fa-thumbs-o-up.liked {
+  color: lightgreen;
+}

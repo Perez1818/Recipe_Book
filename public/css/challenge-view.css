@@ -1,16 +1,11 @@
 
-main {
-    justify-content: center;
+main > * {
+    margin: 20px auto;
 }
 
 h2 {
-    display: flex;
-    justify-self: center;
-}
-
-#bookmark, #share, #calendar {
-    width: 30px;
-    /* margin-right: 100px; */
+    width: fit-content;
+    margin: 20px auto;
 }
 
 #recipe-tutorial {
@@ -23,21 +18,16 @@ h2 {
 }
 
 .rating-container {
-    /* margin-top: 20px; */
     display: flex;
     justify-self: center;
     height: fit-content;
     margin-bottom: 10px;
+    /* align-items: center; */
 }
 
 .rating-container svg {
     width: 25px;
     stroke-width: 1px;
-}
-
-.rating-container {
-    display: flex;
-    align-items: center;
 }
 
 #avg-rating {
@@ -66,7 +56,6 @@ h2 {
 }
 
 #button-container, #challenge-info-container {
-    /* justify-content: space-around; */
     gap: 75px;
     position: relative;
 }
@@ -219,37 +208,16 @@ h2 {
     height: 400px;
 }
 
-#challenge-details-section, #comments-section {
-    display: flex;
-    flex-direction: column;
-    width: 80%;
-    justify-self: center;
-    padding: 20px;
-    border: gray solid 3px;
-    border-radius: 10px;
-    margin: 20px 0;
-    gap: 20px;
-}
-
 #challenge-details-section {
     align-items: center;
 }
 
-#comments-section h2 {
-    display: flex;
-    align-self: center;
-    align-items: center;
-}
-
-#num-comments {
-    text-align: center;
-    background-color: salmon;
-    border-radius: 50%;
+.like-button, .dislike-button {
     width: 30px;
     height: 30px;
-    aspect-ratio: 1 / 1;
-    margin-left: 20px;
-    padding: 5px;
+    border: none;
+    background-color: transparent;
+    padding-right: 0;
 }
 
 .comment {
@@ -277,7 +245,6 @@ h2 {
 }
 
 #reply-button, #cancel-button, #post-button {
-    /* display: flex; */
     width: fit-content;
     height: fit-content;
     border-radius: 30px;
@@ -314,4 +281,28 @@ h2 {
     /* justify-content: center; */
     gap: 20px;
     align-items: center;
+}
+
+.fa-star {
+    color: lightgray;
+}
+
+.rating-container {
+    height: fit-content;
+    width: fit-content;
+    margin-bottom: 10px;
+}
+
+/* Applies styling to child elements of rating container */
+.rating-container * {
+    width: 25px;
+    stroke-width: 1px;
+    margin: auto 1px;
+}
+
+#poster-details-and-interactions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: fit-content;
 }
