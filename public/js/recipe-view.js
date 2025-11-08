@@ -565,58 +565,94 @@ async function main() {
         'tsp-to-tbsp': 1/3
     };
 
-    function convertMeasurement(measurement, conversionType) {
-        //extract number and unit + source that helped: https://regexone.com/references/javascript
-        const regex = /([\d\.]+)\s*(oz|ounce|ounces|ml|milliliter|milliliters|cup|cups|tbsp|tbs\.?|tablespoon|tablespoons|T|tsp|tsp\.?|teaspoon|teaspoons|t)/i;
-        const match = measurement.match(regex);
-        if (!match) return measurement; //no conversion if no match
-        let value = parseFloat(match[1]); //the number
-        let unit = match[2].toLowerCase().replace(/\.$/, ""); //the unit + turning to lowercase and remove period at end if there is one
+    // Parse quantity like "3 1/3 cup", "1/2cup", "2.5 tbsp", "4 ", "½ tbsp"
+    //had to get help from copilot for this function
+    function parseQuantity(input) {
+        if (!input || typeof input !== 'string') return null;
+        let s = input.trim();
+        // normalize unicode fractions (uses existing function in file)
+        s = normalizeUnicodeFractions(s).trim();
+
+        // Pattern: numeric part (mixed | fraction | decimal | int), optional unit (letters + dots), then rest
+        const m = s.match(/^(\d+\s+\d+\/\d+|\d+\/\d+|\d*\.\d+|\d+)\s*([a-zA-Z\.]+)?\.?\s*(.*)$/);
+        if (!m) return null;
+
+        const rawNumber = m[1];
+        const rawUnit = m[2] || '';
+        const rest = (m[3] || '').trim();
+
+        let value;
+        if (rawNumber.includes(' ')) { // mixed number
+            const [whole, frac] = rawNumber.split(/\s+/);
+            const [num, den] = frac.split('/').map(Number);
+            value = parseInt(whole, 10) + (num / den);
+        } else if (rawNumber.includes('/')) { // simple fraction
+            const [num, den] = rawNumber.split('/').map(Number);
+            value = num / den;
+        } else {
+            value = parseFloat(rawNumber);
+        }
+
+        const unit = rawUnit.toLowerCase().replace(/\.$/, '');
+
+        return { value, unit, rest, rawNumber };
+    }
+
+    function convertMeasurement(original, conversionType) {
+        // original may contain quantity + unit + ingredient; parse it
+        //had to get help from copilot for this function
+        const parsed = parseQuantity(original);
+        if (!parsed) return original; // nothing to convert
+
+        const { value, unit, rest } = parsed;
         let convertedValue, convertedUnit;
-        switch(conversionType) { //https://www.w3schools.com/js/js_switch.asp
+
+        switch (conversionType) {
             case 'oz-to-ml':
-                if (["oz","ounce","ounces"].includes(unit)) {
+                if (["oz", "ounce", "ounces"].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "ml";
                 }
                 break;
             case 'ml-to-oz':
-                if (["ml","milliliter","milliliters"].includes(unit)) {
+                if (["ml", "milliliter", "milliliters"].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "oz";
                 }
                 break;
             case 'cups-to-ml':
-                if (["cup","cups"].includes(unit)) {
+                if (["cup", "cups"].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "ml";
                 }
                 break;
             case 'ml-to-cups':
-                if (["ml","milliliter","milliliters"].includes(unit)) {
+                if (["ml", "milliliter", "milliliters"].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "cups";
                 }
                 break;
             case 'tbsp-to-tsp':
-                if (["tbsp", "tbs", "tablespoon","tablespoons"].includes(unit)) {
+                if (["tbsp", "tbs", "tablespoon", "tablespoons", "tbs."].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "tsp";
                 }
                 break;
             case 'tsp-to-tbsp':
-                if (["tsp","teaspoon","teaspoons","t","tsp."].includes(unit)) {
+                if (["tsp", "teaspoon", "teaspoons", "t", "tsp."].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "tbsp";
                 }
                 break;
             default:
-                return measurement;
+                return original;
         }
-        if (convertedValue !== undefined) {
-            return `${convertedValue.toFixed(2)} ${convertedUnit}`;
-        }
-        return measurement;
+
+        if (convertedValue === undefined) return original; // unit didn't match expected for this conversion
+
+        // Format: two decimals, but remove trailing .00 for whole numbers if desired
+        const formatted = Number.isInteger(convertedValue) ? `${convertedValue}` : convertedValue.toFixed(2);
+        return `${formatted} ${convertedUnit}${rest ? ' ' + rest : ''}`;
     }
 
     dropdown.addEventListener('change', function() {
@@ -626,19 +662,11 @@ async function main() {
             const checkbox = li.querySelector('input.ingredient-checkbox');
             const span = li.querySelector('span');
             if (checkbox && span) {
-                const original = checkbox.getAttribute('data-original');
+                const original = checkbox.getAttribute('data-original') || span.textContent;
                 if (conversionType === 'none') {
-                    span.textContent = original;
+                    span.textContent = original.trim();
                 } else {
-                    // Only convert the measurement part, keep ingredient name
-                    const parts = original.split(' ');
-                    if (parts.length >= 2) {
-                        const measurement = parts.slice(0,2).join(' ');
-                        const rest = parts.slice(2).join(' ');
-                        span.textContent = convertMeasurement(measurement, conversionType) + (rest ? ' ' + rest : '');
-                    } else {
-                        span.textContent = convertMeasurement(original, conversionType);
-                    }
+                    span.textContent = convertMeasurement(original, conversionType);
                 }
             }
         });
@@ -740,19 +768,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const select = document.getElementById('collection-select');
     const newCollectionInput = document.getElementById('new-collection-name');
     const addCollectionBtn = document.getElementById('add-collection-btn');
+    const deleteCollectionBtn = document.getElementById('delete-collection-btn');
     const cancelBtn = document.getElementById('cancel-bookmark-popup');
 
-    //load collections from localStorage or default
+    //load collections from localStorage or default + help from copilot to change collections to arrays
     function loadCollections() {
-        let collections = JSON.parse(localStorage.getItem('collections') || '["bookmarks"]');
+        // store as object: { collectionName: [recipeId, ...], ... }
+        let collectionsObj = JSON.parse(localStorage.getItem('collections') || '{"bookmarks":[]}');
+
+        // ensure default exists
+        if (!collectionsObj.hasOwnProperty('bookmarks')) collectionsObj['bookmarks'] = [];
+
         select.innerHTML = '';
-        //https://stackoverflow.com/questions/18417114/add-item-to-dropdown-list-in-html-using-javascript
-        collections.forEach(col => {
+        // use the object keys as collection names
+        Object.keys(collectionsObj).forEach(col => {
             const opt = document.createElement('option'); //creates a new option element
             opt.value = col; //sets the value of the option to the collection name
             opt.textContent = col.charAt(0).toUpperCase() + col.slice(1); //sets the displayed text with first letter capitalized
             select.appendChild(opt); //adds the option to the select dropdown
         });
+
+        // save back in case we added missing default
+        localStorage.setItem('collections', JSON.stringify(collectionsObj));
+
+        //update delete button state after loading
+        updateDeleteButtonState();
     }
 
     //show popup
@@ -763,6 +803,7 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.style.display = 'block';
         newCollectionInput.value = '';
         select.focus();
+        updateDeleteButtonState();
     }
 
     //hide popup
@@ -772,19 +813,73 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.style.display = 'none';
     }
 
+    //helper to enable/disable delete button (cannot delete "bookmarks")
+    function updateDeleteButtonState() {
+        if (!select || !deleteCollectionBtn) return;
+        const selected = select.value;
+        if (!selected || selected === 'bookmarks') {
+            deleteCollectionBtn.disabled = true;
+            deleteCollectionBtn.style.opacity = '0.5';
+            deleteCollectionBtn.title = 'Default "bookmarks" cannot be deleted';
+        } else {
+            deleteCollectionBtn.disabled = false;
+            deleteCollectionBtn.style.opacity = '1';
+            deleteCollectionBtn.title = `Delete collection "${selected}"`;
+        }
+    }
+
     //add new collection
     addCollectionBtn.addEventListener('click', () => { //when the button is clicked
         const name = newCollectionInput.value.trim(); //get the name and trim whitespace
         if (!name) return;
-        let collections = JSON.parse(localStorage.getItem('collections') || '["bookmarks"]');
-        if (!collections.includes(name)) { //avoid duplicates
-            collections.push(name); //add to array
-            localStorage.setItem('collections', JSON.stringify(collections)); //save back to localStorage
-            loadCollections(); //reload dropdown
-            select.value = name; //select the new collection
+
+        // load as object of arrays
+        let collectionsObj = JSON.parse(localStorage.getItem('collections') || '{"bookmarks":[]}');
+
+        // Prevent duplicates (case-insensitive)
+        const normalizedNew = name.toLowerCase();
+        const normalizedExisting = Object.keys(collectionsObj).map(c => c.toLowerCase());
+        if (normalizedExisting.includes(normalizedNew)) {
+            alert(`Collection named "${name}" already exists.`);
+            newCollectionInput.value = '';
+            return;
         }
+
+        // create new empty array for the collection so it's ready to hold recipes
+        collectionsObj[name] = [];
+
+        localStorage.setItem('collections', JSON.stringify(collectionsObj)); //save back to localStorage
+        loadCollections(); //reload dropdown
+        select.value = name; //select the new collection
+
         newCollectionInput.value = ''; //clear input
+        updateDeleteButtonState();
     });
+
+    //delete selected collection (except 'bookmarks')
+    deleteCollectionBtn.addEventListener('click', () => {
+        const name = select.value;
+        if (!name || name === 'bookmarks') {
+            alert('The "bookmarks" collection cannot be deleted.');
+            return;
+        }
+        if (!confirm(`Delete collection "${name}"? This cannot be undone.`)) return;
+
+        // load object, remove key
+        let collectionsObj = JSON.parse(localStorage.getItem('collections') || '{"bookmarks":[]}');
+        delete collectionsObj[name];
+
+        //ensure 'bookmarks' always exists
+        if (!collectionsObj.hasOwnProperty('bookmarks')) collectionsObj['bookmarks'] = [];
+
+        localStorage.setItem('collections', JSON.stringify(collectionsObj));
+        loadCollections();
+        select.value = 'bookmarks';
+        updateDeleteButtonState();
+    });
+
+    //update delete button state when user chooses another collection
+    select.addEventListener('change', updateDeleteButtonState);
 
     //cancel button
     cancelBtn.addEventListener('click', hidePopup);
@@ -794,7 +889,7 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', (e) => { //when form is submitted
         e.preventDefault(); //prevent it from reloading the page
         const collection = select.value; //get selected collection
-        // Here you would save the recipe ID to the chosen collection in localStorage or backend
+        //here you would save the recipe ID to the chosen collection in localStorage or backend
         alert(`Recipe saved to "${collection}"!`);
         hidePopup();
     });
