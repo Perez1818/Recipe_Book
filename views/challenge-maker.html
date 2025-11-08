@@ -46,8 +46,56 @@
                 <input type="number" id="points" name="points">
             </div>
 
+            <div class="field">
+                <label for="ingredient-limit">Max Ingredients: </label>
+                <input type="number" id="ingredient-limit" name="ingredient-limit">
+            </div>
+
+            <div class="field">
+                <label>Required Ingredients: </label>
+
+
+                <div class="ingredients">
+                    <button type="button" id="add-ingredient">+ Ingredient</button>
+                </div>
+            </div>
+
             <input id="submit-button" type="submit" value="Create">
         </form>
 
+        <script>
+            const addIngredientButton = document.querySelector("button#add-ingredient");
+            addIngredientButton.addEventListener("click", () => {
+                const ingredients = document.querySelector("div.ingredients");
+
+                const ingredient = document.createElement("div");
+                ingredient.className = "ingredient";
+
+                const ingredientInput = document.createElement("input");
+                ingredientInput.type = "text";
+                ingredientInput.name = "ingredients[]";
+                ingredientInput.value = "";
+
+                const removeIngredientButton = document.createElement("button");
+                removeIngredientButton.type = "button";
+                removeIngredientButton.id = "remove-ingredient";
+                removeIngredientButton.textContent = "X";
+                removeIngredientButton.addEventListener("click", (event) => {
+                    const removeIngredientButton = event.target;
+                    const ingredient = removeIngredientButton.parentNode;
+                    if (ingredient) {
+                        ingredient.remove();
+                    }
+                });
+
+                ingredient.appendChild(ingredientInput);
+                ingredient.appendChild(removeIngredientButton);
+                ingredients.appendChild(ingredient);
+            });
+
+            addIngredientButton.click();
+        </script>
+
     </body>
+
 </html>
