@@ -94,7 +94,7 @@ async function seedDatabase() {
                   thumbnail TEXT,
                   start DATE,
 
-                  expiration DATE NOT NULL,
+                  cutoff DATE NOT NULL,
 
                   points INT,
 
