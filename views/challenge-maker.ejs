@@ -107,7 +107,7 @@
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error(`Error: Form submission failed! Status: ${response.status}`);
+                        throw new Error();
                     }
                     return response.json();
                 })
