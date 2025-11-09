@@ -158,7 +158,11 @@ async function fillRecipeViewPage() {
     recipeName.textContent = recipe.strMeal || recipe.name;
     // Publisher
     recipeOwner = await getUserDetails(recipe.user_id);
-    const publisher = recipe.strSource || recipeOwner.username;
+    const publisher = recipe.strSource
+                      ? recipe.strSource
+                      : recipeOwner
+                      ? recipeOwner.username
+                      : "Anonymous Publisher";
     const publishDate = recipe.dateModified || recipe.created_at
     if (recipe.strSource) {
         listPublisher(publisher, publishDate);
@@ -407,7 +411,6 @@ function getClassifiedTime(instruction, bound = "upper") {
 
 async function main() {
     const { instructions } = await fillRecipeViewPage();
-    console.log(instructions)
     let [ getPreviousStep, getNextStep ] = navigateWalkthroughContainer.getElementsByTagName("button");
     let { currentStep, lastStep } = getSteps();
 
@@ -424,7 +427,6 @@ async function main() {
     let cookTotal = 0;  
 
     for (const instruction of instructions) {
-        console.log(instruction)
         const { type, totalMinutes } = getClassifiedTime(instruction);
         if (type === "prep"){
             prepTotal += totalMinutes;
@@ -436,11 +438,9 @@ async function main() {
     
     prepTimeEl.textContent = convertMinutesToDisplay(prepTotal);
     cookTimeEl.textContent = convertMinutesToDisplay(cookTotal);
-    // console.log(instructions[currentStep])
 
     // Checks if timer should be displayed
     function displayTimer(currentInstruction) {
-        console.log(currentInstruction)
         timer = getTimeForInstruction(currentInstruction);
         visibleCountdown.textContent = calculate_padded_time(getEstimatedTimeInMinutes(0) * 60);
         timerBar.value = 1;
