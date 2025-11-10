@@ -106,6 +106,14 @@ async function updateBirthday(id, birthday) {
     return await pool.query("UPDATE users SET birthday = $1 WHERE id = $2;", [birthday, id]);
 }
 
+async function updateVerifiedStatus(id, email, verified) {
+    return await pool.query("UPDATE users SET is_verified = $1, email = $2 WHERE id = $3;", [verified, email, id]);
+}
+
+async function verifyUser(id, email) {
+    return await updateVerifiedStatus(id, email, true);
+}
+
 async function getUserRecipes(id) {
     const { rows } = await pool.query(`SELECT * FROM recipes WHERE user_id = $1;`, [id]);
     return rows;
@@ -129,5 +137,6 @@ module.exports = {
     updateEmail,
     updatePassword,
     updateBirthday,
+    verifyUser,
     getUserRecipes
 }

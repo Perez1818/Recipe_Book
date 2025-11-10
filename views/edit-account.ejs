@@ -3,12 +3,8 @@
     <head>
         <title>Manage Account</title>
         <meta charset="UTF-8"> 
+        <link rel="stylesheet" href="/static/css/login.css">
         <style>
-            .avatar {
-                width: 150px;
-                height: 150px;
-                object-fit: cover;
-            }
             p {
                 color: red;
             }
@@ -30,39 +26,48 @@
 
         <h1>Manage Account</h1>
 
+        <% if (locals.successMessage) { %>
+            <p class="success"><%= successMessage %></p>
+        <% } %>
+
         <form action="/settings/account" method="post">
-            <div class="field">
-                <label for="email">Email: </label>
-                <input type="text" id="email" name="email" value="<%= locals.invalidUser ? invalidUser.email : currentUser.email %>">
-                <p><%= getErrorMessage("email") %></p>
-            </div>
+            <div class="info-container">
 
-            <div class="field">
-                <label for="password">New Password: </label>
-                <input type="password" id="password" name="password" placeholder="Leave blank if you don't want to change it">
-                <p><%= getErrorMessage("password") %></p>
-            </div>
+                <div class="field">
+                    <label for="email">Email: </label>
+                    <input type="text" id="email" name="email" value="<%= locals.invalidUser ? invalidUser.email : currentUser.email %>">
+                    <p><%= getErrorMessage("email") %></p>
+                </div>
 
-            <div class="field">
-                <label for="confirmedPassword">Confirm New Password: </label>
-                <input type="password" id="confirmedPassword" name="confirmedPassword">
-                <p><%= getErrorMessage("confirmedPassword") %></p>
-            </div>
+                <div class="field">
+                    <label for="password">New Password: </label>
+                    <input type="password" id="password" name="password" placeholder="Leave blank if you don't want to change it">
+                    <p><%= getErrorMessage("password") %></p>
+                </div>
 
-            <div class="field">
-                <label for="currentPassword">Current Password: </label>
-                <input type="password" id="currentPassword" name="currentPassword">
-                <p><%= getErrorMessage("currentPassword") %></p>
-            </div>
+                <div class="field">
+                    <label for="confirmedPassword">Confirm New Password: </label>
+                    <input type="password" id="confirmedPassword" name="confirmedPassword">
+                    <p><%= getErrorMessage("confirmedPassword") %></p>
+                </div>
 
-            <div class="field">
-                <label for="birthday">Birthday: </label>
-                <input type="date" id="birthday" name="birthday" value="<%= locals.invalidUser ? invalidUser.birthday : currentUser.birthday %>">
-                <p><%= getErrorMessage("birthday") %></p>
-            </div>
+                <div class="field">
+                    <label for="currentPassword">Current Password: </label>
+                    <input type="password" id="currentPassword" name="currentPassword">
+                    <p><%= getErrorMessage("currentPassword") %></p>
+                </div>
 
-            <div class="field">
-                <input id="submit-button" type="submit" value="Save">
+                <div class="field">
+                    <label for="birthday">Birthday: </label>
+                    <input type="date" id="birthday" name="birthday" value="<%= locals.invalidUser ? invalidUser.birthday : currentUser.birthday %>">
+                    <p><%= getErrorMessage("birthday") %></p>
+                    <p><%= getErrorMessage("credentials") %></p>
+                </div>
+
+                <div class="field">
+                    <input id="submit-button" type="submit" value="Save">
+                </div>
+
             </div>
         </form>
 

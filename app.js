@@ -6,6 +6,7 @@ const recipesRouter = require("./routes/recipesRouter.js");
 const worldRouter = require("./routes/worldRouter.js");
 const reviewsRouter = require("./routes/reviewsRouter.js");
 const collectionsRouter = require("./routes/collectionsRouter.js")
+const challengesRouter = require("./routes/challengesRouter.js");
 
 const sessionMiddleware = require("./middleware/session.js");
 const { passport, configurePassport } = require("./middleware/passport.js");
@@ -38,11 +39,10 @@ app.use(express.json({ limit: "1mb" }));
 // Routes
 app.use("/collections", collectionsRouter)
 app.use("/recipes", recipesRouter);
+app.use("/reviews", reviewsRouter);
 app.use("/world", worldRouter);
 app.use("/", router);
-
-app.use("/reviews", reviewsRouter);
-app.use("/", router);
+app.use("/challenges", challengesRouter);
 
 app.use((error, request, response, next) => {
     console.error(error);

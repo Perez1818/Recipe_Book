@@ -1,7 +1,7 @@
 const { body, validationResult } = require("express-validator");
 const usersTable = require("../database/usersTable.js");
 const { stringArrayToSentence } = require("./fileUploader.js");
-const { deleteFile, deleteFiles } = require("./helpers.js");
+const { deleteFile, deleteFiles, getCurrentDateWithoutTime } = require("./helpers.js");
 const mime = require("mime-types");
 
 const MIN_USERNAME_LENGTH = 3;
@@ -160,8 +160,60 @@ const validate = {
                                           deleteFiles(videoArray);
                                           throw new Error(`Video file size cannot exceed ${BYTES_PER_VIDEO / BYTES_PER_MEGABYTE}MB`);
                                       }
-                                  }).run(request)
+                                  }).run(request),
 
+    challengeTitle: async (request) => body("title")
+                                         .notEmpty().withMessage("Title is required")
+                                         .run(request),
+
+    challengeDescription: async (request) => body("description")
+                                               .notEmpty().withMessage("Description is required")
+                                               .run(request),
+
+    challengeStart: async (request) => body("start")
+                             .custom(async start => {
+                                 if (start !== "") {
+                                     const currentDate = getCurrentDateWithoutTime();
+                                     const startDate = new Date(start);
+                                     if (startDate < currentDate) {
+                                         throw new Error("Start date cannot be set before the challenge is created");
+                                     }
+                                 }
+                             }).run(request),
+
+    challengeCutoff: async (request) => body("cutoff")
+                             .notEmpty().withMessage("Cutoff date is required")
+                             .custom(async (cutoff, { req }) => {
+                                 const currentDate = getCurrentDateWithoutTime();
+
+                                 const start = req.body.start;
+                                 const startDate = (start === "") ? currentDate : new Date(start);
+
+                                 const cutoffDate = new Date(cutoff);
+
+                                 if (cutoffDate < currentDate) {
+                                     throw new Error("End date cannot be set before today");
+                                 }
+
+                                 if (cutoffDate < startDate) {
+                                     throw new Error("End date cannot be set before the start date");
+                                 }
+                             }).run(request),
+
+    challengePoints: async (request) => body("points")
+                             .isInt({ min: 0, max: 100 }).withMessage("Points must be an integer between 0 and 100")
+                             .run(request),
+
+    challengeRequiredIngredients: async (request) => body("required-ingredients")
+                                          .custom(async ingredients => {
+                                              if (false) {
+                                                  throw new Error("... are invalid ingredients");
+                                              }
+                                          }).run(request),
+
+    challengeMaxIngredients: async (request) => body("max-ingredients")
+                                     .isInt({ gt: 0 })
+                                     .run(request)
 };
 
 module.exports = {
