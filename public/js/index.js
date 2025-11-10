@@ -1,13 +1,198 @@
 
+import { fetchReviews } from "./reviews.js";
+import { fetchRecipe, initializeRecipeVariables, fetchRecipesByCategory, searchForRecipe, fetchRecipesByCuisine, fetchAreas, getRecipeIdFromURL } from "./recipes.js";
+import { getCurrentUserDetails } from "./users.js";
+import { createCollection, getCollectionByName, addRecipeToBookmarks, removeRecipeFromCollection, fetchCollections } from "./collections.js";
+
+
 // Obtains reference to HTML objects for reference
 const initialCarousel = document.getElementById("trending-container");
 const mainElement = document.getElementsByTagName("main")[0];
 const viewedRecipeTags = JSON.parse(localStorage.getItem("recipeTags"));
+const scrollContainer = document.getElementById("bookmarked-recipes");
 
-// Parses local storage for recipes user has bookmarked
-let bookmarkedRecipes = JSON.parse(localStorage.getItem("bookmarkedRecipes")) || {};
+// Keeps track of bookmarks
+let bookmarkCollection;
+let bookmarkedRecipes = [];
 // Keeps track of the number of cuisines loaded in
 let currentAreaIndex = 0;
+
+// Checks if user is signed in and obtains theit bookmarked recipes
+let current_user = null;
+(async () => {
+    try {
+        current_user = await getCurrentUserDetails();
+
+        // Alerts user that they're not signed in and provides redirect to signup page
+        if (!current_user) {
+            const currentUrl = new URL(window.location.href);
+            const portNum = currentUrl.port;
+            if (confirm(`It looks like you're not registered! Click "OK" to visit "http://localhost:${portNum}/signup to register to fully utilize our services."`)) {
+                window.location.href = `http://localhost:${portNum}/signup`;
+            }
+        }
+
+        bookmarkCollection = await getCollectionByName("My Bookmarks");
+        bookmarkedRecipes = bookmarkCollection.recipe_ids || [];
+
+        for (let i=0; i < bookmarkedRecipes.length; i++) {
+            const recipeId = bookmarkedRecipes[i];
+            const img = document.createElement("img");
+            const recipe = await searchForRecipe(recipeId);
+            img.src = recipe.strMealThumb || `../uploads/multimedia/${recipe.thumbnail}`;
+            img.onclick = () => {
+                window.location.href = `recipe-view.html?id=${recipeId}`
+            }
+            scrollContainer.appendChild(img);
+
+            let scrollDirection = 1;
+            let autoScroll;
+
+            function startAutoScroll() {
+                autoScroll = setInterval(() => {
+                    scrollContainer.scrollLeft += scrollDirection * 1; // adjust speed
+                    // Reverse direction at edges
+                    if (
+                        scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth ||
+                        scrollContainer.scrollLeft <= 0
+                    ) {
+                        scrollDirection *= -1;
+                    }
+                }, 10);
+            }
+
+            function stopAutoScroll() {
+                clearInterval(autoScroll);
+            }
+
+            scrollContainer.addEventListener("mouseenter", stopAutoScroll);
+            scrollContainer.addEventListener("mouseleave", startAutoScroll);
+
+            startAutoScroll();
+        }
+    } catch {
+        scrollContainer.remove();
+        return;
+    }
+})();
+
+async function addEventListenersToRecipeContainer(recipeContainer) {
+    const recipeBookmark = recipeContainer.getElementsByClassName("bookmark-recipe-icon")[0];
+    const addToCollectionButton = recipeContainer.getElementsByClassName("more-options-icon")[0];
+    const dropdownContent = recipeContainer.querySelector(".dropdown-content");
+    const bookmarksCollection = dropdownContent.querySelector("collection-1");
+    const bookmarks = Array.from(recipeContainer.getElementsByClassName("bookmark-recipe-icon"));
+
+    const collectionItems = await fetchCollections();
+    let collections = [...collectionItems.items];
+    if (collections.length === 0){
+        collections = await createCollection("My Bookmarks")
+    }
+    for (let i = 0; i < collections.length; i++) {
+        const collectionName = collections[i].collection_name;
+        const collectionId = collections[i].id;
+        const recipeId = JSON.parse(recipeContainer.dataset.recipeId);
+
+        const link = document.createElement("a");
+        link.href = "";
+        link.className = "collection-1";
+        link.title = `Add to ${collectionName}`;
+        link.textContent = `${collectionName}`; // optional visible text
+        // attach click handler properly
+        link.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();         // stop event from reaching parent elements
+            await addRecipeToBookmarks(collectionId, recipeId);
+        });
+        dropdownContent.appendChild(link);
+    }
+
+    recipeContainer.addEventListener("mouseover", () => {
+        recipeBookmark.setAttribute("display", "block");
+        addToCollectionButton.setAttribute("display", "block");
+    });
+    recipeContainer.addEventListener("mouseleave", () => {
+        recipeBookmark.setAttribute("display", "none");
+        addToCollectionButton.setAttribute("display", "none");
+        dropdownContent.style.display = "none";
+    });
+    addToCollectionButton.addEventListener(
+        "click", (event) => {
+            event.stopPropagation();
+            const dropdownContentVisible = dropdownContent.style.display;
+            if (dropdownContentVisible == "block") {
+                dropdownContent.style.display = "none";
+            }
+            else {
+                dropdownContent.style.display = "block";
+            }
+        }
+    );
+
+    // Applies event listeners for each bookmark
+    bookmarks.forEach(
+        (bookmark) => {
+            bookmark.addEventListener("mouseenter", () => {
+                bookmark.setAttribute("fill", "#E34234");
+            });
+
+            bookmark.addEventListener("mouseleave", () => {
+                if(!bookmark.classList.contains("bookmarked")){
+                    bookmark.setAttribute("fill", "whitesmoke");
+                }
+            });
+            
+            bookmark.addEventListener(
+                "click", (event) => {
+                    event.stopPropagation(); // Prevents recipeContainer from being clicked
+                    bookmark.setAttribute("fill", "#E34234");
+                    bookmark.classList.toggle("bookmarked");
+
+                    const parentRecipeContainer = bookmark.closest(".recipe-container");
+                    const recipeId = Number(JSON.parse(parentRecipeContainer.dataset.recipeId));
+
+                    (async () => {
+                        const collection = await getCollectionByName("My Bookmarks");
+                        let collectionId = null;
+                        if (collection) {
+                            collectionId = collection.id;
+                        }
+                        if (!collectionId) {
+                            collectionId = await createCollection("My Bookmarks");
+                        }
+                        if (bookmarkedRecipes.includes(recipeId)) {
+                            await removeRecipeFromCollection(collectionId, recipeId);
+                        }
+                        else {
+                            await addRecipeToBookmarks(collectionId, recipeId);
+                        }
+                    })()
+                }
+            );
+        }
+    );
+}
+
+function checkBookmarked(recipe, recipeContainer) {
+    const recipeId = Number(recipe.idMeal || recipe.id);
+    const bookmark = recipeContainer.getElementsByClassName("bookmark-recipe-icon")[0];
+    let isBookmarked = bookmarkedRecipes.includes(recipeId);
+
+    // Fills in bookmark if recipe exists in "bookmarked" dictionary
+    if (isBookmarked){
+        bookmark.setAttribute("fill", "#E34234");
+    }
+    else {
+        bookmark.setAttribute("fill", "whitesmoke");
+    }
+
+    // Adds CSS "bookmarked" class to recipes bookmarked by user
+    bookmark.classList.toggle(
+        "bookmarked",
+        Boolean(bookmarkedRecipes.includes(recipeId))
+        // Boolean(bookmarkedRecipes[recipeId])
+    );
+}
 
 // Adds a new recipe carousel to the page
 async function createNewCarousel(lookupMethod, filter, recentlyViewed = false) {
@@ -17,7 +202,7 @@ async function createNewCarousel(lookupMethod, filter, recentlyViewed = false) {
     const authors = clonedCarousel.getElementsByClassName("username");
     const ingredients = clonedCarousel.querySelectorAll("p");
 
-    for (i = 0; i < images.length; i++) {
+    for (let i = 0; i < images.length; i++) {
         images[i].setAttribute("src", "");
         recipeNames[i].textContent = "Recipe Name";
         authors[i].textContent = "@AnonymousPublisher";
@@ -56,6 +241,8 @@ async function loadMoreCarousels() {
     setupCarousels(newCarousels);
 }
 
+
+
 function setupCarousels(carousels) {
     carousels.forEach((carousel) => {
         if (carousel.classList.contains("initialized")) return;
@@ -70,61 +257,51 @@ function setupCarousels(carousels) {
         rightButton.siblingButton = leftButton;
 
         leftButton.addEventListener("click", async () => {
-        leftButton.disabled = true;
-        const currentCarousel = leftButton.parentCarousel;
-        currentCarousel.sliderIndex = Math.max(0, currentCarousel.sliderIndex - 3);
+            leftButton.disabled = true;
+            const currentCarousel = leftButton.parentCarousel;
+            currentCarousel.sliderIndex = Math.max(0, currentCarousel.sliderIndex - 3);
 
-        const seenRecipeIds = JSON.parse(currentCarousel.dataset.seenRecipes);
-        const relevantRecipeIds = seenRecipeIds.slice(currentCarousel.sliderIndex, currentCarousel.sliderIndex + 3);
-        await renderCarouselWithOldElements(currentCarousel, relevantRecipeIds);
+            const seenRecipeIds = JSON.parse(currentCarousel.dataset.seenRecipes);
+            const relevantRecipeIds = seenRecipeIds.slice(currentCarousel.sliderIndex, currentCarousel.sliderIndex + 3);
+            await renderCarouselWithOldElements(currentCarousel, relevantRecipeIds);
 
-        leftButton.disabled = currentCarousel.sliderIndex <= 0;
-        rightButton.disabled = currentCarousel.sliderIndex + 3 >= seenRecipeIds.length;
+            leftButton.disabled = currentCarousel.sliderIndex <= 0;
+            rightButton.disabled = currentCarousel.sliderIndex + 3 >= seenRecipeIds.length;
         });
 
         rightButton.addEventListener("click", async () => {
-        rightButton.disabled = true;
-        const currentCarousel = rightButton.parentCarousel;
-        rightButton.siblingButton.disabled = false;
+            rightButton.disabled = true;
+            const currentCarousel = rightButton.parentCarousel;
+            rightButton.siblingButton.disabled = false;
 
-        currentCarousel.sliderIndex += 3;
+            currentCarousel.sliderIndex += 3;
 
-        const seenRecipeIds = JSON.parse(currentCarousel.dataset.seenRecipes);
-        const totalRecipes = seenRecipeIds.length;
+            const seenRecipeIds = JSON.parse(currentCarousel.dataset.seenRecipes);
+            const totalRecipes = seenRecipeIds.length;
 
-        if (currentCarousel.sliderIndex >= currentCarousel.maxSliderIndex) {
-            await renderCarousel(currentCarousel, currentCarousel.dataset.lookupMethod, currentCarousel.dataset.filter);
-        } else {
-            const start = currentCarousel.sliderIndex;
-            const end = start + 3;
-            const relevantRecipeIds = seenRecipeIds.slice(start, end);
-            await renderCarouselWithOldElements(currentCarousel, relevantRecipeIds);
-        }
+            if (currentCarousel.sliderIndex >= currentCarousel.maxSliderIndex) {
+                await renderCarousel(currentCarousel, currentCarousel.dataset.lookupMethod, currentCarousel.dataset.filter);
+            } else {
+                const start = currentCarousel.sliderIndex;
+                const end = start + 3;
+                const relevantRecipeIds = seenRecipeIds.slice(start, end);
+                await renderCarouselWithOldElements(currentCarousel, relevantRecipeIds);
+            }
 
-        currentCarousel.maxSliderIndex = getMaxSliderIndex(currentCarousel);
-        rightButton.disabled = currentCarousel.sliderIndex + 3 >= totalRecipes;
-        leftButton.disabled = currentCarousel.sliderIndex <= 0;
+            currentCarousel.maxSliderIndex = getMaxSliderIndex(currentCarousel);
+            rightButton.disabled = currentCarousel.sliderIndex + 3 >= totalRecipes;
+            leftButton.disabled = currentCarousel.sliderIndex <= 0;
         });
 
         // Add hover/click listeners to all recipe containers in this carousel
         const recipeContainers = getCarouselRecipeContainerObjs(carousel);
-        recipeContainers.forEach(addEventListenersToRecipeContainer);
+        if (current_user) {
+            recipeContainers.forEach(
+                async (recipeContainer) => {
+                    await addEventListenersToRecipeContainer(recipeContainer);
+            });
+        }
     });
-}
-
-
-// Initialize number of reviews displayed
-async function fetchReviews(recipeId) {
-    const response = await fetch(`/reviews/recipe/${recipeId}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
-    });
-    const result = await response.json();
-    if (!response.ok) {
-        console.log("Failed to load in reviews:", result.error)
-        return;
-    }
-    return result;
 }
 
 
@@ -172,6 +349,7 @@ function displayAverageStars(container, average) {
 // Displays "username" of recipe and attaches link to recipe page
 async function listPublisher(url, recipeContainer) {
     // If no site is associated with the recipe, list as "AnonymousPublisher"
+    let domainName;
     if (!url) {
         domainName = "AnonymousPublisher";
     }
@@ -181,8 +359,8 @@ async function listPublisher(url, recipeContainer) {
         for (let i = 0; i < urlComponentsToRemove.length; i++){
             url = url.replace(urlComponentsToRemove[i], "");
         }
-        startIndex = 0;
-        endIndex = url.indexOf(".");
+        const startIndex = 0;
+        const endIndex = url.indexOf(".");
         domainName = url.substring(startIndex, endIndex);
     }
 
@@ -227,51 +405,6 @@ function addVisibleRecipesFromRecipeContainer(recipeContainer){
     parentCarousel.dataset.seenRecipes = JSON.stringify(seenRecipes);
 }
 
-// Returns a random recipe
-async function fetchRecipe(){
-    const response = await fetch("https://www.themealdb.com/api/json/v1/1/random.php");
-    if (!response.ok){
-        throw "Error occurred fetching data";
-    }
-    const data = await response.json();
-    return data['meals'][0];
-}
-
-async function fetchAreas() {
-    const response = await fetch("https://www.themealdb.com/api/json/v1/1/list.php?a=list");
-    if (!response.ok) {
-        throw "Error occured fetching data";
-    }
-    const data = await response.json()
-    areas = data['meals']
-    areasList = [];
-    areas.forEach(
-        (area) => {
-            areasList.push(area.strArea);
-        }
-    )
-    return areasList;
-}
-
-// Returns recipe based on category (e.g., breakfast)
-async function fetchRecipesByCategory(category){
-    const response = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?c=${category}`);
-    if (!response.ok){
-        throw "Error occurred fetching data";
-    }
-    const data = await response.json();
-    return data['meals'];
-}
-
-// Returns recipe based on cuisine (e.g., British)
-async function fetchRecipesByCuisine(cuisine) {
-    const response = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?a=${cuisine}`);
-    if (!response.ok) {
-        throw "Error occurred fetching data";
-    }
-    const data = await response.json();
-    return data["meals"];
-}
 
 // Fills in a recipe container with the details of a specific recipe
 async function setRecipeContainer(recipe, recipeContainer) {
@@ -310,24 +443,15 @@ async function setRecipeContainer(recipe, recipeContainer) {
     recipeContainer.title = recipeName 
 
     // Writes the name and description of the recipe and shows its thumbnail
-    recipeHeading = recipeContainer.getElementsByClassName("recipe-name")[0];
+    const recipeHeading = recipeContainer.getElementsByClassName("recipe-name")[0];
     recipeHeading.textContent = recipeName;
-    thumbnail = recipeContainer.getElementsByTagName("img")[0];
+    const thumbnail = recipeContainer.getElementsByTagName("img")[0];
     thumbnail.src = recipeThumbnail;
-    recipeDescription = recipeContainer.getElementsByClassName("description")[0];
+    const recipeDescription = recipeContainer.getElementsByClassName("description")[0];
     recipeDescription.textContent = recipeIngredients.join(", ");
-    recipeOwnerId = recipe.user_id;
+    const recipeOwnerId = recipe.user_id;
 
-    // Writes "username" to recipe container
-    async function getUsername(userId) {
-        const response = await fetch(`/userDetails/${userId}`);
-            if (!response.ok) {
-                throw "Error occurred fetching data!";
-            }
-            const result = await response.json();
-            const username = result.username;
-            return username;
-    }
+    let username = null;
     if (!recipeOwnerId) {
         username = await listPublisher(recipeOrigin, recipeContainer);
     }
@@ -335,7 +459,7 @@ async function setRecipeContainer(recipe, recipeContainer) {
         username = await getUsername(recipeOwnerId);
     }
     // Sets username displayed 
-    usernameEl = recipeContainer.getElementsByClassName("username")[0];
+    const usernameEl = recipeContainer.getElementsByClassName("username")[0];
     usernameEl.textContent = `@${username}`;
     // Creates a reference that takes user to associated recipe page when recipe container clicked
     usernameEl.href = `public-account.html?user=${username}`;
@@ -350,7 +474,7 @@ async function setRecipeContainer(recipe, recipeContainer) {
 
     const reviewsLength = reviews.length;
 
-    sum = 0;
+    let sum = 0;
     reviews.forEach(
         (review) => {
             sum += parseInt(review.rating)
@@ -372,9 +496,30 @@ async function setRecipeContainer(recipe, recipeContainer) {
 
 }
 
+// Renders elements previously seen when clicking left button
+async function renderCarouselWithOldElements(carousel, recipeIds){
+    const carouselRecipeContainers = getCarouselRecipeContainerObjs(carousel);
+
+    for (let [ index, recipeContainer] of carouselRecipeContainers.entries() ) {
+        let recipeId = recipeIds[index];
+        
+        recipeContainer.onclick = () => {
+            window.location.href = `recipe-view.html?id=${recipeId}`;
+        }
+        const recipe = await searchForRecipe(recipeId);
+        setRecipeContainer(recipe, recipeContainer);
+        checkBookmarked(recipe, recipeContainer);
+    }
+}
+
+// Returns highest slider index value seen
+function getMaxSliderIndex(carousel) {
+    return Math.max(carousel.sliderIndex, carousel.maxSliderIndex);
+}
+
 // Returns list of ingredients associated with a provided recipe
 function getIngredientsList(recipe){
-    recipeIngredients = [];
+    let recipeIngredients = [];
 
     if (recipe.ingredients) {
         for (const ingredient of recipe.ingredients) {
@@ -386,7 +531,7 @@ function getIngredientsList(recipe){
     // Iterates through all ingredients of a recipe and adds them to `recipeIngredients`
     const upperbound =  20;
     for (let i = 1; i <= upperbound; i++){
-        ingredient = recipe[`strIngredient${i}`]
+        const ingredient = recipe[`strIngredient${i}`]
         
         if (ingredient){
             recipeIngredients.push(ingredient);
@@ -399,62 +544,6 @@ function getIngredientsList(recipe){
     return recipeIngredients;
 }
 
-// Returns an object consisting of all the necessary recipe attributes
-function initializeRecipeVariables(recipe){
-    // Accesses recipe attributes and assigns them to variables
-    recipeName = recipe.strMeal || recipe.name;
-    recipeThumbnail = recipe.strMealThumb || `../uploads/multimedia/${recipe.thumbnail}`;
-    recipeId = recipe.idMeal || recipe.id;
-    recipeIngredients = getIngredientsList(recipe);
-    recipeOrigin = recipe.strSource || null;
-    recipeCategory = recipe.strCategory || recipe.tags;
-    recipeCusine = recipe.strArea || null;
-
-    return {
-        recipeName,
-        recipeThumbnail,
-        recipeId,
-        recipeIngredients,
-        recipeOrigin,
-        recipeCategory,
-        recipeCusine
-    }
-}
-
-// 
-async function renderAllCarousels(){
-    // Obtains reference to all carousels on the webpage
-    const carousels = Array.from(document.getElementsByClassName("carousel-container"));
-
-    // For each carousel, sets `seenRecipes` to be empty list and renders it
-    for (let carousel of carousels) {
-        carousel.dataset.seenRecipes = JSON.stringify([]);
-        await renderCarousel(carousel);
-    }
-}
-
-// 
-function checkBookmarked(recipe, recipeContainer) {
-    const recipeId = recipe.idMeal || recipe.id;
-    const bookmark = recipeContainer.getElementsByClassName("bookmark-recipe-icon")[0];
-    const isBookmarked = bookmarkedRecipes[recipeId] || false;
-
-    // Fills in bookmark if recipe exists in "bookmarked" dictionary
-    if (isBookmarked){
-        bookmark.setAttribute("fill", "#E34234");
-    }
-    else {
-        bookmark.setAttribute("fill", "whitesmoke");
-    }
-
-    // Adds CSS "bookmarked" class to recipes bookmarked by user
-    bookmark.classList.toggle(
-        "bookmarked",
-        Boolean(bookmarkedRecipes[recipeId])
-    );
-}
-
-// 
 async function renderCarousel(carousel, lookupMethod=null, filter=null){
     // Obtains reference to all existing recipe container 
     const carouselRecipeContainers = getCarouselRecipeContainerObjs(carousel);
@@ -466,10 +555,13 @@ async function renderCarousel(carousel, lookupMethod=null, filter=null){
     if (!lookupMethod) {
         try {
             const response = await fetch(`/recipes/`);
-            if (!response.ok) {
-                throw "Error occurred fetching data!";
-            }
             const result = await response.json();
+            if (!result) {
+                throw Error(result.error);
+            }
+            else if (result.items.length == 0) {
+                throw Error("No exclusive recipes found!");
+            }
             const recipeList = result.items;
             recipes = [];
 
@@ -477,10 +569,10 @@ async function renderCarousel(carousel, lookupMethod=null, filter=null){
                 recipeId = recipe.id;
 
                 const response = await fetch(`/recipes/${recipeId}`);
-                if (!response.ok) {
-                    throw "Error occurred fetching data!";
-                }
                 const result = await response.json();
+                if (!result) {
+                    throw Error(result.error);
+                }
                 recipes.push(result);
             }
 
@@ -493,12 +585,11 @@ async function renderCarousel(carousel, lookupMethod=null, filter=null){
                 }
                 
                 if (recipe) {
-                    console.log(recipe)
                     await setRecipeContainer(recipe, recipeContainer);
                     checkBookmarked(recipe, recipeContainer);
                 }
             }
-        } catch {
+        } catch (err) {
             // Carousels without a specified "lookup" are filled with random recipes
             for (let recipeContainer of carouselRecipeContainers) {
                 const recipe = await fetchRecipe();
@@ -548,133 +639,21 @@ async function renderCarousel(carousel, lookupMethod=null, filter=null){
     addVisibleRecipesFromCarousel(carousel);
 }
 
-
-// Renders elements previously seen when clicking left button
-async function renderCarouselWithOldElements(carousel, recipeIds){
-    carouselRecipeContainers = getCarouselRecipeContainerObjs(carousel);
-
-    for (let [ index, recipeContainer] of carouselRecipeContainers.entries() ) {
-        let recipeId = recipeIds[index];
-        
-        recipeContainer.onclick = () => {
-            window.location.href = `recipe-view.html?id=${recipeId}`;
-        }
-        recipe = await searchForRecipe(recipeId);
-        setRecipeContainer(recipe, recipeContainer);
-        checkBookmarked(recipe, recipeContainer);
-    }
-}
-
-// Returns highest slider index value seen
-function getMaxSliderIndex(carousel) {
-    return Math.max(carousel.sliderIndex, carousel.maxSliderIndex);
-}
-
-// Retuns the number of grid columns in a carousel
-function getNumColumns(){
-    const grid = document.getElementsByClassName("column-container")[0];
-    const numOfCols = grid.children.length;
-    return numOfCols;
-}
-
-// Given the index of a carousel, returns the associated carousel
-function findCarouselByCarouselIndex(carouselIndex){
+async function renderAllCarousels(){
+    // Obtains reference to all carousels on the webpage
     const carousels = Array.from(document.getElementsByClassName("carousel-container"));
-    const carouselReference = carousels[carouselIndex];
-    return carouselReference;
-}
 
-// Given the index of a recipe container, returns the associated carousel
-function findCarouselByRecipeContainerIndex(RecipeContainerIndex) {
-    const numCols = getNumColumns();
-    const carouselIndex = Math.floor(RecipeContainerIndex / numCols);
-    const carouselReference = findCarouselByCarouselIndex(carouselIndex);
-    return carouselReference;
+    // For each carousel, sets `seenRecipes` to be empty list and renders it
+    for (let carousel of carousels) {
+        carousel.dataset.seenRecipes = JSON.stringify([]);
+        await renderCarousel(carousel);
+    }
 }
 
 // Returns array of the recipe containers inside a particular carousel
 function getCarouselRecipeContainerObjs(carousel){
     const recipeContainerChildren = carousel.getElementsByClassName("recipe-container");
     return Array.from(recipeContainerChildren);
-}
-
-// Returns a recipe container based on index
-function getRecipeContainerObj(recipeContainerIndex){
-    const recipeContainerReference = recipeContainers[recipeContainerIndex];
-    return recipeContainerReference;
-}
-
-// Returns a recipe from TheMealDB API associated with a particular recipe
-async function searchForRecipe(recipeId){
-    let response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeId}`);
-    if (!response) {
-        throw `Error occured searching for recipe ${recipeId}`;
-    }
-    const data = await response.json();
-    return data['meals'][0];
-}
-
-function addEventListenersToRecipeContainer(recipeContainer) {
-    const recipeBookmark = recipeContainer.getElementsByClassName("bookmark-recipe-icon")[0];
-    const addToCollectionButton = recipeContainer.getElementsByClassName("more-options-icon")[0];
-    const dropdownContent = recipeContainer.querySelector(".dropdown-content");
-    const bookmarks = Array.from(recipeContainer.getElementsByClassName("bookmark-recipe-icon"));
-    recipeContainer.addEventListener("mouseover", () => {
-        recipeBookmark.setAttribute("display", "block");
-        addToCollectionButton.setAttribute("display", "block");
-    });
-    recipeContainer.addEventListener("mouseleave", () => {
-        recipeBookmark.setAttribute("display", "none");
-        addToCollectionButton.setAttribute("display", "none");
-        dropdownContent.style.display = "none";
-    });
-    addToCollectionButton.addEventListener(
-        "click", (event) => {
-            event.stopPropagation();
-            dropdownContentVisible = dropdownContent.style.display;
-            if (dropdownContentVisible == "block") {
-                dropdownContent.style.display = "none";
-            }
-            else {
-                dropdownContent.style.display = "block";
-            }
-        }
-    );
-
-    // Applies event listeners for each bookmark
-    bookmarks.forEach(
-        (bookmark) => {
-            bookmark.addEventListener("mouseenter", () => {
-                bookmark.setAttribute("fill", "#E34234");
-            });
-
-            bookmark.addEventListener("mouseleave", () => {
-                if(!bookmark.classList.contains("bookmarked")){
-                    bookmark.setAttribute("fill", "whitesmoke");
-                }
-            });
-            
-            bookmark.addEventListener(
-                "click", (event) => {
-                    event.stopPropagation(); // Prevents recipeContainer from being clicked
-                    bookmark.setAttribute("fill", "#E34234");
-                    bookmark.classList.toggle("bookmarked");
-
-                    const parentRecipeContainer = bookmark.closest(".recipe-container");
-                    const recipeId = JSON.parse(parentRecipeContainer.dataset.recipeId);
-
-                    if (bookmarkedRecipes[recipeId]) {
-                        delete bookmarkedRecipes[recipeId];
-                        localStorage.setItem("bookmarkedRecipes", JSON.stringify(bookmarkedRecipes));
-                    }
-                    else {
-                        bookmarkedRecipes[recipeId] = true;
-                        localStorage.setItem("bookmarkedRecipes", JSON.stringify(bookmarkedRecipes));
-                    }
-                }
-            );
-        }
-    );
 }
 
 // Organizes all the main flow of logic
@@ -703,9 +682,11 @@ async function main() {
 
     // Applies event listeners to each recipe container
     recipeContainersArray.forEach(
-        (recipeContainer) => {
+        async (recipeContainer) => {
             if (recipeContainer.hasAttribute("data-recipe-id")) {
-                addEventListenersToRecipeContainer(recipeContainer);
+                if (current_user) {
+                    await addEventListenersToRecipeContainer(recipeContainer);
+                }
                 recipeContainer.style.cursor = "";
             }
         }
@@ -738,7 +719,7 @@ async function main() {
         // Handles logic for left button
         leftButton.addEventListener("click", async () => {
             leftButton.disabled = true;
-            currentCarousel = leftButton.parentCarousel;
+            const currentCarousel = leftButton.parentCarousel;
 
             // Decrements index first
             currentCarousel.sliderIndex -= 3;
@@ -760,7 +741,7 @@ async function main() {
         // Handles logic for right button
         rightButton.addEventListener("click", async () => {
             rightButton.disabled = true;
-            currentCarousel = rightButton.parentCarousel;
+            const currentCarousel = rightButton.parentCarousel;
             rightButton.siblingButton.disabled = false;
 
             // Increments index first

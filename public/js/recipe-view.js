@@ -1,4 +1,12 @@
-import { getUserDetails } from "./users.js";
+import { getCurrentUserDetails, getUserDetails } from "./users.js";
+import { getRecipeIdFromURL } from "./recipes.js";
+import {
+    getCollectionByName,
+    createCollection,
+    deleteCollectionById,
+    addRecipeToBookmarks,
+    removeRecipeFromCollection
+} from "./collections.js";
 
 // Walkthrough objects
 const navigateWalkthroughContainer = document.getElementById("navigate-walkthrough");
@@ -31,6 +39,7 @@ const thumbnail = document.getElementById("recipe-thumbnail");
 const videoElement = document.getElementById("recipe-tutorial");
 const instructionsTextElement = document.getElementById("instructions");
 const ingredientListElement = document.getElementById("ingredient-list");
+const totalTimeEl = document.getElementById("recipe-details");
 const prepTimeEl = document.getElementById("prep-time-total");
 const cookTimeEl = document.getElementById("cook-time-total");
 
@@ -139,7 +148,7 @@ async function fillRecipeViewPage() {
                       ? recipe.strSource
                       : recipeOwner
                       ? recipeOwner.username
-                      : "Anonymous Publisher";
+                      : "AnonymousPublisher";
     const publishDate = recipe.dateModified || recipe.created_at
     if (recipe.strSource) {
         listPublisher(publisher, publishDate);
@@ -419,6 +428,11 @@ async function main() {
             cookTotal += totalMinutes;
         }
     }
+
+    // Deletes parent element representing total time if there's no time to list
+    if (prepTotal + cookTotal === 0) {
+        totalTimeEl.remove();
+    }
     
     prepTimeEl.textContent = convertMinutesToDisplay(prepTotal);
     cookTimeEl.textContent = convertMinutesToDisplay(cookTotal);
@@ -695,7 +709,7 @@ function showCommentSection(currentStep) {
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const commentBtn = document.getElementById('add-step-comment');
     const submitBtn = document.getElementById('submit-step-comment');
     const input = document.getElementById('step-comment-input');
@@ -761,47 +775,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     //bookmark popup logic
-    const bookmarkBtn = document.querySelector('#bookmark');
-    const popup = document.getElementById('bookmark-popup');
-    const overlay = document.getElementById('bookmark-popup-overlay');
-    const form = document.getElementById('bookmark-form');
-    const select = document.getElementById('collection-select');
-    const newCollectionInput = document.getElementById('new-collection-name');
-    const addCollectionBtn = document.getElementById('add-collection-btn');
-    const deleteCollectionBtn = document.getElementById('delete-collection-btn');
-    const cancelBtn = document.getElementById('cancel-bookmark-popup');
+    const bookmarkBtn = document.querySelector("#bookmark");
+    const popup = document.getElementById("bookmark-popup");
+    const overlay = document.getElementById("bookmark-popup-overlay");
+    const form = document.getElementById("bookmark-form");
+    const select = document.getElementById("collection-select");
+    const newCollectionInput = document.getElementById("new-collection-name");
+    const addCollectionBtn = document.getElementById("add-collection-btn");
+    const deleteCollectionBtn = document.getElementById("delete-collection-btn");
+    const cancelBtn = document.getElementById("cancel-bookmark-popup");
+
+    // Early return to prevent unregistered users from making collections/bookmarking recipes
+    const current_user = await getCurrentUserDetails();
+
+    if (!current_user) {
+        bookmarkBtn.disabled = true;
+        bookmarkBtn.style.cursor = "not-allowed";
+        return; // stop executing the rest
+    }
 
     //load collections from localStorage or default + help from copilot to change collections to arrays
-    function loadCollections() {
-        // store as object: { collectionName: [recipeId, ...], ... }
-        let collectionsObj = JSON.parse(localStorage.getItem('collections') || '{"bookmarks":[]}');
+    async function loadCollections() {
+        select.innerHTML = "";
+        try {
+        const res = await fetch("/collections");
+        const data = await res.json();
+        const items = data.items || [];
 
-        // ensure default exists
-        if (!collectionsObj.hasOwnProperty('bookmarks')) collectionsObj['bookmarks'] = [];
+        // Auto-create "My Bookmarks" if missing
+        if (!items.some((c) => c.collection_name === "My Bookmarks")) {
+            await createCollection("My Bookmarks");
+            return loadCollections();
+        }
 
-        select.innerHTML = '';
-        // use the object keys as collection names
-        Object.keys(collectionsObj).forEach(col => {
-            const opt = document.createElement('option'); //creates a new option element
-            opt.value = col; //sets the value of the option to the collection name
-            opt.textContent = col.charAt(0).toUpperCase() + col.slice(1); //sets the displayed text with first letter capitalized
-            select.appendChild(opt); //adds the option to the select dropdown
-        });
+        for (const col of items) {
+            const opt = document.createElement("option");
+            opt.value = col.collection_name;
+            opt.textContent = col.collection_name;
+            select.appendChild(opt);
+        }
 
-        // save back in case we added missing default
-        localStorage.setItem('collections', JSON.stringify(collectionsObj));
-
-        //update delete button state after loading
         updateDeleteButtonState();
+        } catch (err) {
+        console.error("Failed to load collections:", err);
+        }
     }
 
     //show popup
     //https://www.w3schools.com/howto/howto_js_popup_form.asp
     function showPopup() {
         loadCollections();
-        popup.style.display = 'block';
-        overlay.style.display = 'block';
-        newCollectionInput.value = '';
+        popup.style.display = "block";
+        overlay.style.display = "block";
+        newCollectionInput.value = "";
         select.focus();
         updateDeleteButtonState();
     }
@@ -809,73 +835,56 @@ document.addEventListener('DOMContentLoaded', () => {
     //hide popup
     //https://www.w3schools.com/howto/howto_js_popup_form.asp
     function hidePopup() {
-        popup.style.display = 'none';
-        overlay.style.display = 'none';
+        popup.style.display = "none";
+        overlay.style.display = "none";
     }
+
+    overlay.addEventListener("click", hidePopup);
+    cancelBtn.addEventListener("click", hidePopup);
 
     //helper to enable/disable delete button (cannot delete "bookmarks")
     function updateDeleteButtonState() {
-        if (!select || !deleteCollectionBtn) return;
         const selected = select.value;
-        if (!selected || selected === 'bookmarks') {
-            deleteCollectionBtn.disabled = true;
-            deleteCollectionBtn.style.opacity = '0.5';
-            deleteCollectionBtn.title = 'Default "bookmarks" cannot be deleted';
+        if (!selected || selected === "My Bookmarks") {
+        deleteCollectionBtn.disabled = true;
+        deleteCollectionBtn.style.opacity = "0.5";
         } else {
-            deleteCollectionBtn.disabled = false;
-            deleteCollectionBtn.style.opacity = '1';
-            deleteCollectionBtn.title = `Delete collection "${selected}"`;
+        deleteCollectionBtn.disabled = false;
+        deleteCollectionBtn.style.opacity = "1";
         }
     }
 
+    select.addEventListener("change", updateDeleteButtonState);
+
     //add new collection
-    addCollectionBtn.addEventListener('click', () => { //when the button is clicked
-        const name = newCollectionInput.value.trim(); //get the name and trim whitespace
+    addCollectionBtn.addEventListener("click", async () => {
+        const name = newCollectionInput.value.trim();
         if (!name) return;
-
-        // load as object of arrays
-        let collectionsObj = JSON.parse(localStorage.getItem('collections') || '{"bookmarks":[]}');
-
-        // Prevent duplicates (case-insensitive)
-        const normalizedNew = name.toLowerCase();
-        const normalizedExisting = Object.keys(collectionsObj).map(c => c.toLowerCase());
-        if (normalizedExisting.includes(normalizedNew)) {
-            alert(`Collection named "${name}" already exists.`);
-            newCollectionInput.value = '';
+        const existing = Array.from(select.options).map((o) => o.value.toLowerCase());
+        if (existing.includes(name.toLowerCase())) {
+            alert(`Collection "${name}" already exists.`);
             return;
         }
-
-        // create new empty array for the collection so it's ready to hold recipes
-        collectionsObj[name] = [];
-
-        localStorage.setItem('collections', JSON.stringify(collectionsObj)); //save back to localStorage
-        loadCollections(); //reload dropdown
-        select.value = name; //select the new collection
-
-        newCollectionInput.value = ''; //clear input
-        updateDeleteButtonState();
+        await createCollection(name);
+        await loadCollections();
+        select.value = name;
+        newCollectionInput.value = "";
     });
 
     //delete selected collection (except 'bookmarks')
-    deleteCollectionBtn.addEventListener('click', () => {
+    deleteCollectionBtn.addEventListener("click", async () => {
         const name = select.value;
-        if (!name || name === 'bookmarks') {
-            alert('The "bookmarks" collection cannot be deleted.');
+        if (!name || name === "My Bookmarks") {
+            alert('Default "My Bookmarks" cannot be deleted.');
             return;
         }
-        if (!confirm(`Delete collection "${name}"? This cannot be undone.`)) return;
+        if (!confirm(`Delete collection "${name}"?`)) return;
+        const col = await getCollectionByName(name);
+        console.log(col.id);
+        if (col?.id) await deleteCollectionById(col.id);
+        await loadCollections();
+        select.value = "My Bookmarks";
 
-        // load object, remove key
-        let collectionsObj = JSON.parse(localStorage.getItem('collections') || '{"bookmarks":[]}');
-        delete collectionsObj[name];
-
-        //ensure 'bookmarks' always exists
-        if (!collectionsObj.hasOwnProperty('bookmarks')) collectionsObj['bookmarks'] = [];
-
-        localStorage.setItem('collections', JSON.stringify(collectionsObj));
-        loadCollections();
-        select.value = 'bookmarks';
-        updateDeleteButtonState();
     });
 
     //update delete button state when user chooses another collection
@@ -886,17 +895,28 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.addEventListener('click', hidePopup);
 
     //save bookmark (demo: just alerts for now)
-    form.addEventListener('submit', (e) => { //when form is submitted
-        e.preventDefault(); //prevent it from reloading the page
-        const collection = select.value; //get selected collection
-        //here you would save the recipe ID to the chosen collection in localStorage or backend
-        alert(`Recipe saved to "${collection}"!`);
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const recipeId = getRecipeIdFromURL();
+        console.log(recipeId)
+        const collectionName = select.value || "My Bookmarks";
+
+        let collection = await getCollectionByName(collectionName);
+        let collectionId = collection?.id;
+
+        if (!collectionId) {
+            const created = await createCollection(collectionName);
+            collectionId = created.collection?.id;
+        }
+
+        await addRecipeToBookmarks(collectionId, recipeId);
+        alert(`Recipe saved to "${collectionName}"!`);
         hidePopup();
     });
 
     //show popup on bookmark button click
     if (bookmarkBtn) {
-        bookmarkBtn.addEventListener('click', (e) => {
+        bookmarkBtn.addEventListener("click", (e) => {
             e.preventDefault();
             showPopup();
         });

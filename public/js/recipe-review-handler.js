@@ -1,5 +1,6 @@
 import { getCurrentUserDetails, getUserDetails } from "./users.js";
 import { fetchReviews, updateReviewInDatabase, toggleFeedback } from "./reviews.js";
+import { getRecipeIdFromURL } from "./recipes.js";
 
 // DOM Elements
 const reviewToPost = document.getElementById("review-to-post");
@@ -23,11 +24,6 @@ let numStarsRated = 0;
 
 function addInitialReviewContainer() {
     noReviews.style.display = "flex";
-}
-
-function getRecipeIdFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get("id");
 }
 
 async function updateRating() {
@@ -124,7 +120,7 @@ async function main() {
         }
     } catch {
         // Prevents unregistered users from making any reviews
-        userResult = null;
+        const userResult = null;
         likeRecipeButton.style.pointerEvents = "None";
         postReviewSection.title = "You need to be signed in before you can post a review!";
 

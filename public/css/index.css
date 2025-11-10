@@ -232,6 +232,42 @@ h1, h2 {
     background-color: whitesmoke;
 }
 
+/* Ty #4 */
+
+#bookmarked-recipes {
+    display: flex;
+    gap: 100px;
+    height: fit-content;
+    background-color: whitesmoke;
+    padding: 20px;
+    margin: 20px 40px;
+    border-radius: 10px;
+    overflow-x: auto;
+    scrollbar-width: none; /* hide scrollbar in Firefox */
+    scroll-behavior: smooth;
+    animation: autoScroll 2s linear infinite alternate;
+}
+
+#bookmarked-recipes:hover {
+    animation-play-state: paused;
+    scrollbar-width: thin;
+}
+
+@keyframes autoScroll {
+  0%   { scroll-left: 0; }
+  100% { scroll-left: 9999px; } /* large value -> scroll to far right */
+}
+
+#bookmarked-recipes img {
+    background-color: lightgray;
+    width: 100px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    border: gray solid 2px;
+    object-fit: cover;
+    cursor: pointer;
+}
+
 
 /* 
 Media queries to make webpage responsive by limiting width, font-size, and number of description lines

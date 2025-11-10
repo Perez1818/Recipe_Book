@@ -6,9 +6,9 @@
     <title>Your Home Feed</title>
     <link rel="stylesheet" href="./css/index.css">
     <link rel="stylesheet" href="./css/styles.css">
-    <script type="module" src=".js/recipes.js"></script>
-    <script type="module" src=".js/reviews.js"></script>
-    <script type="module" src=".js/users.js"></script>
+    <script type="module" src="./js/recipes.js"></script>
+    <script type="module" src="./js/reviews.js"></script>
+    <script type="module" src="./js/users.js"></script>
     <script type="module" src="./js/collections.js"></script>
     <script defer type="module" src="./js/index.js"></script>
 </head>
@@ -66,7 +66,6 @@
         <h1>Home Feed</h1>
         <!-- Bookmarked Recipes -->
         <div id="bookmarked-recipes">
-            <img>
         </div>
         <!-- Container #1 -->
         <div id="trending-container" class="carousel-container">
@@ -94,9 +93,6 @@
                         </button>
                         <div class="dropdown">
                             <div class="dropdown-content">
-                                <a href="" id="collection-1" title="Add to bookmarks">
-                                    My bookmarks
-                                </a>
                             </div>
                         </div>
                         <img>
@@ -139,9 +135,6 @@
                         </button>
                         <div class="dropdown">
                             <div class="dropdown-content">
-                                <a href="" id="collection-1" title="Add to bookmarks">
-                                    My bookmarks
-                                </a>
                             </div>
                         </div>
                         <img>
@@ -184,9 +177,6 @@
                         </button>
                         <div class="dropdown">
                             <div class="dropdown-content">
-                                <a href="" id="collection-1" title="Add to bookmarks">
-                                    My bookmarks
-                                </a>
                             </div>
                         </div>
                         <img>
@@ -224,6 +214,29 @@
                 </button>
             </div>
         </div>
+        <script type="module">
+            import { getCollectionByName, createCollection, addRecipeToBookmarks, removeRecipeFromCollection } from './js/collections.js';
+
+            async function addToBookmarks(event) {
+                event.preventDefault();
+                const recipeContainer = event.target.closest(".recipe-container");
+                if (!recipeContainer) return;
+
+                const recipeId = JSON.parse(recipeContainer.dataset.recipeId || null);
+
+                const collection = await getCollectionByName("My Bookmarks");
+                let collectionId = collection?.id || await createCollection("My Bookmarks");
+                let bookmarkedRecipes = collection.recipe_ids || [];
+
+                if (bookmarkedRecipes.includes(Number(recipeId))) {
+                await removeRecipeFromCollection(collectionId, recipeId);
+                } else {
+                await addRecipeToBookmarks(collectionId, recipeId);
+                }
+            }
+
+            window.addToBookmarks = addToBookmarks; // expose for inline onclick
+    </script>
     </main>
 </body>
 </html>
