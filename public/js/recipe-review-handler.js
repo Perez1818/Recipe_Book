@@ -1,3 +1,6 @@
+import { getCurrentUserDetails, getUserDetails } from "./users.js";
+import { fetchReviews, updateReviewInDatabase, toggleFeedback } from "./reviews.js";
+import { getRecipeIdFromURL } from "./recipes.js";
 
 // DOM Elements
 const reviewToPost = document.getElementById("review-to-post");
@@ -19,33 +22,95 @@ let lastStarClicked = null;
 let currentStarClicked = null;
 let numStarsRated = 0;
 
-async function getCurrentUserDetails() {
-    const response = await fetch(`/userDetails/me`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
-    });
-    const result = await response.json();
-    if (!response.ok) {
-        console.log("Failed to load in user details:", result.error)
-        return;
-    }
-    return result;
+function addInitialReviewContainer() {
+    noReviews.style.display = "flex";
 }
 
-async function getUserDetails(id) {
-    const response = await fetch(`/userDetails/${id}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
-    });
-    const result = await response.json();
-    if (!response.ok) {
-        console.log("Failed to load in user details:", result.error)
+async function updateRating() {
+    const ratingContainer = document.getElementsByClassName("rating-container")[0];
+    const result = await fetchReviews(getRecipeIdFromURL());
+    const reviews = await result.items || [];
+
+    if (reviews.length === 0) {
+        avgRating.textContent = "0.0";
+        displayAverageStars(ratingContainer, 0);
+        numReviewsCounterTop.textContent = 0;
+        numReviewsCounterBottom.textContent = 0;
+        addInitialReviewContainer();
         return;
     }
-    return result;
+
+    let sum = 0;
+    reviews.forEach(
+        (review) => {
+            sum += parseInt(review.rating)
+        }
+    )
+    const averageRating = (sum / reviews.length).toFixed(1);
+    avgRating.textContent = averageRating;
+
+    function displayAverageStars(container, average) {
+        const stars = container.querySelectorAll(".fa-star");
+        stars.forEach((star, i) => {
+            const fillPercent = Math.min(Math.max(average - i, 0), 1) * 100;
+
+            // Apply inline style using a gradient for partial fill
+            star.style.background = `linear-gradient(90deg, gold ${fillPercent}%, lightgray ${fillPercent}%)`;
+            star.style.webkitBackgroundClip = "text";
+            star.style.webkitTextFillColor = "transparent";
+        });
+    }
+
+    displayAverageStars(ratingContainer, averageRating);
+
+    numReviewsCounterTop.textContent = reviews.length;
+    numReviewsCounterBottom.textContent = reviews.length;
+}
+
+async function addReviewToDatabase(reviewData) {
+    try {
+        const response = await fetch("/reviews", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(reviewData)
+        })
+    
+        const result = await response.json();
+
+        if (response.ok) {
+            console.log("Review successfully added");
+            await updateRating();
+        }
+        else {
+            console.log(result.error)
+        }
+
+        return result
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+async function removeReviewFromDatabase(review) {
+    try {
+        const response = await fetch(
+            `/reviews/${review.id}`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" }
+        });
+        const result = await response.json();
+        if (response.ok) {
+            console.log("Review successfully deleted!");
+            review.remove();  // Delete from DOM
+            await updateRating();
+        }
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 async function main() {
+    // Check if user is logged in
     try {
         const userResult = await getCurrentUserDetails();
         const { username, avatar } = userResult;
@@ -54,7 +119,8 @@ async function main() {
             profilePic.src = avatar;
         }
     } catch {
-        userResult = null;
+        // Prevents unregistered users from making any reviews
+        const userResult = null;
         likeRecipeButton.style.pointerEvents = "None";
         postReviewSection.title = "You need to be signed in before you can post a review!";
 
@@ -71,32 +137,35 @@ async function main() {
 
     await updateRating();
 
-    function getRecipeIdFromURL() {
-        const params = new URLSearchParams(window.location.search);
-        return params.get("id");
-    }
-
-    // Initialize number of reviews displayed
-    async function fetchReviews(recipeId) {
-        const response = await fetch(`/reviews/recipe/${recipeId}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" }
-        });
-        const result = await response.json();
-        if (!response.ok) {
-            console.log("Failed to load in reviews:", result.error)
-            return;
-        }
-        return result;
-    }
-
     // Helper Functions
     function removeInitialReviewContainer() {
         noReviews.style.display = "none";
     }
 
-    function addInitialReviewContainer() {
-        noReviews.style.display = "flex";
+    async function loadExistingReviewsFromDatabase(recipeId) {
+        try {
+            const result = await fetchReviews(recipeId)
+
+            const reviews = await result.items || [];
+
+            // If no reviews are available, placeholder remains
+            if (reviews.length === 0) {
+                return;
+            }
+
+            removeInitialReviewContainer();
+
+            reviews.forEach(
+                async (review) => {
+                    await renderExistingReview(review);
+                }
+            )
+
+            await updateRating();
+
+        } catch(err) {
+            console.error(err);
+        }
     }
 
     loadExistingReviewsFromDatabase(getRecipeIdFromURL())
@@ -162,7 +231,7 @@ async function main() {
 
                 updateEditFlag(review)
 
-                updatedContent = {
+                const updatedContent = {
                     content: input.value,
                     edited_flag: true
                 }
@@ -180,128 +249,6 @@ async function main() {
         p.replaceWith(div);
     }
 
-    async function updateRating() {
-        const ratingContainer = document.getElementsByClassName("rating-container")[0];
-        const result = await fetchReviews(getRecipeIdFromURL());
-        const reviews = await result.items || [];
-
-        if (reviews.length === 0) {
-            avgRating.textContent = "0.0";
-            displayAverageStars(ratingContainer, 0);
-            numReviewsCounterTop.textContent = 0;
-            numReviewsCounterBottom.textContent = 0;
-            addInitialReviewContainer();
-            return;
-        }
-
-        sum = 0;
-        reviews.forEach(
-            (review) => {
-                sum += parseInt(review.rating)
-            }
-        )
-        const averageRating = (sum / reviews.length).toFixed(1);
-        avgRating.textContent = averageRating;
-
-        function displayAverageStars(container, average) {
-            const stars = container.querySelectorAll(".fa-star");
-            stars.forEach((star, i) => {
-                const fillPercent = Math.min(Math.max(average - i, 0), 1) * 100;
-
-                // Apply inline style using a gradient for partial fill
-                star.style.background = `linear-gradient(90deg, gold ${fillPercent}%, lightgray ${fillPercent}%)`;
-                star.style.webkitBackgroundClip = "text";
-                star.style.webkitTextFillColor = "transparent";
-            });
-        }
-
-        displayAverageStars(ratingContainer, averageRating);
-
-        numReviewsCounterTop.textContent = reviews.length;
-        numReviewsCounterBottom.textContent = reviews.length;
-    }
-
-    async function loadExistingReviewsFromDatabase(recipeId) {
-        try {
-            result = await fetchReviews(recipeId)
-
-            const reviews = await result.items || [];
-
-            // If no reviews are available, placeholder remains
-            if (reviews.length === 0) {
-                return;
-            }
-
-            removeInitialReviewContainer();
-
-            reviews.forEach(
-                async (review) => {
-                    await renderExistingReview(review);
-                }
-            )
-
-            await updateRating();
-
-        } catch(err) {
-            console.error(err);
-        }
-    }
-
-    async function addReviewToDatabase(reviewData) {
-        try {
-            const response = await fetch("/reviews", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(reviewData)
-            })
-        
-            const result = await response.json();
-
-            if (response.ok) {
-                console.log("Review successfully added");
-                await updateRating();
-            }
-            else {
-                console.log(result.error)
-            }
-
-            return result
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    async function toggleFeedback(reviewId, isLike) {
-        try {
-                const response = await fetch(`/reviews/${reviewId}/feedback`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ is_like: isLike })
-            });
-
-            const contentType = response.headers.get("content-type") || "";
-            if (!contentType.includes("application/json")) {
-                console.error("Non-JSON response:", await response.text());
-                return false;
-            }
-
-            const result = await response.json();
-            if (!response.ok) {
-                alert(result.error);
-                return false;
-            }
-
-            return true; // success
-        } catch (err) {
-            console.error("toggleFeedback failed:", err);
-            return false;
-        }
-    }
-
-
-
-
-
     async function refreshReviewFeedback(review, numLikesEl, numDislikesEl) {
         const response = await fetch(`/reviews/${review.id}`);
         if (!response.ok) return;
@@ -309,41 +256,6 @@ async function main() {
         const updated = await response.json();
         numLikesEl.textContent = updated.num_likes;
         numDislikesEl.textContent = updated.num_dislikes;
-    }
-
-
-    async function removeReviewFromDatabase(review) {
-        try {
-            const response = await fetch(
-                `/reviews/${review.id}`, {
-                    method: "DELETE",
-                    headers: { "Content-Type": "application/json" }
-            });
-            result = await response.json();
-            if (response.ok) {
-                console.log("Review successfully deleted!");
-                review.remove();  // Delete from DOM
-                await updateRating();
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    async function updateReviewInDatabase(reviewId, updatedContent) {
-        try {
-            const response = await fetch (`/reviews/${reviewId}`, {
-                method: "PUT",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(updatedContent)
-            });
-            const result = await response.json();
-            if (response.ok) {
-                console.log("Review was sucessfully updated!")
-            }
-        } catch (error) {
-            console.error("Error updating review:", error);
-        }
     }
 
     async function renderExistingReview(review) {
@@ -364,7 +276,7 @@ async function main() {
         const usernameElement = newReview.querySelector(".username");
 
         const userId = review.user_id;
-        reviewCreator = await getUserDetails(userId);
+        const reviewCreator = await getUserDetails(userId);
         const username = reviewCreator.username;
         const avatar = reviewCreator.avatar;
         usernameElement.textContent = `@${username}`;
@@ -530,7 +442,7 @@ async function main() {
             num_dislikes: Number(numDislikes.textContent),
         }
 
-        result = await addReviewToDatabase(reviewData);
+        const result = await addReviewToDatabase(reviewData);
         console.log("Result after adding review to Database:", result);
         
         if (result.error) {
@@ -568,7 +480,6 @@ async function main() {
 
             await refreshReviewFeedback(newReview, numLikes, numDislikes);
         });
-
 
         dislikeButton.addEventListener("click", async () => {
             const isDisliked = dislikeButton.classList.contains("disliked");

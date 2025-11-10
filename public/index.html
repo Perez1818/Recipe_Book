@@ -6,7 +6,11 @@
     <title>Your Home Feed</title>
     <link rel="stylesheet" href="./css/index.css">
     <link rel="stylesheet" href="./css/styles.css">
-    <script defer src="./js/index.js"></script>
+    <script type="module" src="./js/recipes.js"></script>
+    <script type="module" src="./js/reviews.js"></script>
+    <script type="module" src="./js/users.js"></script>
+    <script type="module" src="./js/collections.js"></script>
+    <script defer type="module" src="./js/index.js"></script>
 </head>
 <body>
     <header>
@@ -60,6 +64,9 @@
     <hr width="100%">
     <main>
         <h1>Home Feed</h1>
+        <!-- Bookmarked Recipes -->
+        <div id="bookmarked-recipes">
+        </div>
         <!-- Container #1 -->
         <div id="trending-container" class="carousel-container">
             <h2>Featured Recipes</h2>
@@ -73,7 +80,7 @@
                 <!-- Carousel #1 -->
                 <div class="carousel column-container">
                     <!-- Recipe Container #1 -->
-                    <div class="recipe-container" class="column-1" onclick="window.location.href='recipe-view.html'">
+                    <div class="recipe-container" class="column-1">
                         <button class="bookmark-recipe-button">
                             <svg id="bookmark-icon-1" class="bookmark-recipe-icon" width="45px" display="none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
@@ -86,9 +93,6 @@
                         </button>
                         <div class="dropdown">
                             <div class="dropdown-content">
-                                <a href="" id="collection-1" title="Add to bookmarks">
-                                    My bookmarks
-                                </a>
                             </div>
                         </div>
                         <img>
@@ -118,7 +122,7 @@
                         </div>
                     </div>
                     <!-- Recipe Container #2 -->
-                    <div class="recipe-container" class="column-2" onclick="window.location.href='recipe-view.html'">
+                    <div class="recipe-container" class="column-2">
                         <button class="bookmark-recipe-button">
                             <svg id="bookmark-icon-2" class="bookmark-recipe-icon" width="45px" display="none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
@@ -131,9 +135,6 @@
                         </button>
                         <div class="dropdown">
                             <div class="dropdown-content">
-                                <a href="" id="collection-1" title="Add to bookmarks">
-                                    My bookmarks
-                                </a>
                             </div>
                         </div>
                         <img>
@@ -163,7 +164,7 @@
                         </div>
                     </div>
                     <!-- Recipe Container #3 -->
-                    <div class="recipe-container" class="column-3" onclick="window.location.href='recipe-view.html'">
+                    <div class="recipe-container" class="column-3">
                         <button class="bookmark-recipe-button">
                             <svg id="bookmark-icon-3" class="bookmark-recipe-icon" width="45px" display="none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
@@ -176,9 +177,6 @@
                         </button>
                         <div class="dropdown">
                             <div class="dropdown-content">
-                                <a href="" id="collection-1" title="Add to bookmarks">
-                                    My bookmarks
-                                </a>
                             </div>
                         </div>
                         <img>
@@ -216,6 +214,29 @@
                 </button>
             </div>
         </div>
+        <script type="module">
+            import { getCollectionByName, createCollection, addRecipeToBookmarks, removeRecipeFromCollection } from './js/collections.js';
+
+            async function addToBookmarks(event) {
+                event.preventDefault();
+                const recipeContainer = event.target.closest(".recipe-container");
+                if (!recipeContainer) return;
+
+                const recipeId = JSON.parse(recipeContainer.dataset.recipeId || null);
+
+                const collection = await getCollectionByName("My Bookmarks");
+                let collectionId = collection?.id || await createCollection("My Bookmarks");
+                let bookmarkedRecipes = collection.recipe_ids || [];
+
+                if (bookmarkedRecipes.includes(Number(recipeId))) {
+                await removeRecipeFromCollection(collectionId, recipeId);
+                } else {
+                await addRecipeToBookmarks(collectionId, recipeId);
+                }
+            }
+
+            window.addToBookmarks = addToBookmarks; // expose for inline onclick
+    </script>
     </main>
 </body>
 </html>

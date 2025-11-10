@@ -1,3 +1,12 @@
+import { getCurrentUserDetails, getUserDetails } from "./users.js";
+import { getRecipeIdFromURL } from "./recipes.js";
+import {
+    getCollectionByName,
+    createCollection,
+    deleteCollectionById,
+    addRecipeToBookmarks,
+    removeRecipeFromCollection
+} from "./collections.js";
 
 // Walkthrough objects
 const navigateWalkthroughContainer = document.getElementById("navigate-walkthrough");
@@ -25,36 +34,41 @@ const websiteNotAvailableImg = document.getElementById("origin-site-not-availabl
 // Recipe detail objects
 const recipeName = document.getElementById("recipe-name");
 const username = document.getElementById("username-str");
+const tags = document.getElementById("recipe-tag");
 const thumbnail = document.getElementById("recipe-thumbnail");
 const videoElement = document.getElementById("recipe-tutorial");
 const instructionsTextElement = document.getElementById("instructions");
 const ingredientListElement = document.getElementById("ingredient-list");
+const totalTimeEl = document.getElementById("recipe-details");
+const prepTimeEl = document.getElementById("prep-time-total");
+const cookTimeEl = document.getElementById("cook-time-total");
 
 // Obtains recipe ID from URL
 const [ _, recipeApiId ] = currentUrl.split("?id=");
 
-// Returns the current step and the last step of instructions
-function getSteps() {
-    let [ currentStep, _ ] = stepFractionPresentation.textContent.split(" / ");
-    currentStep = parseInt(currentStep);
-    lastStep = instructions.length;
-    return { currentStep, lastStep};
-}
-
-
 // Searches for the recipe based on ID provided in URL
 async function searchForRecipe() {
-    const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeApiId}`);
-    if (!response.ok) {
-        throw "Error occurred fetching data!";
+    try {
+        const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeApiId}`);
+        if (!response.ok) {
+            throw "Error occurred fetching data!";
+        }
+        const data = await response.json();
+        return data["meals"][0];
+    } catch {
+        const response = await fetch(`/recipes/${recipeApiId}`);
+        if (!response.ok) {
+            throw "Error occurred fetching data!";
+        }
+        const data = await response.json();
+        return data;
     }
-    const data = await response.json();
-    return data["meals"][0];
 }
 
 // Lists publisher of recipe
 function listPublisher(url, publishingDate) {
-    urlCopy = url;
+    let urlCopy = url;
+    let domainName;
     if (!url) {
         domainName = "AnonymousPublisher";
         websiteAvailableImg.style.display = "none";
@@ -65,8 +79,8 @@ function listPublisher(url, publishingDate) {
             urlCopy = urlCopy.replace(urlComponentsToRemove[i], "");
         }
 
-        startIndex = 0;
-        endIndex = urlCopy.indexOf(".");
+        const startIndex = 0;
+        const endIndex = urlCopy.indexOf(".");
         domainName = urlCopy.substring(startIndex, endIndex);
 
         usernameLink.href = "public-account.html";
@@ -90,15 +104,15 @@ function getIngredients(recipe) {
     let measurements = [];
 
     for (let i = 1; i <= 20; i++) {
-        ingredient = recipe[`strIngredient${i}`]
-        measurement = recipe[`strMeasure${i}`]
-
-        if (ingredient) {
-            ingredients.push(ingredient);
-            measurements.push(measurement)
-        }
-        // Early return when no more ingredients/measurements are left
-        else {
+        try {
+            ingredient = recipe[`strIngredient${i}`] || recipe.ingredients[i - 1].name;
+            measurement = recipe[`strMeasure${i}`] || `${recipe.ingredients[i - 1].qty} ${recipe.ingredients[i - 1].unit}`
+            if (ingredient) {
+                ingredients.push(ingredient);
+                measurements.push(measurement)
+            }
+        } catch {
+            // Early return when no more ingredients/measurements are left
             return {ingredients, measurements}
         }
     }
@@ -127,64 +141,57 @@ async function fillRecipeViewPage() {
     // Fetches recipe (ID provided in link)
     const recipe = await searchForRecipe();
     // Title
-    recipeName.textContent = recipe["strMeal"]
+    recipeName.textContent = recipe.strMeal || recipe.name;
     // Publisher
-    listPublisher(recipe["strSource"], recipe["dateModified"]);
+    const recipeOwner = await getUserDetails(recipe.user_id);
+    const publisher = recipe.strSource
+                      ? recipe.strSource
+                      : recipeOwner
+                      ? recipeOwner.username
+                      : "AnonymousPublisher";
+    const publishDate = recipe.dateModified || recipe.created_at
+    if (recipe.strSource) {
+        listPublisher(publisher, publishDate);
+    }
+    else {
+        usernameElement.textContent = publisher;
+        dateElement.textContent = `Uploaded on ${new Date(publishDate).toLocaleDateString()}`;
+        websiteNotAvailableImg.remove();
+    }
+    
+    // Category
+    tags.textContent = recipe.strCategory || recipe.tags;
     // Thumbnail
-    thumbnail.src = recipe["strMealThumb"];
+    thumbnail.src = recipe.strMealThumb || `../uploads/multimedia/${recipe.thumbnail}`;
     // Instructions
-    instructions = recipe["strInstructions"].replace(/\r/g, "").split("\n").filter(str => str !== "").filter(str => str.length > 7)
-    instructionsTextElement.textContent = instructions[0];
+    let instructions = recipe.strInstructions || recipe.instructions
+    try {
+        instructions = instructions.replace(/\r/g, "").split("\n").filter(str => str !== "").filter(str => str.length > 7)
+    } catch {
+        let instructionsBucket = [];
+        for (const instr of instructions) {
+            instructionsBucket.push(instr);
+        }
+        instructions = instructionsBucket;
+    }
+    instructionsTextElement.textContent = instructions[0].text || instructions[0];
     // Video Tutorial
-    let [ _, tutorialVideoId ] = recipe["strYoutube"].split("?v=");
-    videoElement.setAttribute("src", `https://www.youtube.com/embed/${tutorialVideoId}`)
+    try {
+        let [ _, tutorialVideoId ] = recipe["strYoutube"].split("?v=");
+        videoElement.setAttribute("src", `https://www.youtube.com/embed/${tutorialVideoId}`);
+    } catch {
+        const videoEl = document.createElement("video");
+        videoEl.id = videoElement.id;
+        videoElement.replaceWith(videoEl);
+        videoEl.type = "video/mp4";
+        videoEl.controls = true;
+        videoEl.src = `../uploads/multimedia/${recipe.video}`;
+    }
 
     let {ingredients, measurements} = getIngredients(recipe);
     renderIngredients(ingredients, measurements);
 
     return { instructions }
-}
-
-
-// Returns a consistent time unit for the time unit listed in the recipe
-function getExpectedTimeUnit(timeUnit, timeValue=-1) {
-    switch (timeUnit) {
-        // minutes
-        case "minutes":
-            return "minutes";
-        case "mins":
-            return "minutes";
-        // minutes / minute
-        case "minute":
-            if (timeValue > 1) {
-                return "minutes"
-            }
-            return "minute";
-        case "min":
-            if (timeValue > 1) {
-                return "minutes"
-            }
-            return "minute"
-        // hours
-        case "hours":
-            return "hours";
-        case "hrs":
-            return "hours"
-        // hours / hour
-        case "hour":
-            if (timeValue > 1) {
-                return "hours"
-            }
-            return "hour"
-        case "hr":
-            if (timeValue > 1) {
-                return "hours"
-            }
-            return "hour"
-        // Returns empty string for first time value listed in time span (e.g. 25–30 minutes)
-        default:
-            return ""
-    }
 }
 
 
@@ -205,175 +212,198 @@ function normalizeUnicodeFractions(str) {
 }
 
 
-// Reads all durations specified in current recipe instruction and writes them to notecard
-function getTimeForInstruction() {
-    let matches;
-    currentInstruction = currentInstruction.toLowerCase().replace(/\s*( to |–|—|−| or )\s*/gi, "-");
-    const regex = /\b(\d+(?:\s+\d+\/\d+)?)(?:\s*(?:-|to)\s*(\d+(?:\s+\d+\/\d+)?))?\s*(?:more\s+)?( ?(?:mins?|minutes?|hrs?|hours?|hour?|hr?))\b/gi;
+function findTimeMatches(text) {
+  const regex =
+    /\b(\d+(?:\s+\d+\/\d+)?)(?:\s*(?:-|to)\s*(\d+(?:\s+\d+\/\d+)?))?\s*(?:more\s+)?(mins?|minutes?|hrs?|hours?|hour?|hr?)\b/gi;
+  return [...text.matchAll(regex)];
+}
 
-    currentInstruction = normalizeUnicodeFractions(currentInstruction)
-    matches = [...currentInstruction.matchAll(regex)];
 
-    if (matches[0]) {
-        timeValue = 0;
-        estimatedTimeBoldedText.textContent = "";
+function parseTimeSegment(match) {
+    const [full, lower, upper, unitRaw] = match;
+    const unit = normalizeTimeUnit(unitRaw);
+    const singular = unit.replace(/s$/, "");
 
-        matches.forEach(
-            (m) => {
-                match = m[0];
-                parts = match.split(" ");
-                let timeValue;
-                let timeUnit;
-
-                if (parts.length === 1) {
-                    [, timeValue, timeUnit] = match.match(/^(\d+(?:\s+\d+\/\d+)?)([a-zA-Z]+)$/);
-                    timeUnit = getExpectedTimeUnit(timeUnit, timeValue)
-                }
-                else {
-                    // Grabs the last word representing the time unit and processes it
-                    timeUnit = (match.split(" ")).at(-1)
-                    timeUnit = getExpectedTimeUnit(timeUnit)
-                }
-
-                if (match.includes("-")) {
-                    if ((match.split("-")[0])){
-                        let [lowerBound, upperBound] = match.split(/-/).map(s => s.trim());
-
-                        const singular = unit => unit.replace(/s$/, "");
-
-                        function getValuesAndUnits(bound) {
-                            let parts = bound.trim().split(/\s+/);
-
-                            let timeUnit;
-                            let timeValue;
-
-                            // Case 1: mixed number with fraction (e.g. "2 1/2")
-                            if (parts.length >= 2 && parts[1].includes("/")) {
-                                let whole = parseInt(parts[0], 10);
-                                let [num, denom] = parts[1].split("/").map(Number);
-                                timeValue = whole + (num / denom);
-                                timeUnit = parts[2] || ""; // optional unit if present
-                            }
-                            // Case 2: pure fraction (e.g. "1/2")
-                            else if (parts[0].includes("/")) {
-                                let [num, denom] = parts[0].split("/").map(Number);
-                                timeValue = num / denom;
-                                timeUnit = parts[1] || "";
-                            }
-                            // Case 3: normal integer + unit (e.g. "3 hours")
-                            else {
-                                timeValue = parseInt(parts[0], 10);
-                                timeUnit = match.split(" ").at(-1) || "";
-                            }
-
-                            timeUnit = getExpectedTimeUnit(timeUnit);
-
-                            if (timeValue == 1) {
-                                timeUnit = singular(timeUnit);
-                            }
-
-                            return { timeValue, timeUnit };
-                        }
-                        
-                        let { timeValue: timeValueLower, timeUnit: timeUnitLower } = getValuesAndUnits(lowerBound);
-                        let { timeValue: timeValueUpper, timeUnit: timeUnitUpper } = getValuesAndUnits(upperBound);
-                        if (singular(timeUnitLower) === singular(timeUnitUpper)) {
-                            timeUnitLower = "";
-                        }
-                        
-                        if (estimatedTimeBoldedText.textContent) {
-                            estimatedTimeBoldedText.textContent += ` + (${timeValueLower} ${timeUnitLower} - ${timeValueUpper} ${timeUnitUpper})`
-                        }
-                        else {
-                            estimatedTimeBoldedText.textContent = `${timeValueLower} ${timeUnitLower} - ${timeValueUpper} ${timeUnitUpper}`;
-                        }
-                    }
-                    else {
-                        if (estimatedTimeBoldedText.textContent) {
-                            estimatedTimeBoldedText.textContent += ` + ${match.split(" ")[0]} ${timeUnit}`;
-                        }
-                        else {
-                            estimatedTimeBoldedText.textContent = `${match.split(" ")[0]} ${timeUnit}`;
-                        }
-                    }
-
-                    estimatedTimeElement.style.visibility = "";
-                }
-                else {
-                    if (!timeValue || !timeUnit) {
-                        timeValue = parseInt(match.split(" ")[0]);
-                        timeUnit = getExpectedTimeUnit(match.split(" ").at(-1));
-                    }
-
-                    if (timeUnit === "hours" || timeUnit === "hour") {
-                        timeValue *= 60;
-                    }
-                    
-                    estimatedTimeElement.style.visibility = "";
-
-                    let numMinutes;
-                    let numHours;
-                    if (timeValue > 60) {
-                        numHours = Math.floor(timeValue / 60);
-                        numMinutes = timeValue - (60 * numHours);
-                        if (numHours === 1) {
-                            if (estimatedTimeBoldedText.textContent) {
-                                if (numMinutes !== 0) {
-                                    estimatedTimeBoldedText.textContent += ` + 1 hour, ${numMinutes} minutes`;
-                                }
-                                else {
-                                    estimatedTimeBoldedText.textContent += ` + 1 hour`;
-                                }
-                            }
-                            else {
-                                if (numMinutes !== 0) {
-                                    estimatedTimeBoldedText.textContent = `1 hour, ${numMinutes} minutes`;
-                                }
-                                else {
-                                    estimatedTimeBoldedText.textContent = `1 hour`;
-                                }
-                            }
-                        }
-                        else {
-                            if (numMinutes != 0)
-                                if (estimatedTimeBoldedText.textContent) {
-                                    estimatedTimeBoldedText.textContent += ` + ${numHours} hours, ${numMinutes} minutes`;
-                                }
-                                else {
-                                    estimatedTimeBoldedText.textContent = `${numHours} hours, ${numMinutes} minutes`;
-                                }
-                            else {
-                                if (estimatedTimeBoldedText.textContent) {
-                                    estimatedTimeBoldedText.textContent += ` + ${numHours} hours`;
-                                }
-                                else {
-                                    estimatedTimeBoldedText.textContent = `${numHours} hours`;
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        if (estimatedTimeBoldedText.textContent) {
-                            estimatedTimeBoldedText.textContent += ` + ${timeValue} ${timeUnit}`;
-                        }
-                        else {
-                            estimatedTimeBoldedText.textContent = `${timeValue} ${timeUnit}`;
-                        }
-                    }
-                }
-            }
-        );
-        return true;
-    }
-    else {
-        estimatedTimeElement.style.visibility = "hidden";
-        estimatedTimeBoldedText.textContent = "";
-        return false;
+    if (upper) {
+        const lowNum = parseFractional(lower);
+        const highNum = parseFractional(upper);
+        return {
+            lower: lowNum,
+            upper: highNum,
+            unit: singular,
+            hasRange: true,
+        };
+    } else {
+        const value = parseFractional(lower);
+        return {
+            lower: value,
+            upper: null,
+            unit: singular,
+            hasRange: false,
+        };
     }
 }
 
+
+function normalizeTimeUnit(unit) {
+    if (!unit){
+        return "minutes";
+    }
+    if (unit.startsWith("h")){
+        return "hours"
+    };
+    return "minutes";
+}
+
+
+function toMinutesMultiplier(unit) {
+    return unit.startsWith("h") ? 60 : 1;
+}
+
+
+function parseFractional(str) {
+    if (!str) {
+        return 0;
+    }
+    const parts = str.trim().split(" ");
+    if (parts.length === 2 && parts[1].includes("/")) {
+        const [n, d] = parts[1].split("/").map(Number);
+        return parseInt(parts[0], 10) + n / d;
+    }
+    if (str.includes("/")) {
+        const [n, d] = str.split("/").map(Number);
+        return n / d;
+    }
+    return parseFloat(str);
+}
+
+
+function convertMinutesToDisplay(mins) {
+    if (mins >= 60) {
+        const hours = Math.floor(mins / 60);
+        const rem = mins % 60;
+        if (rem === 0) {
+            return `${hours} hour${hours > 1 ? "s" : ""}`;
+        }
+        return `${hours} hour${hours > 1 ? "s" : ""}, ${rem} minute${rem !== 1 ? "s" : ""}`;
+    }
+    return `${mins} minute${mins !== 1 ? "s" : ""}`;
+}
+
+
+function formatTimeSegments(segments) {
+  return segments
+    .map(s => {
+        const unit = s.unit; // "hour" or "minute"
+        const formatValue = val => (val % 1 === 0 ? val : val.toFixed(1));
+
+        if (s.hasRange) {
+            // wrap ranges in parentheses
+            return `(${formatValue(s.lower)} - ${formatValue(s.upper)} ${unit}${s.upper !== 1 ? "s" : ""})`;
+        } else {
+            return `${formatValue(s.lower)} ${unit}${s.lower !== 1 ? "s" : ""}`;
+        }
+    })
+    .join(" + ");
+}
+
+
+// Reads all durations specified in current recipe instruction and writes them to notecard
+function getTimeForInstruction(instruction) {
+    // Case 1: When recipe is created with Recipe Maker and is fetched from local SQL database
+    if (instruction.hours || instruction.minutes) {
+        const hrs = instruction.hours;
+        const mins = instruction.minutes;
+        const totalMinutes = (hrs * 60) + mins;
+
+        // build a segment identical to regex branch
+        const segments = [
+            {
+                lower: totalMinutes,
+                upper: null,
+                unit: "minute",
+                hasRange: false
+            }
+        ];
+
+        const estimatedText = convertMinutesToDisplay(totalMinutes);
+        estimatedTimeBoldedText.textContent = estimatedText;
+        estimatedTimeElement.style.visibility = "";
+
+        return { segments, estimatedText }
+    }
+    // Case 2: Recipe fetched from TheMealDB API
+    else {
+        const text = instruction.text || normalizeUnicodeFractions(
+            instruction.toLowerCase().replace(/\s*( to |–|—|−| or )\s*/gi, "-")
+        );
+        
+        const matches = findTimeMatches(text);
+        if (!matches || matches.length === 0) {
+            estimatedTimeElement.style.visibility = "hidden";
+            estimatedTimeBoldedText.textContent = "";
+            return null;
+        }
+        const segments = matches.map(parseTimeSegment);
+        const estimatedText = formatTimeSegments(segments);
+
+        estimatedTimeBoldedText.textContent = estimatedText;
+        estimatedTimeElement.style.visibility = "";
+
+        return { segments, estimatedText };
+    }
+}
+
+// Convert segments to minutes, picking which bound to use for ranges
+function computeMinutesFromSegments(segments, bound = "lower") {
+    const mult = u => (u.startsWith("hour") ? 60 : 1);
+    return segments.reduce((sum, s) => {
+        const val = s.hasRange
+        ? (bound === "upper" ? s.upper : s.lower)
+        : s.lower;
+        return sum + (val * mult(s.unit));
+    }, 0);
+}
+
+
+function classifyTimeType(instructionText) {
+    // Normalize text to lowercase
+    const text = instructionText.toLowerCase();
+
+    // Regex patterns for prep and cook keywords
+    const prepPattern = /\b(prep|prepare|mix|chop|slice|whisk|stir|combine|marinate|rest|let stand|knead)\b/;
+    const cookPattern = /\b(cook|bake|boil|simmer|roast|grill|fry|saute|steam|broil|toast|heat|reheat)\b/;
+
+    if (cookPattern.test(text)) return "cook";
+    if (prepPattern.test(text)) return "prep";
+
+    // fallback if uncertain
+    return "prep";
+}
+
+
+function getClassifiedTime(instruction, bound = "upper") {
+    const parsed = getTimeForInstruction(instruction);
+    instruction = instruction.text || instruction;
+    const type = classifyTimeType(instruction);
+    if (!parsed) {
+        return{ type, totalMinutes: 0 };
+    }
+    const totalMinutes = computeMinutesFromSegments(parsed.segments, bound);
+    return { type, totalMinutes };
+}
+
+
+
 async function main() {
-    ({instructions} = await fillRecipeViewPage());
+    // Returns the current step and the last step of instructions
+    function getSteps() {
+        let [ currentStep, _ ] = stepFractionPresentation.textContent.split(" / ");
+        currentStep = parseInt(currentStep);
+        let lastStep = instructions.length;
+        return { currentStep, lastStep};
+    }
+    const { instructions } = await fillRecipeViewPage();
     let [ getPreviousStep, getNextStep ] = navigateWalkthroughContainer.getElementsByTagName("button");
     let { currentStep, lastStep } = getSteps();
 
@@ -384,11 +414,32 @@ async function main() {
 
     stepFractionPresentation.textContent = `1 / ${instructions.length}`
 
-    currentInstruction = instructions[currentStep - 1];
+    let currentInstruction = instructions[currentStep - 1];
+
+    let prepTotal = 0;
+    let cookTotal = 0;  
+
+    for (const instruction of instructions) {
+        const { type, totalMinutes } = getClassifiedTime(instruction);
+        if (type === "prep"){
+            prepTotal += totalMinutes;
+        }
+        else if (type === "cook"){
+            cookTotal += totalMinutes;
+        }
+    }
+
+    // Deletes parent element representing total time if there's no time to list
+    if (prepTotal + cookTotal === 0) {
+        totalTimeEl.remove();
+    }
+    
+    prepTimeEl.textContent = convertMinutesToDisplay(prepTotal);
+    cookTimeEl.textContent = convertMinutesToDisplay(cookTotal);
 
     // Checks if timer should be displayed
     function displayTimer(currentInstruction) {
-        timer = getTimeForInstruction(currentInstruction);
+        const timer = getTimeForInstruction(currentInstruction);
         visibleCountdown.textContent = calculate_padded_time(getEstimatedTimeInMinutes(0) * 60);
         timerBar.value = 1;
 
@@ -406,7 +457,6 @@ async function main() {
     }
 
     function initializeTimerButtons() {
-        // TODO: Use popups to manage multiple timers when navigating steps
         timerIndex = 0;
         prevTimerBtn.style.cursor = "not-allowed";
         prevTimerBtn.style.color = "gray";
@@ -449,7 +499,7 @@ async function main() {
             displayTimer(currentInstruction)
 
             // Updates text displayed for instructions, steps done, and step counter
-            instructionsTextElement.textContent = instructions[currentStep - 1]
+            instructionsTextElement.textContent = instructions[currentStep - 1].text || instructions[currentStep - 1];
             stepFractionPresentation.textContent = `${currentStep} / ${lastStep}`;
             stepCounter.textContent = currentStep;
             progressBar.value = currentStep / lastStep;
@@ -477,7 +527,7 @@ async function main() {
             displayTimer(currentInstruction)
 
             // Updates text displayed for instructions, steps done, and step counter
-            instructionsTextElement.textContent = instructions[currentStep - 1]
+            instructionsTextElement.textContent = instructions[currentStep - 1].text || instructions[currentStep - 1];
             stepFractionPresentation.textContent = `${currentStep} / ${lastStep}`;
             stepCounter.textContent = currentStep;
             // Updates progress bar to reflect current step
@@ -499,7 +549,6 @@ async function main() {
     const timerOptionsDropdown = timerSection.getElementsByClassName("dropdown-content")[0];
     timerSection.addEventListener(
         "mouseleave", () => {
-            console.log(timerOptionsDropdown)
             timerOptionsDropdown.style.display = "none";
         }
     )
@@ -530,58 +579,94 @@ async function main() {
         'tsp-to-tbsp': 1/3
     };
 
-    function convertMeasurement(measurement, conversionType) {
-        //extract number and unit + source that helped: https://regexone.com/references/javascript
-        const regex = /([\d\.]+)\s*(oz|ounce|ounces|ml|milliliter|milliliters|cup|cups|tbsp|tbs\.?|tablespoon|tablespoons|T|tsp|tsp\.?|teaspoon|teaspoons|t)/i;
-        const match = measurement.match(regex);
-        if (!match) return measurement; //no conversion if no match
-        let value = parseFloat(match[1]); //the number
-        let unit = match[2].toLowerCase().replace(/\.$/, ""); //the unit + turning to lowercase and remove period at end if there is one
+    // Parse quantity like "3 1/3 cup", "1/2cup", "2.5 tbsp", "4 ", "½ tbsp"
+    //had to get help from copilot for this function
+    function parseQuantity(input) {
+        if (!input || typeof input !== 'string') return null;
+        let s = input.trim();
+        // normalize unicode fractions (uses existing function in file)
+        s = normalizeUnicodeFractions(s).trim();
+
+        // Pattern: numeric part (mixed | fraction | decimal | int), optional unit (letters + dots), then rest
+        const m = s.match(/^(\d+\s+\d+\/\d+|\d+\/\d+|\d*\.\d+|\d+)\s*([a-zA-Z\.]+)?\.?\s*(.*)$/);
+        if (!m) return null;
+
+        const rawNumber = m[1];
+        const rawUnit = m[2] || '';
+        const rest = (m[3] || '').trim();
+
+        let value;
+        if (rawNumber.includes(' ')) { // mixed number
+            const [whole, frac] = rawNumber.split(/\s+/);
+            const [num, den] = frac.split('/').map(Number);
+            value = parseInt(whole, 10) + (num / den);
+        } else if (rawNumber.includes('/')) { // simple fraction
+            const [num, den] = rawNumber.split('/').map(Number);
+            value = num / den;
+        } else {
+            value = parseFloat(rawNumber);
+        }
+
+        const unit = rawUnit.toLowerCase().replace(/\.$/, '');
+
+        return { value, unit, rest, rawNumber };
+    }
+
+    function convertMeasurement(original, conversionType) {
+        // original may contain quantity + unit + ingredient; parse it
+        //had to get help from copilot for this function
+        const parsed = parseQuantity(original);
+        if (!parsed) return original; // nothing to convert
+
+        const { value, unit, rest } = parsed;
         let convertedValue, convertedUnit;
-        switch(conversionType) { //https://www.w3schools.com/js/js_switch.asp
+
+        switch (conversionType) {
             case 'oz-to-ml':
-                if (["oz","ounce","ounces"].includes(unit)) {
+                if (["oz", "ounce", "ounces"].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "ml";
                 }
                 break;
             case 'ml-to-oz':
-                if (["ml","milliliter","milliliters"].includes(unit)) {
+                if (["ml", "milliliter", "milliliters"].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "oz";
                 }
                 break;
             case 'cups-to-ml':
-                if (["cup","cups"].includes(unit)) {
+                if (["cup", "cups"].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "ml";
                 }
                 break;
             case 'ml-to-cups':
-                if (["ml","milliliter","milliliters"].includes(unit)) {
+                if (["ml", "milliliter", "milliliters"].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "cups";
                 }
                 break;
             case 'tbsp-to-tsp':
-                if (["tbsp", "tbs", "tablespoon","tablespoons"].includes(unit)) {
+                if (["tbsp", "tbs", "tablespoon", "tablespoons", "tbs."].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "tsp";
                 }
                 break;
             case 'tsp-to-tbsp':
-                if (["tsp","teaspoon","teaspoons","t","tsp."].includes(unit)) {
+                if (["tsp", "teaspoon", "teaspoons", "t", "tsp."].includes(unit)) {
                     convertedValue = value * conversionFactors[conversionType];
                     convertedUnit = "tbsp";
                 }
                 break;
             default:
-                return measurement;
+                return original;
         }
-        if (convertedValue !== undefined) {
-            return `${convertedValue.toFixed(2)} ${convertedUnit}`;
-        }
-        return measurement;
+
+        if (convertedValue === undefined) return original; // unit didn't match expected for this conversion
+
+        // Format: two decimals, but remove trailing .00 for whole numbers if desired
+        const formatted = Number.isInteger(convertedValue) ? `${convertedValue}` : convertedValue.toFixed(2);
+        return `${formatted} ${convertedUnit}${rest ? ' ' + rest : ''}`;
     }
 
     dropdown.addEventListener('change', function() {
@@ -591,19 +676,11 @@ async function main() {
             const checkbox = li.querySelector('input.ingredient-checkbox');
             const span = li.querySelector('span');
             if (checkbox && span) {
-                const original = checkbox.getAttribute('data-original');
+                const original = checkbox.getAttribute('data-original') || span.textContent;
                 if (conversionType === 'none') {
-                    span.textContent = original;
+                    span.textContent = original.trim();
                 } else {
-                    // Only convert the measurement part, keep ingredient name
-                    const parts = original.split(' ');
-                    if (parts.length >= 2) {
-                        const measurement = parts.slice(0,2).join(' ');
-                        const rest = parts.slice(2).join(' ');
-                        span.textContent = convertMeasurement(measurement, conversionType) + (rest ? ' ' + rest : '');
-                    } else {
-                        span.textContent = convertMeasurement(original, conversionType);
-                    }
+                    span.textContent = convertMeasurement(original, conversionType);
                 }
             }
         });
@@ -632,7 +709,7 @@ function showCommentSection(currentStep) {
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const commentBtn = document.getElementById('add-step-comment');
     const submitBtn = document.getElementById('submit-step-comment');
     const input = document.getElementById('step-comment-input');
@@ -698,75 +775,148 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     //bookmark popup logic
-    const bookmarkBtn = document.querySelector('#bookmark');
-    const popup = document.getElementById('bookmark-popup');
-    const overlay = document.getElementById('bookmark-popup-overlay');
-    const form = document.getElementById('bookmark-form');
-    const select = document.getElementById('collection-select');
-    const newCollectionInput = document.getElementById('new-collection-name');
-    const addCollectionBtn = document.getElementById('add-collection-btn');
-    const cancelBtn = document.getElementById('cancel-bookmark-popup');
+    const bookmarkBtn = document.querySelector("#bookmark");
+    const popup = document.getElementById("bookmark-popup");
+    const overlay = document.getElementById("bookmark-popup-overlay");
+    const form = document.getElementById("bookmark-form");
+    const select = document.getElementById("collection-select");
+    const newCollectionInput = document.getElementById("new-collection-name");
+    const addCollectionBtn = document.getElementById("add-collection-btn");
+    const deleteCollectionBtn = document.getElementById("delete-collection-btn");
+    const cancelBtn = document.getElementById("cancel-bookmark-popup");
 
-    //load collections from localStorage or default
-    function loadCollections() {
-        let collections = JSON.parse(localStorage.getItem('collections') || '["bookmarks"]');
-        select.innerHTML = '';
-        //https://stackoverflow.com/questions/18417114/add-item-to-dropdown-list-in-html-using-javascript
-        collections.forEach(col => {
-            const opt = document.createElement('option'); //creates a new option element
-            opt.value = col; //sets the value of the option to the collection name
-            opt.textContent = col.charAt(0).toUpperCase() + col.slice(1); //sets the displayed text with first letter capitalized
-            select.appendChild(opt); //adds the option to the select dropdown
-        });
+    // Early return to prevent unregistered users from making collections/bookmarking recipes
+    const current_user = await getCurrentUserDetails();
+
+    if (!current_user) {
+        bookmarkBtn.disabled = true;
+        bookmarkBtn.style.cursor = "not-allowed";
+        return; // stop executing the rest
+    }
+
+    //load collections from localStorage or default + help from copilot to change collections to arrays
+    async function loadCollections() {
+        select.innerHTML = "";
+        try {
+        const res = await fetch("/collections");
+        const data = await res.json();
+        const items = data.items || [];
+
+        // Auto-create "My Bookmarks" if missing
+        if (!items.some((c) => c.collection_name === "My Bookmarks")) {
+            await createCollection("My Bookmarks");
+            return loadCollections();
+        }
+
+        for (const col of items) {
+            const opt = document.createElement("option");
+            opt.value = col.collection_name;
+            opt.textContent = col.collection_name;
+            select.appendChild(opt);
+        }
+
+        updateDeleteButtonState();
+        } catch (err) {
+        console.error("Failed to load collections:", err);
+        }
     }
 
     //show popup
     //https://www.w3schools.com/howto/howto_js_popup_form.asp
     function showPopup() {
         loadCollections();
-        popup.style.display = 'block';
-        overlay.style.display = 'block';
-        newCollectionInput.value = '';
+        popup.style.display = "block";
+        overlay.style.display = "block";
+        newCollectionInput.value = "";
         select.focus();
+        updateDeleteButtonState();
     }
 
     //hide popup
     //https://www.w3schools.com/howto/howto_js_popup_form.asp
     function hidePopup() {
-        popup.style.display = 'none';
-        overlay.style.display = 'none';
+        popup.style.display = "none";
+        overlay.style.display = "none";
     }
 
-    //add new collection
-    addCollectionBtn.addEventListener('click', () => { //when the button is clicked
-        const name = newCollectionInput.value.trim(); //get the name and trim whitespace
-        if (!name) return;
-        let collections = JSON.parse(localStorage.getItem('collections') || '["bookmarks"]');
-        if (!collections.includes(name)) { //avoid duplicates
-            collections.push(name); //add to array
-            localStorage.setItem('collections', JSON.stringify(collections)); //save back to localStorage
-            loadCollections(); //reload dropdown
-            select.value = name; //select the new collection
+    overlay.addEventListener("click", hidePopup);
+    cancelBtn.addEventListener("click", hidePopup);
+
+    //helper to enable/disable delete button (cannot delete "bookmarks")
+    function updateDeleteButtonState() {
+        const selected = select.value;
+        if (!selected || selected === "My Bookmarks") {
+        deleteCollectionBtn.disabled = true;
+        deleteCollectionBtn.style.opacity = "0.5";
+        } else {
+        deleteCollectionBtn.disabled = false;
+        deleteCollectionBtn.style.opacity = "1";
         }
-        newCollectionInput.value = ''; //clear input
+    }
+
+    select.addEventListener("change", updateDeleteButtonState);
+
+    //add new collection
+    addCollectionBtn.addEventListener("click", async () => {
+        const name = newCollectionInput.value.trim();
+        if (!name) return;
+        const existing = Array.from(select.options).map((o) => o.value.toLowerCase());
+        if (existing.includes(name.toLowerCase())) {
+            alert(`Collection "${name}" already exists.`);
+            return;
+        }
+        await createCollection(name);
+        await loadCollections();
+        select.value = name;
+        newCollectionInput.value = "";
     });
+
+    //delete selected collection (except 'bookmarks')
+    deleteCollectionBtn.addEventListener("click", async () => {
+        const name = select.value;
+        if (!name || name === "My Bookmarks") {
+            alert('Default "My Bookmarks" cannot be deleted.');
+            return;
+        }
+        if (!confirm(`Delete collection "${name}"?`)) return;
+        const col = await getCollectionByName(name);
+        console.log(col.id);
+        if (col?.id) await deleteCollectionById(col.id);
+        await loadCollections();
+        select.value = "My Bookmarks";
+
+    });
+
+    //update delete button state when user chooses another collection
+    select.addEventListener('change', updateDeleteButtonState);
 
     //cancel button
     cancelBtn.addEventListener('click', hidePopup);
     overlay.addEventListener('click', hidePopup);
 
     //save bookmark (demo: just alerts for now)
-    form.addEventListener('submit', (e) => { //when form is submitted
-        e.preventDefault(); //prevent it from reloading the page
-        const collection = select.value; //get selected collection
-        // Here you would save the recipe ID to the chosen collection in localStorage or backend
-        alert(`Recipe saved to "${collection}"!`);
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const recipeId = getRecipeIdFromURL();
+        console.log(recipeId)
+        const collectionName = select.value || "My Bookmarks";
+
+        let collection = await getCollectionByName(collectionName);
+        let collectionId = collection?.id;
+
+        if (!collectionId) {
+            const created = await createCollection(collectionName);
+            collectionId = created.collection?.id;
+        }
+
+        await addRecipeToBookmarks(collectionId, recipeId);
+        alert(`Recipe saved to "${collectionName}"!`);
         hidePopup();
     });
 
     //show popup on bookmark button click
     if (bookmarkBtn) {
-        bookmarkBtn.addEventListener('click', (e) => {
+        bookmarkBtn.addEventListener("click", (e) => {
             e.preventDefault();
             showPopup();
         });

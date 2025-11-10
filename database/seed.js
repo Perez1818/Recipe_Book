@@ -18,6 +18,9 @@ async function seedDatabase() {
     await client.query(`DROP TABLE IF EXISTS recipes CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS ingredients CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS instructions CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS reviews CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS review_feedback CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS collections CASCADE;`);
 
     /* To ensure that usernames and emails cannot be created with different cases:
      * https://www.postgresql.org/docs/15/citext.html
@@ -50,7 +53,7 @@ async function seedDatabase() {
     await client.query(`CREATE TABLE IF NOT EXISTS reviews(
                   id SERIAL PRIMARY KEY,
                   recipe_id INT NOT NULL,
-                  user_id INT NOT NULL,
+                  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                   rating INT CHECK (rating BETWEEN 1 AND 5),
                   content TEXT NOT NULL,
                   num_likes INT,
@@ -69,6 +72,15 @@ async function seedDatabase() {
                   CONSTRAINT unique_user_review_feedback UNIQUE (user_id, review_id)
     );`);
 
+    await client.query(`CREATE TABLE IF NOT EXISTS collections(
+                id SERIAL PRIMARY KEY,
+                user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                collection_name TEXT DEFAULT 'Bookmarks',
+                recipe_ids INT[] DEFAULT '{}',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT unique_user_collection UNIQUE (user_id, collection_name)
+    );`);
+
     await client.query(`CREATE TABLE IF NOT EXISTS recipes(
                   id SERIAL PRIMARY KEY,
                   user_id INT NOT NULL,
@@ -78,9 +90,9 @@ async function seedDatabase() {
                   serving_size INT,
                   tags TEXT[],
                   is_published BOOLEAN NOT NULL,
-
                   thumbnail TEXT NOT NULL,
                   video TEXT,
+                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
                   CONSTRAINT fk_recipes_users FOREIGN KEY (user_id) REFERENCES users (id)
     );`);
