@@ -96,7 +96,7 @@ async function seedDatabase() {
 
                   cutoff DATE NOT NULL,
 
-                  points INT,
+                  points INT NOT NULL,
 
                   required_ingredients TEXT[],
                   max_ingredients INT,
