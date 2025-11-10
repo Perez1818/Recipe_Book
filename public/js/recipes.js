@@ -1,3 +1,10 @@
+
+// Retrieves recipe ID
+export function getRecipeIdFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("id");
+}
+
 // Returns a random recipe
 export async function fetchRecipe(){
     const response = await fetch("https://www.themealdb.com/api/json/v1/1/random.php");
