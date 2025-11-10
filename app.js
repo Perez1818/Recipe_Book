@@ -4,7 +4,8 @@ const dotenv = require("dotenv");
 
 const recipesRouter = require("./routes/recipesRouter.js");
 const worldRouter = require("./routes/worldRouter.js");
-const reviewsRouter = require("./routes/reviewsRouter.js")
+const reviewsRouter = require("./routes/reviewsRouter.js");
+const collectionsRouter = require("./routes/collectionsRouter.js")
 
 const sessionMiddleware = require("./middleware/session.js");
 const { passport, configurePassport } = require("./middleware/passport.js");
@@ -35,6 +36,7 @@ app.use("/static", express.static(`${PARENT_DIRECTORY}/public`));
 app.use(express.json({ limit: "1mb" }));
 
 // Routes
+app.use("/collections", collectionsRouter)
 app.use("/recipes", recipesRouter);
 app.use("/world", worldRouter);
 app.use("/", router);
