@@ -1,3 +1,4 @@
+import { getUserDetails } from "./users.js";
 
 // Walkthrough objects
 const navigateWalkthroughContainer = document.getElementById("navigate-walkthrough");
@@ -36,30 +37,6 @@ const cookTimeEl = document.getElementById("cook-time-total");
 // Obtains recipe ID from URL
 const [ _, recipeApiId ] = currentUrl.split("?id=");
 
-// Returns the current step and the last step of instructions
-function getSteps() {
-    let [ currentStep, _ ] = stepFractionPresentation.textContent.split(" / ");
-    currentStep = parseInt(currentStep);
-    lastStep = instructions.length;
-    return { currentStep, lastStep};
-}
-
-
-// Gets details pertaining to a specific user given their ID
-async function getUserDetails(id) {
-    const response = await fetch(`/userDetails/${id}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
-    });
-    const result = await response.json();
-    if (!response.ok) {
-        console.log("Failed to load in user details:", result.error)
-        return;
-    }
-    return result;
-}
-
-
 // Searches for the recipe based on ID provided in URL
 async function searchForRecipe() {
     try {
@@ -75,14 +52,14 @@ async function searchForRecipe() {
             throw "Error occurred fetching data!";
         }
         const data = await response.json();
-        console.log(data);
         return data;
     }
 }
 
 // Lists publisher of recipe
 function listPublisher(url, publishingDate) {
-    urlCopy = url;
+    let urlCopy = url;
+    let domainName;
     if (!url) {
         domainName = "AnonymousPublisher";
         websiteAvailableImg.style.display = "none";
@@ -93,8 +70,8 @@ function listPublisher(url, publishingDate) {
             urlCopy = urlCopy.replace(urlComponentsToRemove[i], "");
         }
 
-        startIndex = 0;
-        endIndex = urlCopy.indexOf(".");
+        const startIndex = 0;
+        const endIndex = urlCopy.indexOf(".");
         domainName = urlCopy.substring(startIndex, endIndex);
 
         usernameLink.href = "public-account.html";
@@ -157,7 +134,7 @@ async function fillRecipeViewPage() {
     // Title
     recipeName.textContent = recipe.strMeal || recipe.name;
     // Publisher
-    recipeOwner = await getUserDetails(recipe.user_id);
+    const recipeOwner = await getUserDetails(recipe.user_id);
     const publisher = recipe.strSource
                       ? recipe.strSource
                       : recipeOwner
@@ -178,11 +155,11 @@ async function fillRecipeViewPage() {
     // Thumbnail
     thumbnail.src = recipe.strMealThumb || `../uploads/multimedia/${recipe.thumbnail}`;
     // Instructions
-    instructions = recipe.strInstructions || recipe.instructions
+    let instructions = recipe.strInstructions || recipe.instructions
     try {
         instructions = instructions.replace(/\r/g, "").split("\n").filter(str => str !== "").filter(str => str.length > 7)
     } catch {
-        instructionsBucket = [];
+        let instructionsBucket = [];
         for (const instr of instructions) {
             instructionsBucket.push(instr);
         }
@@ -410,6 +387,13 @@ function getClassifiedTime(instruction, bound = "upper") {
 
 
 async function main() {
+    // Returns the current step and the last step of instructions
+    function getSteps() {
+        let [ currentStep, _ ] = stepFractionPresentation.textContent.split(" / ");
+        currentStep = parseInt(currentStep);
+        let lastStep = instructions.length;
+        return { currentStep, lastStep};
+    }
     const { instructions } = await fillRecipeViewPage();
     let [ getPreviousStep, getNextStep ] = navigateWalkthroughContainer.getElementsByTagName("button");
     let { currentStep, lastStep } = getSteps();
@@ -421,7 +405,7 @@ async function main() {
 
     stepFractionPresentation.textContent = `1 / ${instructions.length}`
 
-    currentInstruction = instructions[currentStep - 1];
+    let currentInstruction = instructions[currentStep - 1];
 
     let prepTotal = 0;
     let cookTotal = 0;  
@@ -441,7 +425,7 @@ async function main() {
 
     // Checks if timer should be displayed
     function displayTimer(currentInstruction) {
-        timer = getTimeForInstruction(currentInstruction);
+        const timer = getTimeForInstruction(currentInstruction);
         visibleCountdown.textContent = calculate_padded_time(getEstimatedTimeInMinutes(0) * 60);
         timerBar.value = 1;
 
