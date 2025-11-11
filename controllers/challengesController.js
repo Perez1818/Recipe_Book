@@ -2,6 +2,7 @@ const { getSingleUpload } = require("../middleware/fileUploader.js");
 const challengesTable = require("../database/challengesTable.js");
 const { validate, validationResult } = require("../middleware/formValidation.js");
 const { getErrorMessages, attributeCount } = require("../middleware/helpers.js");
+const pool = require("../database/pool.js");
 
 const PARENT_DIRECTORY = __dirname;
 
@@ -65,3 +66,37 @@ exports.createChallenge = async (request, response) => {
         }
     });
 };
+
+// Tyrese #4
+
+// Fetches a particular challenge by its ID
+exports.getChallenge = async (request, response) => {
+    const id = request.params.id;
+    if (!id) return res.status(400).json({ error: "invalid id" });
+    try {
+        const result = await pool.query(
+            `SELECT user_id, title, thumbnail, description, start, cutoff, points, required_ingredients, max_ingredients
+            FROM challenges
+            WHERE id=$1`,
+            [id]
+        );
+        return response.json({ ...result.rows[0] });
+    } catch (err) {
+        console.error("getChallenge error:", err);
+    }
+}
+
+// Fetches all challenges that have not yet expired
+exports.listChallenges = async (request, response) => {
+    try {
+        const result = await pool.query(
+            `SELECT id, user_id, title, thumbnail, description, start, cutoff, points, required_ingredients, max_ingredients
+            FROM challenges
+            WHERE cutoff::date >= NOW() AT TIME ZONE 'UTC'
+            ORDER BY start`
+        );
+        return response.json({ items: result.rows });
+    } catch (error) {
+        response.status(400).send({ message: `Challenge list fetch failed ${todaysDate}` });
+    }
+}
