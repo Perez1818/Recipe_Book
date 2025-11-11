@@ -17,7 +17,7 @@ exports.getChallengeMaker = async (request, response, next) => {
         response.render("challenge-maker");
     }
     else {
-        next();
+        response.redirect("/login");
     }
 };
 
