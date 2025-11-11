@@ -22,7 +22,6 @@ h2 {
     justify-self: center;
     height: fit-content;
     margin-bottom: 10px;
-    /* align-items: center; */
 }
 
 .rating-container svg {
@@ -36,7 +35,6 @@ h2 {
 }
 
 #username {
-    display: flex;
     justify-self: center;
     justify-content: center;
     gap: 25px;
@@ -115,10 +113,8 @@ h2 {
 
 #time-container {
     display: flex;
-    /* padding-bottom: 20px; */
     justify-content: center;
     gap: 30px;
-    /* margin-bottom: 20px; */
 }
 
 .time-left {
@@ -155,9 +151,12 @@ h2 {
 
 #participate-button {
     border-radius: 10px;
-    padding: 10px;
+    padding: 5px;
     border: none;
-    background-color: white;
+    background-color: lightgray;
+    font-weight: bold;
+    width: 120px;
+    height: 30px;
 }
 
 #image-container {

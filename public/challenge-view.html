@@ -11,7 +11,10 @@
     <link defer rel="stylesheet" href="css/view-header.css">
     <link rel="stylesheet" href="css/reviews.css">
     <!-- <script defer src="js/recipe-view.js"></script> -->
-     <script defer src="js/recipe-review-handler.js"></script>
+    <script type="module" src="./js/users.js"></script>
+    <!-- <script type="module" src="./js/reviews.js"></script> -->
+     <script defer type="module" src="./js/challenge-view.js"></script>
+    <script defer type="module" src="./js/recipe-review-handler.js"></script>
 </head>
 <body>
     <header>
@@ -62,37 +65,16 @@
         </nav>
     </header>
     <main>
-        <h1 id="recipe-name">Challenge Title</h1>
+        <h1 id="challenge-name">Challenge Title</h1>
         <span id="username-and-date">
             <span>By 
                 <a id="username-link">
                     <b id="username"></b>
                 </a>
-                <a id="origin-site-link">
-                    <svg id="origin-site-available" width="15px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-                    </svg>
-                    <svg id="origin-site-not-available" width="15px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.181 8.68a4.503 4.503 0 0 1 1.903 6.405m-9.768-2.782L3.56 14.06a4.5 4.5 0 0 0 6.364 6.365l3.129-3.129m5.614-5.615 1.757-1.757a4.5 4.5 0 0 0-6.364-6.365l-4.5 4.5c-.258.26-.479.541-.661.84m1.903 6.405a4.495 4.495 0 0 1-1.242-.88 4.483 4.483 0 0 1-1.062-1.683m6.587 2.345 5.907 5.907m-5.907-5.907L8.898 8.898M2.991 2.99 8.898 8.9" />
-                    </svg>
-                </a>
-
             </span>
-            <span id="separator">|</span>
-            <span id="publishing-date">Uploaded on on August 14, 2025</span>
         </span>
          <!-- for google translate + source that helped: https://www.w3schools.com/howto/howto_google_translate.asp -->
          <div id="google_translate_element"></div>
-
-         <div class="rating-container">
-            <!-- Daniel: source that helped: https://www.w3schools.com/howto/howto_css_star_rating.asp-->
-            <span class="fa fa-star" data-r-value="1"></span>
-            <span class="fa fa-star" data-r-value="2"></span>
-            <span class="fa fa-star" data-r-value="3"></span>
-            <span class="fa fa-star" data-r-value="4"></span>
-            <span class="fa fa-star" data-r-value="5"></span>
-            <span id="avg-rating">0.0</span>
-        </div>
 
         <div id="recipe-interactions">
             <!-- Like Button -->
@@ -139,7 +121,7 @@
         </section>
         <div id="image-container">
             <img id="challenge-img">
-            <div id="image-carousel">
+            <div id="image-carousel" style="display:none;">
                 <button disabled>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
@@ -159,22 +141,20 @@
         <section id="challenge-details-section">
             <h2>Challenge Details</h2>
             <div id="challenge-info-container">
-                <span>🗓️ August 20 - August 25</span>
-                <span>0 👤</span>
-                <span>X pts</span>
+                <span id="calendar-date">🗓️ August 20 - August 25</span>
+                <span id="num-participants">0 👤</span>
+                <span id="num-points">X pts</span>
                 <button class="clickable" id="participate-button">
-                    <strong>Participate</strong>
+                    Participate
                 </button>
             </div>
             <section id="judging-criteria-section">
                 <h3>Description</h3>
-                <ol>
-                    <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni natus maxime nemo expedita ipsam tempore voluptates non nulla quos blanditiis, quod tenetur officia quia. Fugit non voluptas id animi ea!</li>
-                    <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Hic ex voluptatibus, temporibus sequi, necessitatibus eos cum iste distinctio repellendus ratione et asperiores exercitationem placeat commodi odio quibusdam quia neque ullam!</li>
-                    <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sint eligendi error in cum dignissimos quas culpa ducimus non est accusantium asperiores, consequatur earum aperiam aliquid libero explicabo ipsa consectetur! Accusantium!</li>
-                    <li>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Recusandae debitis facilis dolorem, molestiae sequi reprehenderit, iste odit, consequatur maxime laborum distinctio aliquid libero soluta fuga ratione at eveniet in! Error.</li>
-                    <li>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Corporis consequatur ipsum labore tempore vitae voluptates libero nemo enim minus soluta sed inventore ex, cupiditate necessitatibus accusantium perferendis! Ducimus, nobis ad!</li>
-                </ol>
+                <p id="description"></p>
+                <b>Requirements</b>
+                <ul id="requirements">
+                    <li id="max-ingredients">Max Ingredients: </li>
+                </ul>
             </section>
             <section id="submission-section">
                 <h3>Upload</h3>
@@ -191,7 +171,7 @@
             <div id="post-review-container">
                 <img src="img/Profile_icon.svg" id="current-user-profile-pic">
                 <input id="review-to-post" placeholder="Add a review?" maxlength="350">
-                <div class="rating-container-2">
+                <div class="rating-container-2" style="display: none;">
                     <input type="radio" id="1-star" name="stars" value="1">
                     <input type="radio" id="2-star" name="stars" value="2">
                     <input type="radio" id="3-star" name="stars" value="3">
