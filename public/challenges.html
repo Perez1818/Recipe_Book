@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Challenges</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/challenges.css">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/challenges.css">
+    <script defer type="module" src="./js/challenges.js"></script>
+    <script type="module" src="./js/users.js"></script>
 </head>
 <body>
     <header>
@@ -60,7 +62,12 @@
     <h1>Challenges</h1>
     <main>
         <div id="challenges-container">
-            <div class="challenge" id="challenge-1">
+            <!-- Placeholder until a single review is added -->
+            <div id="no-challenges-placeholder">
+                <b style="font-size: 2vw; font-family: Georgia, serif;">Looks like nobody is home...</b>
+                <img src="gif/Planta_rodadora_o_Estepicursor.gif">
+            </div>
+            <div class="challenge">
                 <div class="column-container">
                     <img width="200px" height="200px">
                     <div class="challenge-text-area">
@@ -74,283 +81,21 @@
                 </div>
                 <div class="details">
                     <div class="row time-and-username hide-overflow">
-                        <p>⏱️ 0 days left</p>
+                        <p class="days-left">⏱️ 0 days left</p>
                         <p class="hide-overflow">
-                            By <a href="#">@user123456789012345678901234567890</a>
+                            By <a href="#" class="username">@user123456789012345678901234567890</a>
                         </p>
                     </div>
                     <div class="row">
-                        <p> 0👍</p>
-                        <p>0👤</p>
+                        <p class="likes"> 0👍</p>
+                        <p class="participants">0👤</p>
                     </div>
                     <div class="row">
                         <button class="participate-button">Participate</button>
-                        <a href="challenge-view.html">More Details</a>
                     </div>
                 </div>
-            </div>
-            
-            <div class="challenge" id="challenge-2">
-                <div class="column-container">
-                    <img width="200px" height="200px">
-                    <div class="challenge-text-area">
-                        <span class="challenge-title">🍋 Life Gave Me Lemons:</span>
-                        <span class="challenge-description">I have too many lemons from my lemon tree and am sick of lemonade. Any suggestions?</span>
-                        <span class="challenge-award-points"> (10 pts)</span>
-                    </div>
-                </div>
-                <div class="details">
-                    <div class="row time-and-username hide-overflow">
-                        <p>⏱️ 0 days left</p>
-                        <p class="hide-overflow">
-                            By <a href="#">@user1234567890</a>
-                        </p>
-                    </div>
-                    <div class="row">
-                        <p> 0👍</p>
-                        <p>0👤</p>
-                    </div>
-                    <div class="row">
-                        <button class="participate-button">Participate</button>
-                        <a href="challenge-view.html">More Details</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="challenge" id="challenge-3">
-                <div class="column-container">
-                    <img width="200px" height="200px">
-                    <div class="challenge-text-area">
-                        <span class="challenge-title">🎵 "I want it that way" 🎵:</span>
-                        <span class="challenge-description">Customize and provide your own unique twist on a traditional recipe.</span>
-                        <span class="challenge-award-points"> (20 pts)</span>
-                    </div>
-                </div>
-                <div class="details">
-                    <div class="row time-and-username hide-overflow">
-                        <p>⏱️ 0 days left</p>
-                        <p class="hide-overflow">
-                            By <a href="#">@user1234567890</a>
-                        </p>
-                    </div>
-                    <div class="row">
-                        <p> 0👍</p>
-                        <p>0👤</p>
-                    </div>
-                    <div class="row">
-                        <button class="participate-button">Participate</button>
-                        <a href="challenge-view.html">More Details</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="challenge" id="challenge-4">
-                <div class="column-container">
-                    <img width="200px" height="200px">
-                    <div class="challenge-text-area">
-                        <span class="challenge-title">🚫 No Borders Between Us:</span>
-                        <span class="challenge-description">Post a recipe that contains at least one ingredient from each continent.</span>
-                        <span class="challenge-award-points"> (90 pts)</span>
-                    </div>
-                </div>
-                <div class="details">
-                    <div class="row time-and-username hide-overflow">
-                        <p>⏱️ 0 days left</p>
-                        <p class="hide-overflow">
-                            By <a href="#">@user1234567890</a>
-                        </p>
-                    </div>
-                    <div class="row">
-                        <p> 0👍</p>
-                        <p>0👤</p>
-                    </div>
-                    <div class="row">
-                        <button class="participate-button">Participate</button>
-                        <a href="challenge-view.html">More Details</a>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="challenge" id="challenge-5">
-                <div class="column-container">
-                    <img width="200px" height="200px">
-                    <div class="challenge-text-area">
-                        <span class="challenge-title">Fusion Feast:</span>
-                        <span class="challenge-description">Post a recipe combining ingredients from two or more recipes.</span>
-                        <span class="challenge-award-points"> (30 pts)</span>
-                    </div>
-                </div>
-                <div class="details">
-                    <div class="row time-and-username hide-overflow">
-                        <p>⏱️ 0 days left</p>
-                        <p class="hide-overflow">
-                            By <a href="#">@user1234567890</a>
-                        </p>
-                    </div>
-                    <div class="row">
-                        <p> 0👍</p>
-                        <p>0👤</p>
-                    </div>
-                    <div class="row">
-                        <button class="participate-button">Participate</button>
-                        <a href="challenge-view.html">More Details</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="challenge" id="challenge-6">
-                <div class="column-container">
-                    <img width="200px" height="200px">
-                    <div class="challenge-text-area">
-                        <span class="challenge-title">Making Something out of Nothing:</span>
-                        <span class="challenge-description">Anything you can make from just flour, oil, and sugar?</span>
-                        <span class="challenge-award-points"> (10 pts)</span>
-                    </div>
-                </div>
-                <div class="details">
-                    <div class="row time-and-username hide-overflow">
-                        <p>⏱️ 0 days left</p>
-                        <p class="hide-overflow">
-                            By <a href="#">@user1234567890</a>
-                        </p>
-                    </div>
-                    <div class="row">
-                        <p> 0👍</p>
-                        <p>0👤</p>
-                    </div>
-                    <div class="row">
-                        <button class="participate-button">Participate</button>
-                        <a href="challenge-view.html">More Details</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="challenge" id="challenge-7">
-                <div class="column-container">
-                    <img width="200px" height="200px">
-                    <div class="challenge-text-area">
-                        <span class="challenge-title">🎵 "Hit Me With Your Best Pot!" 🎵:</span>
-                        <span class="challenge-description">Post your best one pot dish and show off your culinary expertise.</span>
-                        <span class="challenge-award-points"> (50 pts)</span>
-                    </div>
-                </div>
-                <div class="details">
-                    <div class="row time-and-username hide-overflow">
-                        <p>⏱️ 0 days left</p>
-                        <p class="hide-overflow">
-                            By <a href="#">@user1234567890</a>
-                        </p>
-                    </div>
-                    <div class="row">
-                        <p> 0👍</p>
-                        <p>0👤</p>
-                    </div>
-                    <div class="row">
-                        <button class="participate-button">Participate</button>
-                        <a href="challenge-view.html">More Details</a>
-                    </div>
-                </div>
-            </div>  
-            
-            <div class="challenge" id="challenge-8">
-                <div class="column-container">
-                    <img width="200px" height="200px">
-                    <div class="challenge-text-area">
-                        <span class="challenge-title">⛄'Tis the Season':</span>
-                        <span class="challenge-description">Post a recipe that uses only seasonal ingredients.</span>
-                        <span class="challenge-award-points"> (60 pts)</span>
-                    </div>
-                </div>
-                <div class="details">
-                    <div class="row time-and-username hide-overflow">
-                        <p>⏱️ 0 days left</p>
-                        <p class="hide-overflow">
-                            By <a href="#">@user1234567890</a>
-                        </p>
-                    </div>
-                    <div class="row">
-                        <p> 0👍</p>
-                        <p>0👤</p>
-                    </div>
-                    <div class="row">
-                        <button class="participate-button">Participate</button>
-                        <a href="challenge-view.html">More Details</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="challenge" id="challenge-9">
-                <div class="column-container">
-                    <img width="200px" height="200px">
-                    <div class="challenge-text-area">
-                        <span class="challenge-title">🥫 Can You Handle It?:</span>
-                        <span class="challenge-description">Bust out the can-opener y'all. It's time to get creative and make something truly delicious using primarily canned foods.</span>
-                        <span class="challenge-award-points"> (90 pts)</span>
-                    </div>
-                </div>
-                <div class="details">
-                    <div class="row time-and-username hide-overflow">
-                        <p>⏱️ 0 days left</p>
-                        <p class="hide-overflow">
-                            By <a href="#">@user1234567890</a>
-                        </p>
-                    </div>
-                    <div class="row">
-                        <p> 0👍</p>
-                        <p>0👤</p>
-                    </div>
-                    <div class="row">
-                        <button class="participate-button">Participate</button>
-                        <a href="challenge-view.html">More Details</a>
-                    </div>
-                </div>
-            </div>
-            <div class="challenge" id="challenge-10">
-                <div class="column-container">
-                    <img width="200px" height="200px">
-                    <div class="challenge-text-area">
-                        <span class="challenge-title">🌀 The Pantry Zone:</span>
-                        <span class="challenge-description">You are about to enter another dimension — a dimension not only of taste but of mind. A journey into a wondrous land of flavor, guided only by what’s in your pantry. No store runs and no opening of the refrigerator. The only limit is your imagination. Next stop: The Pantry Zone!</span>
-                        <span class="challenge-award-points"> (70 pts)</span>
-                    </div>
-                </div>
-                <div class="details">
-                    <div class="row time-and-username hide-overflow">
-                        <p>⏱️ 0 days left</p>
-                        <p class="hide-overflow">
-                            By <a href="#">@user1234567890</a>
-                        </p>
-                    </div>
-                    <div class="row">
-                        <p> 0👍</p>
-                        <p>0👤</p>
-                    </div>
-                    <div class="row">
-                        <button class="participate-button">Participate</button>
-                        <a href="challenge-view.html">More Details</a>
-                    </div>
-                </div>
-            </div>
-
-            <div id="pages-container">
-                <a href="#">1</a>
-                <a href="#">2</a>
-                <a href="#">3</a>
-                <a href="#">4</a>
-                <a href="#">5</a>
-                <a href="#">6</a>
-                <a href="#">7</a>
-                <a href="#">8</a>
-                <a href="#">9</a>
-                <a href="#">10</a>
-                <a href="#">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
-                    </svg>
-                </a>
             </div>
         </div>
-        <!-- </div> -->
     </main>
 </body>
 </html>
