@@ -7,7 +7,7 @@ exports.participateInChallenge = async (request, response) => {
     if (!challengeId) return response.status(400).json({ error: "invalid challenge id" });
     const client = await pool.connect();
     try {
-        const { liked = false, status = "participating" } = request.body || {};
+        const { liked = false, status = "participating",  } = request.body || {};
         await client.query('BEGIN');
         const result = await client.query(
             `INSERT INTO usersChallenges (user_id, challenge_id, liked, status)
@@ -35,19 +35,21 @@ exports.participateInChallenge = async (request, response) => {
 exports.updateUserChallengeDetails = async (request, response) => {
     const userId = Number(request.params.userId);
     const challengeId = Number(request.params.challengeId);
+    const recipeId = Number(request.params.recipeId);
     const { liked, status } = request.body || {};
 
-    if (!userId || !challengeId)
+    if (!userId || !challengeId || !recipeId)
         return response.status(400).json({ error: "invalid parameters" });
 
     try {
         const result = await pool.query(
         `UPDATE usersChallenges
-        SET liked = COALESCE($3, liked),
-            status = COALESCE($4, status)
+        SET recipe_id = COALESCE($3, recipe_id),
+            liked = COALESCE($4, liked),
+            status = COALESCE($5, status)
         WHERE user_id = $1 AND challenge_id = $2
-        RETURNING id, user_id, challenge_id, liked, status`,
-        [userId, challengeId, liked, status]
+        RETURNING id, user_id, challenge_id, recipe_id, liked, status`,
+        [userId, challengeId, recipeId, liked, status]
         );
 
         if (result.rowCount === 0)

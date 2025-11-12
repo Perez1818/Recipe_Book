@@ -111,14 +111,7 @@ async function main() {
                     }
                 }
             }
-        }
-
-        const numLikes = await getLikesForChallenge(challengeId);
-        // FINISH HERE
-        // if (challengeDetails.liked)
-
-
-            
+        }   
     } catch (err) {
         participateButton.disabled = true;
         participateButton.style.cursor = "not-allowed";
@@ -222,22 +215,32 @@ async function main() {
     // Allows the user recipes that are qualified to be clickable until one is chosen
     satisfiableUserRecipes.forEach(
         async (userRecipe) => {
-            userRecipe.addEventListener(
-                "click", async () => {
-                    await userCompletesChallenge(userId, challengeId);
-                    participateButton.disabled = true;
-                    participateButton.textContent = "Completed";
-                    participateButton.style.cursor = "not-allowed";
-                    participateButton.style.backgroundColor = "lightgreen";
-                    submissionArea.style.display = "none";
+            userRecipe.addEventListener("click", async () => {
+            const recipeId = userRecipe.recipeId;
+            try {
+                const result = await userCompletesChallenge(userId, challengeId, recipeId);
 
-                    await displayParticipantsAndWinners();
+                // Only mark as completed if no error from backend
+                if (!result || result.error) throw new Error(result?.error || "failed");
 
-                    satisfiableUserRecipes.forEach(img => {
-                        preventRecipeFromBeingClicked(img)
-                    });
-                }
-            )
+                // Only runs if recipe successfully attached
+                participateButton.disabled = true;
+                participateButton.textContent = "Completed";
+                participateButton.style.cursor = "not-allowed";
+                participateButton.style.backgroundColor = "lightgreen";
+                submissionArea.style.display = "none";
+
+                await displayParticipantsAndWinners();
+
+                satisfiableUserRecipes.forEach(img => {
+                preventRecipeFromBeingClicked(img);
+                });
+            } catch (err) {
+                console.warn("Recipe submission failed:", err.message);
+                // Disable just this recipe to prevent retry with same ID
+                preventRecipeFromBeingClicked(userRecipe);
+            }
+            });
         }
     )
 
@@ -250,6 +253,7 @@ async function main() {
             participateButton.classList.add("participating");
             participateButton.textContent = " Participating ✓";
             participateButton.style.backgroundColor = "salmon";
+            submissionArea.style.display = "flex";
         }
         else if (userChallengeDetails && userChallengeDetails.status === "completed") {
             participateButton.classList.remove("participating");
