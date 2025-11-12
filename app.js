@@ -7,6 +7,7 @@ const worldRouter = require("./routes/worldRouter.js");
 const reviewsRouter = require("./routes/reviewsRouter.js");
 const collectionsRouter = require("./routes/collectionsRouter.js")
 const challengesRouter = require("./routes/challengesRouter.js");
+const usersChallengesRouter = require("./routes/usersChallengesRouter.js");
 
 const sessionMiddleware = require("./middleware/session.js");
 const { passport, configurePassport } = require("./middleware/passport.js");
@@ -43,6 +44,7 @@ app.use("/reviews", reviewsRouter);
 app.use("/world", worldRouter);
 app.use("/", router);
 app.use("/challenges", challengesRouter);
+app.use("/users-challenges", usersChallengesRouter);
 
 app.use((error, request, response, next) => {
     console.error(error);

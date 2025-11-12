@@ -22,6 +22,7 @@ async function seedDatabase() {
     await client.query(`DROP TABLE IF EXISTS review_feedback CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS collections CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS challenges CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS usersChallenges CASCADE;`);
 
     /* To ensure that usernames and emails cannot be created with different cases:
      * https://www.postgresql.org/docs/15/citext.html
@@ -137,6 +138,32 @@ async function seedDatabase() {
 
                   CONSTRAINT fk_challenges_users FOREIGN KEY (user_id) REFERENCES users (id)
     );`);
+
+    // Define enum status for user in challenge
+    // Define enum type and table
+    await client.query(`
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'challenge_status') THEN
+            CREATE TYPE challenge_status AS ENUM (
+                'not_participating',
+                'participating',
+                'completed',
+                'expired_before_completion'
+            );
+            END IF;
+        END$$;
+    `);
+
+    // Create joint table between users and challenges
+    await client.query(`CREATE TABLE IF NOT EXISTS usersChallenges(
+                  id SERIAL PRIMARY KEY,
+                  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                  challenge_id INT NOT NULL REFERENCES challenges(id) ON DELETE CASCADE,
+                  liked BOOLEAN DEFAULT false,
+                  status challenge_status DEFAULT 'participating',
+                  CONSTRAINT unique_user_challenge UNIQUE (user_id, challenge_id)
+    )`);
 
     await client.end();
 }
