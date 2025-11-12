@@ -3,6 +3,10 @@ main > * {
     margin: 20px auto;
 }
 
+main {
+    padding-bottom: 50px;
+}
+
 h2 {
     width: fit-content;
     margin: 20px auto;
@@ -76,7 +80,7 @@ h2 {
 #submission-section {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    overflow: auto;
 }
 
 .display-button-name {
@@ -114,6 +118,19 @@ h2 {
     display: flex;
     justify-content: center;
     gap: 30px;
+}
+
+#user-recipe-container {
+    display: flex;
+    gap: 75px;
+    margin: 30px 10px;
+}
+
+#user-recipe-container img {
+    border-radius: 50%;
+    height: 150px;
+    aspect-ratio: 1/1;
+    cursor: pointer;
 }
 
 .time-left {
@@ -276,7 +293,6 @@ h2 {
 
 #post-comment-container {
     display: flex;
-    /* justify-content: center; */
     gap: 20px;
     align-items: center;
 }
@@ -303,4 +319,9 @@ h2 {
     flex-direction: column;
     align-items: center;
     width: fit-content;
+}
+
+/* Source: https://www.geeksforgeeks.org/css/convert-an-image-into-grayscale-image-using-html-css/ */
+.gray-out {
+    filter: grayscale(100%);
 }
