@@ -95,6 +95,7 @@ async function main() {
             if (userChallengeDetails && userChallengeDetails.status === "participating") {
                 participateButton.classList.add("participating");
                 participateButton.textContent = " Participating ✓";
+                participateButton.style.backgroundColor = "salmon";
             }
             else if (userChallengeDetails && userChallengeDetails.status === "completed") {
                 participateButton.classList.remove("participating");

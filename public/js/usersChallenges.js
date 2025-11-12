@@ -53,12 +53,12 @@ export async function userLeavesChallenge(userId, challengeId) {
 }
 
 // Complete a challenge
-export async function userCompletesChallenge(userId, challengeId) {
+export async function userCompletesChallenge(userId, challengeId, recipeId) {
     try {
-        const response = await fetch(`/users-challenges/${userId}/${challengeId}`, {
+        const response = await fetch(`/users-challenges/${userId}/${challengeId}/${recipeId}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status: "completed" }),
+            body: JSON.stringify({ status: "completed", recipe_id: recipeId }),
         });
         const result = await response.json();
         return result;

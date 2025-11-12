@@ -7,7 +7,7 @@ const router = Router();
 // Create / participate in a challenge
 router.post("/:userId/:challengeId", usersChallengesController.participateInChallenge);
 // Update user–challenge details (like or status)
-router.patch("/:userId/:challengeId", usersChallengesController.updateUserChallengeDetails);
+router.patch("/:userId/:challengeId/:recipeId", usersChallengesController.updateUserChallengeDetails);
 // Get likes for a challenge
 router.get("/:challengeId/likes", usersChallengesController.getChallengeLikes);
 // Get number of participants for a challenge

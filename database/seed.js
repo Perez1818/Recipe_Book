@@ -13,15 +13,15 @@ async function seedDatabase() {
     /* Drop tables if they exist, CASCADE keyword ensures foreign keys referencing dropped tables will also be dropped
      * https://stackoverflow.com/a/35338810
      */
-    await client.query(`DROP TABLE IF EXISTS users CASCADE;`);
+    // await client.query(`DROP TABLE IF EXISTS users CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS "session" CASCADE;`);
-    await client.query(`DROP TABLE IF EXISTS recipes CASCADE;`);
-    await client.query(`DROP TABLE IF EXISTS ingredients CASCADE;`);
-    await client.query(`DROP TABLE IF EXISTS instructions CASCADE;`);
-    await client.query(`DROP TABLE IF EXISTS reviews CASCADE;`);
-    await client.query(`DROP TABLE IF EXISTS review_feedback CASCADE;`);
-    await client.query(`DROP TABLE IF EXISTS collections CASCADE;`);
-    await client.query(`DROP TABLE IF EXISTS challenges CASCADE;`);
+    // await client.query(`DROP TABLE IF EXISTS recipes CASCADE;`);
+    // await client.query(`DROP TABLE IF EXISTS ingredients CASCADE;`);
+    // await client.query(`DROP TABLE IF EXISTS instructions CASCADE;`);
+    // await client.query(`DROP TABLE IF EXISTS reviews CASCADE;`);
+    // await client.query(`DROP TABLE IF EXISTS review_feedback CASCADE;`);
+    // await client.query(`DROP TABLE IF EXISTS collections CASCADE;`);
+    // await client.query(`DROP TABLE IF EXISTS challenges CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS usersChallenges CASCADE;`);
 
     /* To ensure that usernames and emails cannot be created with different cases:
@@ -140,7 +140,6 @@ async function seedDatabase() {
     );`);
 
     // Define enum status for user in challenge
-    // Define enum type and table
     await client.query(`
         DO $$
         BEGIN
@@ -160,6 +159,7 @@ async function seedDatabase() {
                   id SERIAL PRIMARY KEY,
                   user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                   challenge_id INT NOT NULL REFERENCES challenges(id) ON DELETE CASCADE,
+                  recipe_id INT UNIQUE,
                   liked BOOLEAN DEFAULT false,
                   status challenge_status DEFAULT 'participating',
                   CONSTRAINT unique_user_challenge UNIQUE (user_id, challenge_id)
