@@ -14,11 +14,12 @@
     <script type="module" src="./js/users.js"></script>
     <!-- <script type="module" src="./js/reviews.js"></script> -->
      <script defer type="module" src="./js/challenge-view.js"></script>
-    <script defer type="module" src="./js/recipe-review-handler.js"></script>
+    <!-- <script defer type="module" src="./js/recipe-review-handler.js"></script> -->
 </head>
 <body>
     <header>
         <p id="logo"> Recipe Book</p>
+        <!-- Displays navigation bar to access other webpages -->
         <nav>
             <a href="account.html" class="tooltip">
                 <span class="tooltiptext">Account</span>
@@ -65,7 +66,9 @@
         </nav>
     </header>
     <main>
+        <!-- Title -->
         <h1 id="challenge-name">Challenge Title</h1>
+        <!-- Username -->
         <span id="username-and-date">
             <span>By 
                 <a id="username-link">
@@ -97,28 +100,29 @@
                 </a>
             </div>
         </div>
-
+        <!-- Displays countdown until challenge expires -->
         <section id="countdown-section">
             <h2>Time Left</h2>
             <div id="time-container">
                 <div class="time-unit-column">
-                    <span class="time-left">31</span>
+                    <span class="time-left">00</span>
                     <b>Days</b>
                 </div>
                 <div class="time-unit-column">
-                    <span class="time-left">100</span>
+                    <span class="time-left">00</span>
                     <b>Hours</b>
                 </div>
                 <div class="time-unit-column">
-                    <span class="time-left">56</span>
+                    <span class="time-left">00</span>
                     <b>Minutes</b>
                 </div>
                 <div class="time-unit-column">
-                    <span class="time-left">30</span>
+                    <span class="time-left">00</span>
                     <b>Seconds</b>
                 </div>
             </div>
         </section>
+        <!-- Thumbnail -->
         <div id="image-container">
             <img id="challenge-img">
             <div id="image-carousel" style="display:none;">
@@ -138,10 +142,11 @@
                 </button>
             </div>
         </div>
+        <!-- Section providing details concerning challenge   -->
         <section id="challenge-details-section">
             <h2>Challenge Details</h2>
             <div id="challenge-info-container">
-                <span id="calendar-date">🗓️ August 20 - August 25</span>
+                <span id="calendar-date" style="font-weight: bold;">🗓️ </span>
                 <span id="num-participants">0 👤</span>
                 <span id="num-points">X pts</span>
                 <button class="clickable" id="participate-button">
@@ -277,8 +282,8 @@
 </html>
 <!-- w3schools google translate guide: https://www.w3schools.com/howto/howto_google_translate.asp-->
 <script type="text/javascript">
-function googleTranslateElementInit() {
-    new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
     }
 </script>
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
