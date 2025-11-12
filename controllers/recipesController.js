@@ -293,6 +293,37 @@ async function getRecipeView(request, response) {
     response.redirect("/static/recipe-view.html");
 }
 
+// Obtains all recipes by a specific user provided their user ID
+async function getRecipesByUser(request, response) {
+  const userId = Number(request.params.userId); // Gets user ID from route
+  if (!userId) return response.status(400).json({ error: "invalid id" });
+  try {
+      const recipes = await pool.query(
+        `SELECT id, user_id, thumbnail, name, description, cook_minutes, serving_size, tags, is_published, created_at
+        FROM recipes
+        WHERE user_id = $1
+        ORDER BY created_at DESC`,
+        [userId]
+      );
+
+      const recipeIds = recipes.rows.map(r => r.id);
+
+      if (recipes.rowCount === 0) return response.status(404).json({ error: "no recipes found" });
+
+      const ingredients = await pool.query(
+        `SELECT recipe_id, name
+        FROM ingredients
+        WHERE recipe_id = ANY($1)
+        ORDER BY recipe_id ASC`,
+        [recipeIds]
+      );
+
+      return response.json({ recipes: recipes.rows, ingredients: ingredients.rows});
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 module.exports = {
     getRecipeMaker,
     createRecipe,
@@ -301,5 +332,6 @@ module.exports = {
     getRecipe,
     deleteRecipe,
     verifyIngredientsPreview,
-    getRecipeView
+    getRecipeView,
+    getRecipesByUser
 };
