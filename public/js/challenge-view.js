@@ -59,7 +59,6 @@ async function main() {
         // 
         const userRecipes = userRecipesResult.recipes;
         const userRecipeIngredients = userRecipesResult.ingredients;
-        console.log("userRecipes:", userRecipes)
 
         let recipeIngredients = {};
 
@@ -74,8 +73,6 @@ async function main() {
                 recipeIngredients[recipeId] = [ingredientName];
             }
         }
-
-        console.log("ingredients:", recipeIngredients)
 
         // Populate section with list of user's recipes
         for (let i=0; i < userRecipes.length; i++) {
@@ -114,7 +111,8 @@ async function main() {
             }
         }
     } catch (err) {
-        console.error(err)
+        participateButton.disabled = true;
+        participateButton.style.cursor = "not-allowed";
     }
 
     // Fetches all images that have not been grayed out

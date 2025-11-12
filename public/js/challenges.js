@@ -1,4 +1,4 @@
-import { getUsername } from "./users.js";
+import { getUsername, getCurrentUserDetails } from "./users.js";
 
 const challengesContainer = document.querySelector("#challenges-container");
 const challengePlaceholder = document.querySelector("#no-challenges-placeholder");
@@ -18,7 +18,6 @@ async function getListChallenges() {
 async function main() {
     const challengesResult = await getListChallenges();
     const challenges = [...challengesResult.items];
-    console.log(challenges)
     let todaysDate = new Date().toISOString().split('T')[0];
 
     if (challenges.length >= 1) {
@@ -31,6 +30,13 @@ async function main() {
         clonedChallengeContainer.style.cursor = "pointer";
 
         const participateButton = clonedChallengeContainer.getElementsByClassName("participate-button")[0];
+        const currentUser = await getCurrentUserDetails();
+
+        // Prevent unregistered users from participating in any challenges
+        if (!currentUser) {
+            participateButton.disabled = true;
+            participateButton.style.cursor = "not-allowed";
+        }
 
         const  { id, user_id, title, description, thumbnail, start, cutoff, required_ingredients, points, max_ingredients } = challenge;
         const titleEl = clonedChallengeContainer.querySelector(".challenge-title");
