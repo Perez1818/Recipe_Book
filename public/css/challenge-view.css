@@ -103,7 +103,6 @@ h2 {
 
 #challenge-img {
     display: flex;
-    width: 600px;
     height: 400px;
     background-color: lightgray;
     border-radius: 5px;
