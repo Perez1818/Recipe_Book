@@ -1,10 +1,12 @@
 import { getUsername, getCurrentUserDetails } from "./users.js";
+import { getUserChallengeDetails, userParticipatesInChallenge, userLikesChallenge, userLeavesChallenge, userCompletesChallenge, getLikesForChallenge, getNumParticipantsInChallenge, getNumWinnersInChallenge } from "./usersChallenges.js";
 
 const challengesContainer = document.querySelector("#challenges-container");
 const challengePlaceholder = document.querySelector("#no-challenges-placeholder");
 const challengeContainerTemplate = challengesContainer.getElementsByClassName("challenge")[0];
 challengeContainerTemplate.style.display = "none";
 
+// Fetches all active challeges
 async function getListChallenges() {
     try {
         const response = await fetch("/challenges/list");
@@ -45,14 +47,16 @@ async function main() {
         const pointsEl = clonedChallengeContainer.querySelector(".challenge-award-points");
         const timeLeftEl = clonedChallengeContainer.querySelector(".days-left");
         const usernameEl = clonedChallengeContainer.querySelector(".username");
-        const likesEl = clonedChallengeContainer.querySelector(".likes");
+        const numLikesEl = clonedChallengeContainer.querySelector(".likes");
         const numParticipantsEl = clonedChallengeContainer.querySelector(".participants");
+        const numWinnersEl = clonedChallengeContainer.querySelector(".winners");
 
         titleEl.textContent = `${title}:`;
         imgEl.src = `../uploads/challenge/${thumbnail}`;
         usernameEl.textContent = await getUsername(user_id);
         descriptionEl.textContent = description;
         pointsEl.textContent = `(${points} pts)`;
+        // clonedChallengeContainer.challengeId = challenge_id;
 
         let cutoffDate = new Date(cutoff).toISOString().split('T')[0];
 
@@ -72,23 +76,63 @@ async function main() {
             timeLeftEl.textContent = `⏱️ ${diffHours} hours left`;
         }
 
-        participateButton.addEventListener(
-            "click", (event) => {
+        // Displays number of participants and winners
+        async function displayParticipantsAndWinners() {
+            const numParticipants = await getNumParticipantsInChallenge(id);
+            const numWinners = await getNumWinnersInChallenge(id);
+            numParticipantsEl.textContent = `${numParticipants} 👤`;
+            numWinnersEl.textContent = `${numWinners} 🏆`;
+        }
+
+        await displayParticipantsAndWinners();
+
+        if (currentUser) {
+            const userId = currentUser.id;
+
+            let userChallengeDetails;
+            userChallengeDetails = await getUserChallengeDetails(userId, id);
+
+            if (userChallengeDetails && userChallengeDetails.status === "participating") {
+                participateButton.classList.add("participating");
+                participateButton.textContent = " Participating ✓";
+            }
+            else if (userChallengeDetails && userChallengeDetails.status === "completed") {
+                participateButton.classList.remove("participating");
+                participateButton.textContent = " Completed";
+                participateButton.style.backgroundColor = "lightgreen";
+                participateButton.style.cursor = "not-allowed";
+                participateButton.disabled = true;
+            }
+            else {
+                participateButton.classList.remove("participating");
+                participateButton.textContent = " Participate";
+            }
+
+            participateButton.addEventListener(
+            "click", async (event) => {
                 event.preventDefault();
                 event.stopPropagation();         // stop event from reaching parent elements
-                participateButton.classList.toggle("participating");
-                const numParticipants = parseInt(numParticipantsEl.textContent);
 
-                if (participateButton.classList.contains("participating")) {
-                    participateButton.textContent = " Participating ✓";
-                    numParticipantsEl.textContent = `${numParticipants + 1} 👤`;
+                if (!participateButton.classList.contains("participating")) {
+                    // Joining challenge
+                    const joinResult = await userParticipatesInChallenge(userId, id);
+                    if (joinResult && !joinResult.error) {
+                        participateButton.classList.add("participating");
+                        participateButton.textContent = " Participating ✓";
+                    }
                 }
                 else {
-                    participateButton.textContent = " Participate";
-                    numParticipantsEl.textContent = `${numParticipants - 1} 👤`;
+                    // Leaving challenge
+                    const leaveResult = await userLeavesChallenge(userId, id);
+                    if (leaveResult != null && !leaveResult.error) {
+                        participateButton.classList.remove("participating");
+                        participateButton.textContent = " Participate";
+                    }
                 }
+                await displayParticipantsAndWinners();
             }
         );
+        }
 
         clonedChallengeContainer.addEventListener(
             "click", () => {

@@ -1,6 +1,6 @@
 import { getUsername, getCurrentUserDetails } from "./users.js";
 import { getRecipesByUser } from "./recipes.js";
-
+import { getUserChallengeDetails, userLikesChallenge, userParticipatesInChallenge, userLeavesChallenge, userCompletesChallenge, getLikesForChallenge, getNumParticipantsInChallenge, getNumWinnersInChallenge } from "./usersChallenges.js";
 
 // DOM elements to fill in
 const challengeTitle = document.getElementById("challenge-name");
@@ -13,6 +13,7 @@ const requirementsEl = document.getElementById("requirements");
 const requiredIngredients = document.getElementById("required-ingredients");
 const maxIngredientsEl = document.getElementById("max-ingredients");
 const numParticipantsEl = document.getElementById("num-participants");
+const numWinnersEl = document.getElementById("num-winners");
 const participateButton = document.getElementById("participate-button");
 const timeLeftElements = Array.from(document.getElementsByClassName("time-left"));
 const userRecipesContainer = document.getElementById("user-recipe-container");
@@ -52,12 +53,13 @@ async function main() {
 
     //  Obtains all the recipes created by currently registered user
     let userRecipes;
+    let currentUser;
+    let userId;
     try {
-        const currentUser = await getCurrentUserDetails();
-        const currentUserId = currentUser.id;
-        const userRecipesResult = await getRecipesByUser(currentUserId);
-        // 
-        const userRecipes = userRecipesResult.recipes;
+        currentUser = await getCurrentUserDetails();
+        userId = currentUser.id;
+        const userRecipesResult = await getRecipesByUser(userId);
+        userRecipes = userRecipesResult.recipes;
         const userRecipeIngredients = userRecipesResult.ingredients;
 
         let recipeIngredients = {};
@@ -110,6 +112,13 @@ async function main() {
                 }
             }
         }
+
+        const numLikes = await getLikesForChallenge(challengeId);
+        // FINISH HERE
+        // if (challengeDetails.liked)
+
+
+            
     } catch (err) {
         participateButton.disabled = true;
         participateButton.style.cursor = "not-allowed";
@@ -200,17 +209,29 @@ async function main() {
         maxIngredientsEl.remove();
     }
 
+    // Displays number of participants and winners
+    async function displayParticipantsAndWinners() {
+        const numParticipants = await getNumParticipantsInChallenge(challengeId);
+        const numWinners = await getNumWinnersInChallenge(challengeId);
+        numParticipantsEl.textContent = `${numParticipants} 👤`;
+        numWinnersEl.textContent = `${numWinners} 🏆`;
+    }
+
+    await displayParticipantsAndWinners()
+
     // Allows the user recipes that are qualified to be clickable until one is chosen
     satisfiableUserRecipes.forEach(
-        (userRecipe) => {
+        async (userRecipe) => {
             userRecipe.addEventListener(
-                "click", () => {
-                    console.log(userRecipe.recipeId, "added!");
-                    participateButton.textContent = " Completed";
+                "click", async () => {
+                    await userCompletesChallenge(userId, challengeId);
                     participateButton.disabled = true;
+                    participateButton.textContent = "Completed";
                     participateButton.style.cursor = "not-allowed";
                     participateButton.style.backgroundColor = "lightgreen";
                     submissionArea.style.display = "none";
+
+                    await displayParticipantsAndWinners();
 
                     satisfiableUserRecipes.forEach(img => {
                         preventRecipeFromBeingClicked(img)
@@ -220,18 +241,44 @@ async function main() {
         }
     )
 
+    if (currentUser) {
+        let userChallengeDetails;
+        userChallengeDetails = await getUserChallengeDetails(userId, challengeId) || null;
+
+        // Set initial button state based on user challenge details
+        if (userChallengeDetails && userChallengeDetails.status === "participating") {
+            participateButton.classList.add("participating");
+            participateButton.textContent = " Participating ✓";
+            participateButton.style.backgroundColor = "salmon";
+        }
+        else if (userChallengeDetails && userChallengeDetails.status === "completed") {
+            participateButton.classList.remove("participating");
+            participateButton.textContent = " Completed";
+            participateButton.style.backgroundColor = "lightgreen";
+            participateButton.style.cursor = "not-allowed";
+            participateButton.disabled = true;
+        }
+        else {
+            participateButton.classList.remove("participating");
+            participateButton.textContent = " Participate";
+            participateButton.style.backgroundColor = "lightgray";
+        }
+    }
+
     participateButton.addEventListener(
-        "click", (event) => {
+        "click", async (event) => {
             event.preventDefault();
             event.stopPropagation();    // Stops event from reaching parent elements
-            participateButton.classList.toggle("participating");
-            const numParticipants = parseInt(numParticipantsEl.textContent);
 
             // Updates participant stats for challenge updates database
-            if (participateButton.classList.contains("participating")) {
-                participateButton.textContent = " Participating ✓";
-                participateButton.style.backgroundColor = "salmon";
-                numParticipantsEl.textContent = `${numParticipants + 1} 👤`;
+            if (!participateButton.classList.contains("participating")) {
+                // Joining challenge
+                const joinResult = await userParticipatesInChallenge(userId, challengeId);
+                if (joinResult && !joinResult.error) {
+                    participateButton.classList.add("participating");
+                    participateButton.textContent = " Participating ✓";
+                    participateButton.style.backgroundColor = "salmon";
+                }
 
                 // Displays submission area for participant
                 submissionArea.style.display = "flex";
@@ -242,12 +289,18 @@ async function main() {
                 });
             }
             else {
-                participateButton.textContent = " Participate";
-                participateButton.style.backgroundColor = "lightgray";
-                numParticipantsEl.textContent = `${numParticipants - 1} 👤`;
+                // Leaving challenge
+                const leaveResult = await userLeavesChallenge(userId, challengeId);
+                if (leaveResult != null && !leaveResult.error) {
+                    participateButton.classList.remove("participating");
+                    participateButton.textContent = " Participate";
+                    participateButton.style.backgroundColor = "lightgray";
+                }
                 
                 submissionArea.style.display = "none";
             }
+
+            await displayParticipantsAndWinners();
         }
     );
 }

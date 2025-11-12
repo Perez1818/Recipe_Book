@@ -124,6 +124,25 @@ exports.getChallengeParticipantCount = async (request, response) => {
     }
 };
 
+exports.getChallengeWinnerCount = async (request, response) => {
+    const challengeId = Number(request.params.challengeId);
+    if (!challengeId) return response.status(400).json({ error: "invalid challenge id" });
+
+    try {
+        const result = await pool.query(
+            `SELECT user_id
+            FROM usersChallenges
+            WHERE challenge_id = $1 AND status = 'completed'`,
+            [challengeId]
+        );
+
+        return response.json({ numOfWinners: result.rowCount });
+    } catch (err) {
+        console.error("getChallengeWinnerCount error:", err);
+        return response.status(500).json({ error: "failed_to_fetch_winner_count" });
+    }
+};
+
 exports.deleteUserChallenge = async (request, response) => {
     const userId = Number(request.params.userId);
     const challengeId = Number(request.params.challengeId);

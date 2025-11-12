@@ -12,6 +12,8 @@ router.patch("/:userId/:challengeId", usersChallengesController.updateUserChalle
 router.get("/:challengeId/likes", usersChallengesController.getChallengeLikes);
 // Get number of participants for a challenge
 router.get("/:challengeId/participants", usersChallengesController.getChallengeParticipantCount);
+// Get number of winners for a challenge
+router.get("/:challengeId/winners", usersChallengesController.getChallengeWinnerCount);
 // Get specific user–challenge relationship
 router.get("/:userId/:challengeId", usersChallengesController.getUserChallengeDetails);
 // Delete user-challenge relation
