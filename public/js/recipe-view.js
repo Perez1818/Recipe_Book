@@ -5,7 +5,6 @@ import {
     createCollection,
     deleteCollectionById,
     addRecipeToBookmarks,
-    removeRecipeFromCollection
 } from "./collections.js";
 
 // Walkthrough objects
@@ -15,13 +14,11 @@ const progressBar = document.getElementById("completion-progress");
 const stepCounter = document.getElementById("step-counter");
 const currentUrl = window.location.href;
 const estimatedTimeElement = document.getElementById("estimated-time");
-const estimatedTimeDescriptor = document.getElementById("description");
 const timerSection = document.getElementById("timer-section")
 const estimatedTimeBoldedText = document.getElementById("time-in-bold");
 
 // Publisher and Date objects
 const usernameElement = document.getElementById("username");
-const usernameAndDateElement = document.getElementById("username-and-date");
 const dateElement = document.getElementById("publishing-date");
 const separatorElement = document.getElementById("separator");
 
@@ -33,7 +30,6 @@ const websiteNotAvailableImg = document.getElementById("origin-site-not-availabl
 
 // Recipe detail objects
 const recipeName = document.getElementById("recipe-name");
-const username = document.getElementById("username-str");
 const tags = document.getElementById("recipe-tag");
 const thumbnail = document.getElementById("recipe-thumbnail");
 const videoElement = document.getElementById("recipe-tutorial");
@@ -44,19 +40,19 @@ const prepTimeEl = document.getElementById("prep-time-total");
 const cookTimeEl = document.getElementById("cook-time-total");
 
 // Obtains recipe ID from URL
-const [ _, recipeApiId ] = currentUrl.split("?id=");
+const [ _, recipeId ] = currentUrl.split("?id=");
 
 // Searches for the recipe based on ID provided in URL
 async function searchForRecipe() {
     try {
-        const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeApiId}`);
+        const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeId}`);
         if (!response.ok) {
             throw "Error occurred fetching data!";
         }
         const data = await response.json();
         return data["meals"][0];
     } catch {
-        const response = await fetch(`/recipes/${recipeApiId}`);
+        const response = await fetch(`/recipes/${recipeId}`);
         if (!response.ok) {
             throw "Error occurred fetching data!";
         }
@@ -105,8 +101,8 @@ function getIngredients(recipe) {
 
     for (let i = 1; i <= 20; i++) {
         try {
-            ingredient = recipe[`strIngredient${i}`] || recipe.ingredients[i - 1].name;
-            measurement = recipe[`strMeasure${i}`] || `${recipe.ingredients[i - 1].qty} ${recipe.ingredients[i - 1].unit}`
+            const ingredient = recipe[`strIngredient${i}`] || recipe.ingredients[i - 1].name;
+            const measurement = recipe[`strMeasure${i}`] || `${recipe.ingredients[i - 1].qty} ${recipe.ingredients[i - 1].unit}`
             if (ingredient) {
                 ingredients.push(ingredient);
                 measurements.push(measurement)
@@ -143,7 +139,10 @@ async function fillRecipeViewPage() {
     // Title
     recipeName.textContent = recipe.strMeal || recipe.name;
     // Publisher
-    const recipeOwner = await getUserDetails(recipe.user_id);
+    let recipeOwner = null;
+    if (recipe.user_id) {
+        recipeOwner = await getUserDetails(recipe.user_id);
+    }
     const publisher = recipe.strSource
                       ? recipe.strSource
                       : recipeOwner
