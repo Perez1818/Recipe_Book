@@ -82,11 +82,18 @@ function listPublisher(url, publishingDate) {
         usernameLink.href = "public-account.html";
         websiteNotAvailableImg.style.display = "none";
         websiteLink.href = url;
+        websiteLink.style.display = "inline-block";
     }
     usernameElement.textContent = domainName;
 
-    if (publishingDate){
-        dateElement.textContent = `Uploaded on ${publishingDate}`;  
+    if (publishingDate && domainName != "AnonymousPublisher"){
+        const date = new Date(publishingDate.replace(" ", "T"));
+        const formattedDate = date.toLocaleDateString("en-US", {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
+        dateElement.textContent = `Uploaded on ${formattedDate}`;  
     }
     else {
         separatorElement.remove();
@@ -159,7 +166,7 @@ async function fillRecipeViewPage() {
     }
     
     // Category
-    tags.textContent = recipe.strCategory || recipe.tags;
+    tags.textContent = recipe.strArea || recipe.tags;
     // Thumbnail
     thumbnail.src = recipe.strMealThumb || `../uploads/multimedia/${recipe.thumbnail}`;
     // Instructions
