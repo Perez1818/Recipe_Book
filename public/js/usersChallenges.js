@@ -97,3 +97,17 @@ export async function getNumWinnersInChallenge(challengeId) {
         console.error("getNumWinnersInChallenge error:", err);
     }
 }
+
+export async function awardChallengePointsToUser(userId, challengePoints) {
+    try {
+        const response = await fetch(`/users-challenges/${userId}/points`, {
+            method: "PATCH",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({points: challengePoints})
+        });
+        const result = await response.json();
+        return result
+    } catch {
+        console.error("addUserPoints error:", err);
+    }
+}

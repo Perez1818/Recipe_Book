@@ -1,6 +1,6 @@
 import { getUsername, getCurrentUserDetails } from "./users.js";
 import { getRecipesByUser } from "./recipes.js";
-import { getUserChallengeDetails, userLikesChallenge, userParticipatesInChallenge, userLeavesChallenge, userCompletesChallenge, getLikesForChallenge, getNumParticipantsInChallenge, getNumWinnersInChallenge } from "./usersChallenges.js";
+import { getUserChallengeDetails, userLikesChallenge, userParticipatesInChallenge, userLeavesChallenge, userCompletesChallenge, getLikesForChallenge, getNumParticipantsInChallenge, getNumWinnersInChallenge, awardChallengePointsToUser } from "./usersChallenges.js";
 
 // DOM elements to fill in
 const challengeTitle = document.getElementById("challenge-name");
@@ -216,33 +216,35 @@ async function main() {
     satisfiableUserRecipes.forEach(
         async (userRecipe) => {
             userRecipe.addEventListener("click", async () => {
-            const recipeId = userRecipe.recipeId;
-            try {
-                const result = await userCompletesChallenge(userId, challengeId, recipeId);
+                const recipeId = userRecipe.recipeId;
+                try {
+                    const result = await userCompletesChallenge(userId, challengeId, recipeId);
 
-                // Only mark as completed if no error from backend
-                if (!result || result.error) throw new Error(result?.error || "failed");
+                    // Only mark as completed if no error from backend
+                    if (!result || result.error) throw new Error(result?.error || "failed");
 
-                // Only runs if recipe successfully attached
-                participateButton.disabled = true;
-                participateButton.textContent = "Completed";
-                participateButton.style.cursor = "not-allowed";
-                participateButton.style.backgroundColor = "lightgreen";
-                submissionArea.style.display = "none";
+                    await awardChallengePointsToUser(userId, challenge.points)
 
-                await displayParticipantsAndWinners();
+                    // Only runs if recipe successfully attached
+                    participateButton.disabled = true;
+                    participateButton.textContent = "Completed";
+                    participateButton.style.cursor = "not-allowed";
+                    participateButton.style.backgroundColor = "lightgreen";
+                    submissionArea.style.display = "none";
 
-                satisfiableUserRecipes.forEach(img => {
-                preventRecipeFromBeingClicked(img);
-                });
-            } catch (err) {
-                console.warn("Recipe submission failed:", err.message);
-                // Disable just this recipe to prevent retry with same ID
-                preventRecipeFromBeingClicked(userRecipe);
-            }
+                    await displayParticipantsAndWinners();
+
+                    satisfiableUserRecipes.forEach(img => {
+                    preventRecipeFromBeingClicked(img);
+                    });
+                } catch (err) {
+                    console.warn("Recipe submission failed:", err.message);
+                    // Disable just this recipe to prevent retry with same ID
+                    preventRecipeFromBeingClicked(userRecipe);
+                }
             });
         }
-    )
+    );
 
     if (currentUser) {
         let userChallengeDetails;

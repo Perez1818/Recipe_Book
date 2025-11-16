@@ -1,3 +1,4 @@
+const { request } = require("express");
 const pool = require("../database/pool.js");
 
 exports.participateInChallenge = async (request, response) => {
@@ -162,4 +163,36 @@ exports.deleteUserChallenge = async (request, response) => {
         console.error("deleteUserChallenge error:", err);
         return response.status(500).json({ error: "failed_to_delete_user_challenge" });
     } 
+}
+
+exports.addPointsToUserProfile = async (request, response) => {
+    const userId = Number(request.params.userId);
+    const { points } = request.body || {};
+
+    if (!userId || typeof(points) !== "number") {
+        return response.status(400).json({ error: "invalid parameters" });
+    }
+
+    try {
+        const result = await pool.query(
+            `UPDATE users
+            SET points = COALESCE(points, 0) + $2
+            WHERE id = $1
+            RETURNING id, username, points`,
+            [userId, points]
+        );
+
+        if (result.rowCount === 0) {
+            return response.status(404).json({error: "user not found"});
+        }
+
+        const updatedUser = result.rows[0];
+        return response.json({
+            message: `Added ${points} to user ${updatedUser.username}`,
+            user: updatedUser
+        });
+    } catch (err) {
+        console.error("addUserPoints error:", err);
+        return response.status(500).json({ error: "failed_to_update_points" });
+    }
 }

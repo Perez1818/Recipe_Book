@@ -13,15 +13,15 @@ async function seedDatabase() {
     /* Drop tables if they exist, CASCADE keyword ensures foreign keys referencing dropped tables will also be dropped
      * https://stackoverflow.com/a/35338810
      */
-    // await client.query(`DROP TABLE IF EXISTS users CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS users CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS "session" CASCADE;`);
-    // await client.query(`DROP TABLE IF EXISTS recipes CASCADE;`);
-    // await client.query(`DROP TABLE IF EXISTS ingredients CASCADE;`);
-    // await client.query(`DROP TABLE IF EXISTS instructions CASCADE;`);
-    // await client.query(`DROP TABLE IF EXISTS reviews CASCADE;`);
-    // await client.query(`DROP TABLE IF EXISTS review_feedback CASCADE;`);
-    // await client.query(`DROP TABLE IF EXISTS collections CASCADE;`);
-    // await client.query(`DROP TABLE IF EXISTS challenges CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS recipes CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS ingredients CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS instructions CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS reviews CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS review_feedback CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS collections CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS challenges CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS usersChallenges CASCADE;`);
 
     /* To ensure that usernames and emails cannot be created with different cases:
@@ -37,6 +37,8 @@ async function seedDatabase() {
 
                   birthday DATE,
                   biography TEXT,
+
+                  points INT DEFAULT 0,
 
                   is_verified BOOLEAN DEFAULT false,
 

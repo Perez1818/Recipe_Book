@@ -18,5 +18,7 @@ router.get("/:challengeId/winners", usersChallengesController.getChallengeWinner
 router.get("/:userId/:challengeId", usersChallengesController.getUserChallengeDetails);
 // Delete user-challenge relation
 router.delete("/:userId/:challengeId", usersChallengesController.deleteUserChallenge)
+// Updates user's points by adding challenge's points
+router.patch("/:userId/points", usersChallengesController.addPointsToUserProfile)
 
 module.exports = router;
