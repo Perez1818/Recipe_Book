@@ -1,4 +1,4 @@
-import { getUsername, getCurrentUserDetails } from "./users.js";
+import { getUsername, getUserDetails, getCurrentUserDetails } from "./users.js";
 import { getRecipesByUser } from "./recipes.js";
 import { getUserChallengeDetails, userLikesChallenge, userParticipatesInChallenge, userLeavesChallenge, userCompletesChallenge, getLikesForChallenge, getNumParticipantsInChallenge, getNumWinnersInChallenge, awardChallengePointsToUser } from "./usersChallenges.js";
 
@@ -6,6 +6,7 @@ import { getUserChallengeDetails, userLikesChallenge, userParticipatesInChalleng
 const challengeTitle = document.getElementById("challenge-name");
 const challengeThumbnail = document.getElementById("challenge-img"); 
 const timeframeEl = document.getElementById("calendar-date");
+const usernameLinkEl = document.getElementById("username-link");
 const usernameEl = document.getElementById("username");
 const descriptionEl = document.getElementById("description");
 const numPointsEl = document.getElementById("num-points");
@@ -43,13 +44,23 @@ function preventRecipeFromBeingClicked(img) {
     img.disabled = true;
 }
 
+async function loadInPublisherAvatar(username, avatar) {
+    // Loads user's avatar
+    let posterAvatar = document.getElementById("poster-profile-pic");
+    let url = new URL(window.location.href);
+
+    posterAvatar.src = `/avatar/${avatar}`;
+    url.pathname = `user/${username}`
+    url.search = "";
+    usernameLinkEl.href = url;
+}
+
 async function main() {
     // Obtains variables associated with the given challenge
     const params = new URLSearchParams(window.location.search);
     const challengeId = params.get("id");
     const challenge = await getChallenge(challengeId);
     let { user_id, title, thumbnail, description, start, cutoff, points, required_ingredients, max_ingredients } = challenge;
-
 
     //  Obtains all the recipes created by currently registered user
     let userRecipes;
@@ -181,7 +192,12 @@ async function main() {
     }
 
     // Fills in username, description and points
-    usernameEl.textContent = await getUsername(user_id);
+    const userDetails = await getUserDetails(user_id);
+    const username = userDetails.username;
+    const avatar = userDetails.avatar;
+    loadInPublisherAvatar(username, avatar);
+
+    usernameEl.textContent = username;
     descriptionEl.textContent = `${description}`;
     numPointsEl.textContent = `${points} pts 🎯`;
 

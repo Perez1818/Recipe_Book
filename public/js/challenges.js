@@ -53,7 +53,9 @@ async function main() {
 
         titleEl.textContent = `${title}:`;
         imgEl.src = `../uploads/challenge/${thumbnail}`;
-        usernameEl.textContent = await getUsername(user_id);
+        const username = await getUsername(user_id);
+        usernameEl.textContent = `@${username}`;
+        usernameEl.href = `/user/${username}`
         descriptionEl.textContent = description;
         pointsEl.textContent = `(${points} pts)`;
         // clonedChallengeContainer.challengeId = challenge_id;
@@ -101,6 +103,8 @@ async function main() {
                 participateButton.classList.remove("participating");
                 participateButton.textContent = " Completed";
                 participateButton.style.backgroundColor = "lightgreen";
+                participateButton.style.borderRadius = "5px";
+                participateButton.style.border = "1px solid";
                 participateButton.style.cursor = "not-allowed";
                 participateButton.disabled = true;
             }
