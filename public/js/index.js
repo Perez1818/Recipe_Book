@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!current_user) {
             const currentUrl = new URL(window.location.href);
             const portNum = currentUrl.port;
-            if (confirm(`It looks like you're not registered! Click "OK" to visit "http://localhost:${portNum}/signup to register to fully utilize our services."`)) {
+            if (confirm(`It looks like you're not registered! Click "OK" to visit "http://localhost:${portNum}/signup" to register to fully utilize our services.`)) {
                 window.location.href = `http://localhost:${portNum}/signup`;
             }
         }
