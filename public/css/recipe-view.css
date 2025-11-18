@@ -19,6 +19,7 @@ main > * {
     grid-template-columns: repeat(2, 1fr);
     width: 400px;
     justify-items: center;
+    justify-content: center;
     text-align: center;
     margin: 20px;
     background-color: aliceblue;
@@ -80,10 +81,44 @@ img, video {
 
 #recipe-thumbnail {
     display: flex;
-    width: 600px;
-    height: 400px;
-    aspect-ratio: 1 / 1;
-    background-color: lightgray;
+    width: 50%;
+    height: fit-content;
+    object-fit: cover;
+}
+
+#username-and-date {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+    position: relative;
+    align-items: center;
+}
+
+#username-link {
+    margin-right: 10px;
+    color: black;
+    text-decoration-color: #79B473;
+}
+
+
+#button-container, #recipe-interactions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50%;
+    margin-bottom: 10px;
+}
+
+#button-container {
+    gap: 75px;
+    position: relative;
+}
+
+#button-container button, #recipe-interactions button {
+    background-color: transparent;
+    border: none;
 }
 
 .display-button-name {
@@ -403,12 +438,23 @@ input[type="radio"] {
 
 .profile-pic, #current-user-profile-pic {
     border-radius: 50%;
-    border: black solid 2px;
+    border: 2px black solid;
 }
 
 .profile-pic {
     width: 40px;
     height: 40px;
+}
+
+#poster-profile-pic {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 1px black solid;
+    margin: 0 5px;
+    /* Used to center avatar along bottom of container */
+    position: relative;
+    bottom: -10px;
 }
 
 #current-user-profile-pic {
