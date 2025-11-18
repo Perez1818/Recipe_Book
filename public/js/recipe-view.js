@@ -20,13 +20,9 @@ const estimatedTimeBoldedText = document.getElementById("time-in-bold");
 // Publisher and Date objects
 const usernameElement = document.getElementById("username");
 const dateElement = document.getElementById("publishing-date");
-const separatorElement = document.getElementById("separator");
 
 // Link objects
 const usernameLink = document.getElementById("username-link");
-const websiteLink = document.getElementById("origin-site-link");
-const websiteAvailableImg = document.getElementById("origin-site-available");
-const websiteNotAvailableImg = document.getElementById("origin-site-not-available")
 
 // Recipe detail objects
 const recipeName = document.getElementById("recipe-name");
@@ -67,7 +63,6 @@ function listPublisher(url, publishingDate) {
     let domainName;
     if (!url) {
         domainName = "AnonymousPublisher";
-        websiteAvailableImg.style.display = "none";
     }
     else {
         const urlComponentsToRemove = ["https://", "http://", "www."];
@@ -78,11 +73,8 @@ function listPublisher(url, publishingDate) {
         const startIndex = 0;
         const endIndex = urlCopy.indexOf(".");
         domainName = urlCopy.substring(startIndex, endIndex);
-
-        usernameLink.href = "public-account.html";
-        websiteNotAvailableImg.style.display = "none";
-        websiteLink.href = url;
-        websiteLink.style.display = "inline-block";
+        
+        usernameLink.href = url;
     }
     usernameElement.textContent = domainName;
 
@@ -93,10 +85,9 @@ function listPublisher(url, publishingDate) {
             month: 'long',
             day: 'numeric',
         });
-        dateElement.textContent = `Uploaded on ${formattedDate}`;  
+        dateElement.textContent = `${formattedDate}`;  
     }
     else {
-        separatorElement.remove();
         dateElement.remove();
     }
 }
@@ -149,7 +140,20 @@ async function fillRecipeViewPage() {
     let recipeOwner = null;
     if (recipe.user_id) {
         recipeOwner = await getUserDetails(recipe.user_id);
+
+        // Loads user's avatar
+        const avatar = recipeOwner.avatar;
+        let posterAvatar = document.getElementById("poster-profile-pic");
+        posterAvatar.src = `/avatar/${avatar}`;
+        
+        // Adds profile link to username and avatar
+        const username = recipeOwner.username;
+        let url = new URL(window.location.href);
+        url.pathname = `user/${username}`
+        url.search = "";
+        usernameLink.href = url;
     }
+
     const publisher = recipe.strSource
                       ? recipe.strSource
                       : recipeOwner
@@ -161,8 +165,11 @@ async function fillRecipeViewPage() {
     }
     else {
         usernameElement.textContent = publisher;
-        dateElement.textContent = `Uploaded on ${new Date(publishDate).toLocaleDateString()}`;
-        websiteNotAvailableImg.remove();
+        dateElement.textContent = `${new Date(publishDate).toLocaleDateString("en-US", {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        })}`;
     }
     
     // Category
@@ -435,9 +442,23 @@ async function main() {
         }
     }
 
+    console.log(prepTotal, cookTotal)
+
     // Deletes parent element representing total time if there's no time to list
-    if (prepTotal + cookTotal === 0) {
+    if (prepTotal + cookTotal === 0 || (prepTotal === undefined && cookTotal === undefined)) {
         totalTimeEl.remove();
+    }
+    else if (prepTotal === 0 || prepTotal === undefined) {
+        const prepTimeSection = document.getElementById("prep-time");
+        prepTimeSection.remove();
+        totalTimeEl.style.width = "200px";
+        totalTimeEl.style.gridTemplateColumns = "repeat(1, 1fr)";
+    }
+    else if (cookTotal === 0 || cookTotal === undefined) {
+        const cookTimeSection = document.getElementById("cook-time");
+        cookTimeSection.remove();
+        totalTimeEl.style.width = "200px";
+        totalTimeEl.style.gridTemplateColumns = "repeat(1, 1fr)";
     }
     
     prepTimeEl.textContent = convertMinutesToDisplay(prepTotal);

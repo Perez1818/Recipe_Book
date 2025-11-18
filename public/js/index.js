@@ -422,6 +422,23 @@ async function setRecipeContainer(recipe, recipeContainer) {
     // Associates recipe container with the ID of the recipe it's displaying
     recipeContainer.dataset.recipeId = JSON.stringify(recipeId);
 
+    // Sets username displayed 
+    const usernameEl = recipeContainer.getElementsByClassName("username")[0];
+
+    if (recipe.user_id) {
+        const recipeOwner = await getUserDetails(recipe.user_id);
+        const usernameEl = recipeContainer.getElementsByClassName("username")[0];
+        const username = recipeOwner.username;
+        let url = new URL(window.location.href);
+        url.pathname = `user/${username}`
+        url.search = "";
+        usernameEl.href = url;
+    }
+    else {
+        const usernameEl = recipeContainer.getElementsByClassName("username")[0];
+        usernameEl.href = "#";
+    }
+
     // Takes user to specified recipe page when user clicks its container
     recipeContainer.onclick = () => {
         const recipeTags = {
@@ -452,17 +469,15 @@ async function setRecipeContainer(recipe, recipeContainer) {
     const recipeOwnerId = recipe.user_id;
 
     let username = null;
+    
     if (!recipeOwnerId) {
         username = await listPublisher(recipeOrigin, recipeContainer);
     }
     else {
         username = await getUsername(recipeOwnerId);
     }
-    // Sets username displayed 
-    const usernameEl = recipeContainer.getElementsByClassName("username")[0];
+
     usernameEl.textContent = `@${username}`;
-    // Creates a reference that takes user to associated recipe page when recipe container clicked
-    usernameEl.href = `public-account.html?user=${username}`;
 
     const ratingContainer = recipeContainer.getElementsByClassName("rating-container")[0];
 
