@@ -24,6 +24,18 @@ h1 {
     background-color: white;
 }
 
+#post-challenge {
+    position: absolute;
+    right: 100px;
+    top: 150px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+#challenges-container {
+    position: relative;
+}
+
 @media screen and (max-width: 1100px) {
     .column-container {
         display: grid;
@@ -181,11 +193,11 @@ h2 {
 .challenge-text-area {
     margin: 0 15px;
     min-width: 150px;
-    height: 190px;
+    height: 210px;
     overflow: hidden;
     /* Provides multi-line truncatin. Only supported by modern browsers */
     display: -webkit-box;
-    -webkit-line-clamp: 7;
+    -webkit-line-clamp: 8;
     -webkit-box-orient: vertical;
 }
 
