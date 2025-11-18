@@ -268,6 +268,24 @@ h1, h2 {
     cursor: pointer;
 }
 
+#bookmarked-recipes svg {
+    width: 30px;
+    color: red;
+    cursor: pointer;
+}
+
+/* Prevents the container for bookmarked recipes from collapsing and recipe thumbnails shifting */
+.overlay-container {
+    position: relative;
+    display: inline-block;
+}
+
+.overlay-container svg {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+}
+
 
 /* 
 Media queries to make webpage responsive by limiting width, font-size, and number of description lines
