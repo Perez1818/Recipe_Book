@@ -9,7 +9,6 @@ import { createCollection, getCollectionByName, addRecipeToBookmarks, removeReci
 const initialCarousel = document.getElementById("trending-container");
 const mainElement = document.getElementsByTagName("main")[0];
 const viewedRecipeTags = JSON.parse(localStorage.getItem("recipeTags"));
-const scrollContainer = document.getElementById("bookmarked-recipes");
 
 // Keeps track of bookmarks
 let bookmarkCollection;
@@ -19,7 +18,7 @@ let currentAreaIndex = 0;
 
 // Checks if user is signed in and obtains theit bookmarked recipes
 let current_user = null;
-(async () => {
+document.addEventListener("DOMContentLoaded", async () => {
     try {
         current_user = await getCurrentUserDetails();
 
@@ -32,49 +31,94 @@ let current_user = null;
             }
         }
 
+        const scrollContainer = document.getElementById("bookmarked-recipes");
         bookmarkCollection = await getCollectionByName("My Bookmarks");
         bookmarkedRecipes = bookmarkCollection.recipe_ids || [];
 
         for (let i=0; i < bookmarkedRecipes.length; i++) {
             const recipeId = bookmarkedRecipes[i];
+            const div = document.createElement("div");
             const img = document.createElement("img");
+            const hiddenSvg = document.getElementsByClassName("remove-icon")[0];
+            const svg = hiddenSvg.cloneNode(true);
             const recipe = await searchForRecipe(recipeId);
             img.src = recipe.strMealThumb || `../uploads/multimedia/${recipe.thumbnail}`;
+            div.classList.add("overlay-container");
             img.onclick = () => {
                 window.location.href = `recipe-view.html?id=${recipeId}`
             }
-            scrollContainer.appendChild(img);
-
-            let scrollDirection = 1;
-            let autoScroll;
-
-            function startAutoScroll() {
-                autoScroll = setInterval(() => {
-                    scrollContainer.scrollLeft += scrollDirection * 1; // adjust speed
-                    // Reverse direction at edges
-                    if (
-                        scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth ||
-                        scrollContainer.scrollLeft <= 0
-                    ) {
-                        scrollDirection *= -1;
+            img.addEventListener(
+                "mouseenter", () => {
+                    svg.style.display = "block";
+                }
+            );
+            div.addEventListener(
+                "mouseleave", () => {
+                    svg.style.display = "none";
+                }
+            );
+            svg.addEventListener(
+                "mouseenter", () => {
+                    svg.style.fill = "transparent";
+                }
+            );
+            svg.addEventListener(
+                "mouseleave", () => {
+                    svg.style.fill = "white";
+                }
+            );
+            svg.addEventListener(
+                "click", async () => {
+                    const collection = await getCollectionByName("My Bookmarks");
+                    let collectionId = null;
+                    if (collection) {
+                        collectionId = collection.id;
                     }
-                }, 10);
-            }
-
-            function stopAutoScroll() {
-                clearInterval(autoScroll);
-            }
-
-            scrollContainer.addEventListener("mouseenter", stopAutoScroll);
-            scrollContainer.addEventListener("mouseleave", startAutoScroll);
-
-            startAutoScroll();
+                    if (!collectionId) {
+                        collectionId = await createCollection("My Bookmarks");
+                    }
+                    removeRecipeFromCollection(collectionId, recipeId);
+                    img.remove();
+                    svg.remove();
+                }
+            );
+            div.appendChild(img)
+            div.appendChild(svg)
+            scrollContainer.appendChild(div);
         }
+
+        let scrollDirection = 1;
+        let autoScroll;
+
+        function startAutoScroll() {
+            autoScroll = setInterval(() => {
+                scrollContainer.scrollLeft += scrollDirection * 1;
+
+                // detect edges with tolerance buffer
+                const atRightEdge =
+                    scrollContainer.scrollLeft >= scrollContainer.scrollWidth - scrollContainer.clientWidth - 1;
+
+                const atLeftEdge = scrollContainer.scrollLeft <= 0;
+
+                if (atRightEdge || atLeftEdge) {
+                    scrollDirection *= -1;
+                }
+            }, 10);
+        }
+
+        function stopAutoScroll() {
+            clearInterval(autoScroll);
+        }
+
+        scrollContainer.addEventListener("mouseenter", stopAutoScroll);
+        scrollContainer.addEventListener("mouseleave", startAutoScroll);
+
+        startAutoScroll();
     } catch {
         scrollContainer.remove();
         return;
     }
-})();
+});
 
 async function addEventListenersToRecipeContainer(recipeContainer) {
     const recipeBookmark = recipeContainer.getElementsByClassName("bookmark-recipe-icon")[0];
