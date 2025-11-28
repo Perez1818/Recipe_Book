@@ -212,7 +212,7 @@ const validate = {
                                           }).run(request),
 
     challengeMaxIngredients: async (request) => body("max-ingredients")
-                                     .isInt({ gt: 0 })
+                                     .isInt({ gt: 0 }).withMessage("Max ingredients must be an integer greater than 0")
                                      .run(request)
 };
 
