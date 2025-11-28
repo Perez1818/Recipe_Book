@@ -4,10 +4,15 @@
     <head>
         <title>Challenge Maker</title>
         <meta charset="UTF-8">
-
+        <link rel="stylesheet" href="/static/css/styles.css">
+        <link rel="stylesheet" href="/static/css/challenge-maker.css">
         <style>
             div.field {
                 margin: 10px;
+            }
+            
+            p {
+                margin: 0;
             }
 
             p.success {
@@ -17,58 +22,79 @@
             p.error {
                 color: red;
             }
+
+            label {
+                font-weight: bold;
+                display: block;
+            }
+            div.ingredients {
+                margin-left: 0px;
+            }
+
+            div.title {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
         </style>
 
     </head>
 
     <body>
-
-        <form action="" method="post" enctype="multipart/form-data">
-            <div class="field">
-                <label for="thumbnail">Thumbnail: </label>
-                <input type="file" id="file" name="thumbnail">
-            </div>
-
-            <div class="field">
-                <label for="title">Title: </label>
-                <input type="text" id="title" name="title" value="">
-            </div>
-
-            <div class="field">
-                <label for="description">Description: </label>
-                <textarea id="description" name="description"></textarea>
-            </div>
-
-            <div class="field">
-                <label for="start">Start: </label>
-                <input type="date" id="start" name="start" value="">
-            </div>
-
-            <div class="field">
-                <label for="cutoff">End: </label>
-                <input type="date" id="cutoff" name="cutoff" value="">
-            </div>
-
-            <div class="field">
-                <label for="points">Points: </label>
-                <input type="number" id="points" name="points">
-            </div>
-
-            <div class="field">
-                <label for="max-ingredients">Max Ingredients: </label>
-                <input type="number" id="max-ingredients" name="max-ingredients">
-            </div>
-
-            <div class="field">
-                <label for="required-ingredients">Required Ingredients: </label>
-
-
-                <div class="ingredients">
-                    <button type="button" id="add-ingredient">+ Ingredient</button>
+        <div class="title">
+            <h1>Challenge Maker</h1>
+        </div>
+        <form id="form-body" action="" method="post" enctype="multipart/form-data">
+            <div id="inner-container">
+                <div class="field">
+                    <label for="file">Thumbnail</label>
+                    <input type="file" id="file" name="thumbnail">
                 </div>
-            </div>
 
-            <input id="submit-button" type="submit" value="Create">
+                <div class="field">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" name="title" value="">
+                </div>
+
+                <div class="field">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description"></textarea>
+                </div>
+
+                <div class="field">
+                    <label for="start">Start</label>
+                    <input type="date" id="start" name="start" value="">
+                </div>
+
+                <div class="field">
+                    <label for="cutoff">End</label>
+                    <input type="date" id="cutoff" name="cutoff" value="">
+                </div>
+
+                <div class="field">
+                    <label for="points">Points</label>
+                    <input type="number" id="points" name="points">
+                </div>
+
+                <div class="field">
+                    <label for="max-ingredients">Max Ingredients</label>
+                    <input type="number" id="max-ingredients" name="max-ingredients">
+                </div>
+
+                <div class="field">
+                    <label for="required-ingredients">Required Ingredients</label>
+
+
+                    <div class="ingredients">
+                        <button type="button" id="add-ingredient">+ Ingredient</button>
+                    </div>
+                </div>
+
+                <input id="submit-button" type="submit" value="Create">
+            </div>
+            <div id="preview-holder">
+                <img id="preview">
+            </div>
         </form>
 
         <script>
@@ -102,6 +128,25 @@
             });
 
             addIngredientButton.click();
+
+            const pointsElement = document.getElementById("points");
+
+            // Load in preview after uploading thumbnail
+            const fileInput = document.getElementById("file");
+            const preview = document.getElementsByTagName("img")[0];
+            fileInput.addEventListener("change", () => {
+                const file = fileInput.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                    preview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                    preview.style.backgroundColor = "transparent";
+                } else {
+                    preview.style.display = "none";
+                }
+            });
 
             const form = document.querySelector("form");
             form.addEventListener("submit", (event) => {
@@ -161,3 +206,4 @@
         </script>
     </body>
 </html>
+
