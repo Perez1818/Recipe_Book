@@ -114,9 +114,10 @@
                                 if (targetElement.nodeName === "path") {
                                     const header = document.querySelector("h1");
                                     let abbreviation;
+                                    let countryName;
                                     if (targetElement.classList.length) {
                                         const classArray = Array.from(targetElement.classList);
-                                        const countryName = classArray.join(" ");
+                                        countryName = classArray.join(" ");
 
                                         abbreviation = countryNameAbbreviations[countryName];
 
@@ -127,7 +128,7 @@
                                     else if (targetElement.id) {
                                         const attributes = targetElement.attributes;
                                         const nameAttribute = attributes.name;
-                                        const countryName = nameAttribute.nodeValue;
+                                        countryName = nameAttribute.nodeValue;
 
                                         abbreviation = countryNameAbbreviations[countryName];
     
@@ -136,7 +137,7 @@
                                     const recipesContainer = document.querySelector("div.recipes-container");
                                     recipesContainer.innerHTML = "";
 
-                                    fetch(`/world?tag=${abbreviation.toLowerCase()}`)
+                                    fetch(`/world?tag=${abbreviation.toLowerCase()}&country=${encodeURIComponent(countryName.toLowerCase())}`)
                                         .then(response => response.json())
                                         .then(recipes => {
                                             for (recipe of recipes) {

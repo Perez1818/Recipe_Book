@@ -1,9 +1,9 @@
 const recipesTable = require("../database/recipesTable.js");
 
 exports.getWorldMap = async (request, response) => {
-    const { tag } = request.query;
+    const { tag, country } = request.query;
     if (tag) {
-        const recipesByTag = await recipesTable.getRecipesByTag(tag);
+        const recipesByTag = await recipesTable.getRecipesByTagOrCountry(tag, decodeURIComponent(country));
         response.json(recipesByTag);
     }
     else {
