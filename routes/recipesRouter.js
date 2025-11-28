@@ -10,6 +10,10 @@ recipesRouter.get("/view", recipesController.getRecipeView);
 
 recipesRouter.post("/verify-ingredients", recipesController.verifyIngredientsPreview);
 recipesRouter.post("/", recipesController.createRecipe);
+
+recipesRouter.post("/:id/likes", recipesController.likeRecipe);
+recipesRouter.get("/:id/liked", recipesController.recipeIsLiked);
+
 recipesRouter.get("/", recipesController.listRecipes);
 recipesRouter.get("/:id", recipesController.getRecipe);
 recipesRouter.put("/:id", recipesController.updateRecipe);
