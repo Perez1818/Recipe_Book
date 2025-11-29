@@ -21,15 +21,6 @@
                 cursor: pointer;
             }
 
-
-            div.recipes-container {
-                display: flex;
-                justify-content: space-around;
-                flex-wrap: wrap;
-                background-color: white;
-                margin: 0px 100px 25px 100px;
-            }
-
             div.showcase-container {
                 background-color: #79B473;
                 display: flex;
@@ -48,6 +39,9 @@
             }
 
             div.recipe img {
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
                 margin-top: 20px;
             }
 
@@ -57,18 +51,77 @@
 
             .thumbnail {
                 object-fit: cover;
-                width: 300px;
-                height: 300px;
+                width: 200px;
+                height: 200px;
+            }
+
+            .side-panel {
+                position: fixed;
+                background-color: #ECECEC;
+
+                top: 0;
+                right: -30em;
+                width: 100%;
+                max-width: 20em;
+                height: 100vh;
+
+                overflow: scroll;
+                z-index: 1;
             }
 
 
+            .close-button {
+                display: block;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 3em;
+                height: 3em;
+            }
+
+            .side-panel-container {
+                margin-top: 3em;
+            }
+
+            .no-recipes-yet {
+                position : absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
 
        </style>
+    </head>
 
-       <script>
+    <body>
+        <div id="world-container">
+        </div>
+
+        <div class="side-panel">
+            <button class="close-button">X</button>
+
+            <div class="side-panel-container">
+                <h1 style="text-align: center;">Country</h1>
+
+                <div class="recipes-container">
+                </div>
+
+                <h2 class="no-recipes-yet">No recipes yet.</h2>
+            </div>
+        </div>
+
+        <script>
           const COUNTRIES_JSON_URL = "/static/countries.json";
           const SVG_MAP_URL = "/static/img/world.svg";
           const SVG_DOWNSCALE_FACTOR = 1.25;
+
+          const sidePanel = document.querySelector(".side-panel");
+          const noRecipesMessage = document.querySelector(".no-recipes-yet");
+
+          const closePanelButton = document.querySelector(".close-button");
+          closePanelButton.addEventListener("click", () => {
+              sidePanel.style.right = "-30em";
+          });
 
           fetch(COUNTRIES_JSON_URL)
                .then(response => response.json())
@@ -120,9 +173,6 @@
                                         countryName = classArray.join(" ");
 
                                         abbreviation = countryNameAbbreviations[countryName];
-
-                                        header.textContent = `${countryName} (${abbreviation})`;
-
                                     }
     
                                     else if (targetElement.id) {
@@ -131,9 +181,9 @@
                                         countryName = nameAttribute.nodeValue;
 
                                         abbreviation = countryNameAbbreviations[countryName];
-    
-                                        header.textContent = `${countryName} (${abbreviation})`;
                                     }
+                                    header.textContent = `${countryName} (${abbreviation})`;
+
                                     const recipesContainer = document.querySelector("div.recipes-container");
                                     recipesContainer.innerHTML = "";
 
@@ -156,6 +206,14 @@
                                                 recipesContainer.appendChild(recipeDiv);
                                             }
 
+                                            if (recipes.length) {
+                                                noRecipesMessage.textContent = "";
+                                            }
+                                            else {
+                                                noRecipesMessage.textContent = "No recipes yet.";
+                                            }
+
+                                            sidePanel.style.right = "0em";
                                         })
                                         .then(error => console.error(error));
 
@@ -169,16 +227,5 @@
                   }).catch(error => console.error("Error fetching CSV: " + error));
 
        </script>
-    </head>
-
-    <body>
-        <div id="world-container">
-        </div>
-        <h1 style="text-align: center;">
-        </h1>
-
-        <div class="recipes-container">
-
-        </div>
     </body>
 </html>
