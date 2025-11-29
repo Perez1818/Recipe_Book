@@ -385,6 +385,12 @@
 
     <script> //javascript for star ratings + like button
 
+        function getRecipeIdFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get("id");
+        }
+        const recipeId = getRecipeIdFromURL();
+
         //something that helped with local storage: https://www.w3schools.com/jsref/prop_win_localstorage.asp
         //load rating from local storage
         const savedRating = localStorage.getItem('userRating');
@@ -395,14 +401,46 @@
             // document.getElementById('avg-rating').textContent = Number(savedRating).toFixed(1);
         }
 
-        //load likes from local storage
-        const liked = localStorage.getItem('liked') === 'true';
-        const likeCount = localStorage.getItem('likeCount');
+        //load liked status
         const icon = document.querySelector('#likes i');
         const countSpan = document.getElementById('like-count');
-        if (icon && countSpan) {
-            icon.classList.toggle('liked', liked);
-            if (likeCount !== null) countSpan.textContent = likeCount;
+
+        function updateLikeCountAndIcon() {
+            fetch(`/recipes/${recipeId}/liked`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => {
+                return response.json()
+                       .then(json => {
+                           if (response.ok) {
+                               return Promise.resolve(json);
+                           }
+                           return Promise.reject(json);
+                       });
+            })
+            .then(data => {
+                const liked = data.liked;
+                if (icon) {
+                    if (liked) {
+                        icon.classList.add('liked');
+                    }
+                    else {
+                        icon.classList.remove('liked');
+                    }
+                }
+                if (countSpan) {
+                    countSpan.textContent = data.likes;
+                }
+            }).catch(data => {
+                console.error("failed to retrieve liked status");
+                if (icon) {
+                    icon.classList.remove('liked');
+                }
+                if (countSpan) {
+                    countSpan.textContent = data.likes;
+                }
+            });
         }
 
         //clicking the stars
@@ -418,20 +456,32 @@
         });
 
         //clicking the like button
+        updateLikeCountAndIcon();
         document.getElementById('likes').addEventListener('click', function(e) {
             const icon = this.querySelector('i');
             const countSpan = document.getElementById('like-count');
-            let count = parseInt(countSpan.textContent, 10);
-            if (!icon.classList.contains('liked')) {
-                icon.classList.add('liked');
-                countSpan.textContent = count + 1;
-            } else {
-                icon.classList.remove('liked');
-                countSpan.textContent = count > 0 ? count - 1 : 0;
-            }
-            localStorage.setItem('liked', icon.classList.contains('liked'));
-            localStorage.setItem('likeCount', countSpan.textContent);
+
+            fetch(`/recipes/${recipeId}/likes`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => {
+                return response.json()
+                       .then(json => {
+                           if (response.ok) {
+                               return Promise.resolve(json);
+                           }
+                           return Promise.reject(json);
+                       });
+            })
+            .then(data => {
+                console.log(data.message);
+                updateLikeCountAndIcon();
+            }).catch(data => {
+                console.error(data.error);
+            });
         });
+
     </script>
     <script type="module">
         // Load in avatar

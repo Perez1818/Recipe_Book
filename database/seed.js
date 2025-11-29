@@ -21,6 +21,7 @@ async function seedDatabase() {
     await client.query(`DROP TABLE IF EXISTS reviews CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS review_feedback CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS collections CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS recipelikes CASCADE;`);
 
     /* To ensure that usernames and emails cannot be created with different cases:
      * https://www.postgresql.org/docs/15/citext.html
@@ -115,6 +116,15 @@ async function seedDatabase() {
                   PRIMARY KEY (recipe_id, step_num),
                   CONSTRAINT fk_instructions_recipes FOREIGN KEY (recipe_id) REFERENCES recipes (id)
     );`);
+
+    await client.query(`CREATE TABLE IF NOT EXISTS recipelikes(
+                  recipe_id INT NOT NULL,
+                  user_id INT NOT NULL,
+                  PRIMARY KEY (recipe_id, user_id),
+                  CONSTRAINT fk_likes_users FOREIGN KEY (user_id) REFERENCES users (id)
+    );`);
+                  // CONSTRAINT fk_likes_recipes FOREIGN KEY (recipe_id) REFERENCES recipes (id),
+                  // NOTE: This constraint would be added when user-created recipe IDs and MealDB recipe IDs no longer collide!
 
     await client.end();
 }
