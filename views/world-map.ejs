@@ -190,6 +190,9 @@
                                     fetch(`/world?tag=${abbreviation.toLowerCase()}&country=${encodeURIComponent(countryName.toLowerCase())}`)
                                         .then(response => response.json())
                                         .then(recipes => {
+
+                                            noRecipesMessage.textContent = "";
+
                                             for (recipe of recipes) {
                                                 const recipeDiv = document.createElement("div");
                                                 recipeDiv.className = "recipe";
@@ -206,10 +209,7 @@
                                                 recipesContainer.appendChild(recipeDiv);
                                             }
 
-                                            if (recipes.length) {
-                                                noRecipesMessage.textContent = "";
-                                            }
-                                            else {
+                                            if (!recipes.length) {
                                                 noRecipesMessage.textContent = "No recipes yet.";
                                             }
 
