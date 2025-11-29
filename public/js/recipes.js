@@ -52,14 +52,23 @@ export async function fetchRecipesByCuisine(cuisine) {
     return data["meals"];
 }
 
-// Returns a recipe from TheMealDB API associated with a particular recipe
-export async function searchForRecipe(recipeId){
-    let response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeId}`);
-    if (!response) {
-        throw `Error occured searching for recipe ${recipeId}`;
+// Searches for the recipe based on ID provided in URL
+export async function searchForRecipe(recipeId) {
+    try {
+        const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeId}`);
+        if (!response.ok) {
+            throw "Error occurred fetching data!";
+        }
+        const data = await response.json();
+        return data["meals"][0];
+    } catch {
+        const response = await fetch(`/recipes/${recipeId}`);
+        if (!response.ok) {
+            throw "Error occurred fetching data!";
+        }
+        const data = await response.json();
+        return data;
     }
-    const data = await response.json();
-    return data['meals'][0];
 }
 
 // Returns list of ingredients associated with a provided recipe

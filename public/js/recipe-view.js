@@ -1,5 +1,5 @@
 import { getCurrentUserDetails, getUserDetails } from "./users.js";
-import { getRecipeIdFromURL } from "./recipes.js";
+import { getRecipeIdFromURL, searchForRecipe } from "./recipes.js";
 import {
     getCollectionByName,
     createCollection,
@@ -37,25 +37,6 @@ const cookTimeEl = document.getElementById("cook-time-total");
 
 // Obtains recipe ID from URL
 const [ _, recipeId ] = currentUrl.split("?id=");
-
-// Searches for the recipe based on ID provided in URL
-async function searchForRecipe() {
-    try {
-        const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeId}`);
-        if (!response.ok) {
-            throw "Error occurred fetching data!";
-        }
-        const data = await response.json();
-        return data["meals"][0];
-    } catch {
-        const response = await fetch(`/recipes/${recipeId}`);
-        if (!response.ok) {
-            throw "Error occurred fetching data!";
-        }
-        const data = await response.json();
-        return data;
-    }
-}
 
 // Lists publisher of recipe
 function listPublisher(url, publishingDate) {
@@ -132,8 +113,9 @@ function renderIngredients(ingredients, measurements) {
 
 // Fills in title, publisher, thumbnail, video, ingredients, and measurements associated with recipe
 async function fillRecipeViewPage() {
+    const recipeId = new URLSearchParams(window.location.search).get("id");
     // Fetches recipe (ID provided in link)
-    const recipe = await searchForRecipe();
+    const recipe = await searchForRecipe(recipeId);
     // Title
     recipeName.textContent = recipe.strMeal || recipe.name;
     // Publisher

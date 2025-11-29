@@ -1,7 +1,7 @@
 
 import { fetchReviews } from "./reviews.js";
 import { fetchRecipe, initializeRecipeVariables, fetchRecipesByCategory, searchForRecipe, fetchRecipesByCuisine, fetchAreas, getRecipeIdFromURL } from "./recipes.js";
-import { getCurrentUserDetails } from "./users.js";
+import { getCurrentUserDetails, getUserDetails, getUsername } from "./users.js";
 import { createCollection, getCollectionByName, addRecipeToBookmarks, removeRecipeFromCollection, fetchCollections } from "./collections.js";
 
 
@@ -610,6 +610,7 @@ async function renderCarousel(carousel, lookupMethod=null, filter=null){
         try {
             const response = await fetch(`/recipes/`);
             const result = await response.json();
+            console.log(result)
             if (!result) {
                 throw Error(result.error);
             }
@@ -617,34 +618,33 @@ async function renderCarousel(carousel, lookupMethod=null, filter=null){
                 throw Error("No exclusive recipes found!");
             }
             const recipeList = result.items;
-            recipes = [];
+            let recipes = [];
 
-            for(let recipe of recipeList) {
-                recipeId = recipe.id;
-
+            for (let recipe of recipeList) {
+                const recipeId = recipe.id;
                 const response = await fetch(`/recipes/${recipeId}`);
                 const result = await response.json();
+
                 if (!result) {
                     throw Error(result.error);
                 }
+
                 recipes.push(result);
             }
 
-            for (let i = 0; i <= carouselRecipeContainers.length; i++) {
+            for (let i = 0; i < carouselRecipeContainers.length; i++) {
                 const recipe = recipes[i];
                 const recipeContainer = carouselRecipeContainers[i];
-                
-                if (!recipes[i]) {
-                    break;
-                }
-                
-                if (recipe) {
-                    await setRecipeContainer(recipe, recipeContainer);
-                    checkBookmarked(recipe, recipeContainer);
-                }
+                            
+                if (!recipes[i]) break;
+                            
+                await setRecipeContainer(recipe, recipeContainer);
+                checkBookmarked(recipe, recipeContainer);
             }
+            // carousel.dataset.seenRecipes = JSON.stringify(recipeIds);
         } catch (err) {
             // Carousels without a specified "lookup" are filled with random recipes
+            console.error(err)
             for (let recipeContainer of carouselRecipeContainers) {
                 const recipe = await fetchRecipe();
                 await setRecipeContainer(recipe, recipeContainer);
@@ -823,7 +823,7 @@ async function main() {
             // Left button should always be enabled if sliderIndex > 0
             leftButton.disabled = currentCarousel.sliderIndex <= 0;
 
-            rightButton.disabled = false;
+            // rightButton.disabled = false;
         });
     }
 
