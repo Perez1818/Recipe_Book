@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Calendar</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/calendar.css">
+</head>
+<body>  <!-- inside #schedule-event-popup -->
+    <div id="inner-container" aria-hidden="true">
+        <div class="modal-panel">
+            <h2 id="calendar-popup-header">Add Recipe to Calendar</h2>
+            <div class="form-grid">
+                <div class="form-field" id="fld-date">
+                   <label for="ev-date">Date</label>
+                    <input id="ev-date" type="date">
+                </div>
+                <div class="form-field" id="fld-time">
+                   <label for="ev-time">Time</label>
+                    <input id="ev-time" type="time">
+                </div>
+
+                <div class="form-field" id="fld-repeat">
+                    <label for="ev-repeat">Repeat:</label>
+                    <select id="ev-repeat">
+                        <option value="none" selected>Does not repeat</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly on …</option>
+                        <option value="weekday">Every weekday (Monday to Friday)</option>
+                        <option value="monthly_day">Monthly on day 10</option>
+                        <option value="monthly_nth">Monthly on the second Thursday</option>
+                        <option value="yearly">Annually on Nov 13</option>
+                        <option value="custom">Custom…</option>
+                    </select>
+                </div>
+
+                <div id="repeat-custom" style="display:none; margin-top:8px;">
+                    <div class="form-row two-col">
+                        <div class="form-field">
+                            <label><strong>Frequency</strong></label>
+                            <select id="rc-freq">
+                                <option value="DAILY">Daily</option>
+                                <option value="WEEKLY">Weekly</option>
+                                <option value="MONTHLY">Monthly</option>
+                                <option value="YEARLY">Yearly</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label><strong>Every</strong></label>
+                            <input id="rc-interval" type="number" min="1" value="1" style="width:90px"> <span>interval(s)</span>
+                        </div>
+                    </div>
+                    <div class="form-field" id="rc-weekdays" style="display:none;">
+                        <label><strong>Repeat on</strong></label>
+                        <div class="weekday-pills">
+                            <label><input type="checkbox" value="0">Sun</label>
+                            <label><input type="checkbox" value="1">Mon</label>
+                            <label><input type="checkbox" value="2">Tue</label>
+                            <label><input type="checkbox" value="3">Wed</label>
+                            <label><input type="checkbox" value="4">Thu</label>
+                            <label><input type="checkbox" value="5">Fri</label>
+                            <label><input type="checkbox" value="6">Sat</label>
+                        </div>
+                    </div>
+                    <div class="form-field" id="rc-monthly" style="display:none;">
+                        <label><strong>Monthly on</strong></label>
+                        <div>
+                            <label><input type="radio" name="rc-mmode" value="BYMONTHDAY" checked> same day of month</label>
+                            <label style="margin-left:16px;"><input type="radio" name="rc-mmode" value="BYDAY"> same weekday pattern (e.g., 2nd Thu)</label>    
+                        </div>
+                    </div>
+
+                    <div class="form-row two-col" style="margin-top:6px">
+                        <div class="form-field">
+                            <label><strong>Ends</strong></label>
+                            <div>
+                                <label><input type="radio" name="rc-end" value="NEVER" checked> Never</label>
+                                <label style="margin-left:12px;"><input type="radio" name="rc-end" value="COUNT"> After</label>
+                                <input id="rc-count" type="number" min="1" value="5" style="width:80px"> occurrences
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label>&nbsp;</label>
+                            <div>
+                                <label><input type="radio" name="rc-end" value="UNTIL"> On date</label>
+                                <input id="rc-until" type="date">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-field" id="fld-name">
+                    <label for="ev-name">Recipe Name:</label>
+                    <input id="ev-name">
+                </div>
+                <div class="form-field" id="fld-cat">
+                    <label for="ev-category">Category:</label>
+                    <select id="ev-category">
+                        <option value="">Course</option>
+                        <option value="breakfast">Breakfast</option>
+                        <option value="lunch">Lunch</option>
+                        <option value="dinner">Dinner</option>
+                        <option value="snack">Snack</option>
+                        <option value="dessert">Dessert</option>
+                    </select>
+                </div>
+            </div>
+            <div id="button-container">
+                <button id="cancel-button" type="button">Cancel</button>
+                <button id="save-button"   type="button">Save</button>
+            </div>
+        </div>
+    </div>
+    <header>
+        <p id="logo"> Recipe Book</p>
+        <nav>
+            <a href="account.html" class="tooltip">
+                <span class="tooltiptext">Account</span>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="30px" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+            </a>
+            <a href="index.html" class="tooltip">
+                <span class="tooltiptext">Home</span>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                </svg>
+            </a>
+            <a href="search-engine.html" class="tooltip">
+                <span class="tooltiptext">Search</span>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+            </a>
+            <a href="calendar.html" class="tooltip">
+                <svg class="icon-highlight icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                </svg>
+                <span class="tooltiptext">Calendar</span>
+            </a>
+            <a href="shopping-list.html" class="tooltip">
+                <span class="tooltiptext">Shopping List</span>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                </svg>
+            </a>
+            <a href="bulletin-board.html" class="tooltip">
+                <span class="tooltiptext">Bulletin Board</span>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
+                </svg>
+            </a>
+            <a href="create-recipe.html" class="tooltip">
+                <span class="tooltiptext">Recipe Maker</span>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                </svg>
+            </a>
+        </nav>
+    </header>
+    <hr width="100%">
+    <h1>Calendar</h1>
+    <main>
+        <!-- Month row: arrows left/right, title centered -->
+        <div id="month-row">
+            <svg id="prev-month" class="arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+            </svg>
+
+            <!-- keep your style badge; just the title sits inside it -->
+            <div id="month-display">
+                <h2 id="month" contenteditable="true" spellcheck="false">October 2025</h2>
+            </div>
+
+            <svg id="next-month" class="arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+            </svg>
+        </div>
+        <!-- Toolbar: Today + View mode -->
+        <div id="calendar-toolbar">
+            <button id="btn-today" type="button">Today</button>
+
+            <label class="sr-only" for="view-select">View</label>
+            <select id="view-select" aria-label="Change view">
+                <option value="month" selected>Monthly</option>
+                <option value="week">Weekly</option>
+                <option value="day">Daily</option>
+            </select>
+        </div>
+
+        <div id="calendar-container">
+            <p class="days-of-week">Monday</p>
+            <p class="days-of-week">Tuesday</p>
+            <p class="days-of-week">Wednesday</p>
+            <p class="days-of-week">Thursday</p>
+            <p class="days-of-week">Friday</p>
+            <p class="days-of-week">Saturday</p>
+            <p class="days-of-week">Sunday</p>
+            <div id="calendar-grid"></div>
+        </div>
+    </main>
+    <script defer src="js/calendar.js"></script>
+    <script type="module">
+        // Load in avatar
+        import { getCurrentUserDetails } from "./js/users.js";
+
+        const profile = document.getElementsByClassName("icon")[0];
+        const accountLink = document.getElementsByClassName("tooltip")[0];
+        const current_user = await getCurrentUserDetails();
+
+        function loadLoggedUserAvatar(current_user) {
+            const profilePic = current_user.avatar;
+            const img = document.createElement("img");
+            img.style.width = "45px";
+            img.style.height = "45px";
+            img.style.borderRadius = "50%";            
+            img.src = profilePic;
+            accountLink.href = `/user/${current_user.username}`;
+            profile.replaceWith(img);
+        }
+
+        // Load in avatar if user is signed in and add path to their profile
+        if (current_user) {
+            loadLoggedUserAvatar(current_user);
+        } else {
+            accountLink.style.cursor = "not-allowed";
+            accountLink.href = "#";
+        }
+    </script>
+</body>
+</html>

@@ -13,6 +13,9 @@ recipesRouter.post("/", recipesController.createRecipe);
 // Obtains all recipes by a specific user provided their user ID
 recipesRouter.get("/user/:userId", recipesController.getRecipesByUser)
 
+recipesRouter.post("/:id/likes", recipesController.likeRecipe);
+recipesRouter.get("/:id/liked", recipesController.recipeIsLiked);
+
 recipesRouter.get("/", recipesController.listRecipes);
 recipesRouter.get("/:id", recipesController.getRecipe);
 recipesRouter.put("/:id", recipesController.updateRecipe);

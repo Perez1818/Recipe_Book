@@ -6,6 +6,7 @@ const recipesRouter = require("./routes/recipesRouter.js");
 const worldRouter = require("./routes/worldRouter.js");
 const reviewsRouter = require("./routes/reviewsRouter.js");
 const collectionsRouter = require("./routes/collectionsRouter.js")
+const ingredientsRouter = require("./routes/ingredientsRouter.js");
 const challengesRouter = require("./routes/challengesRouter.js");
 const usersChallengesRouter = require("./routes/usersChallengesRouter.js");
 
@@ -42,9 +43,11 @@ app.use("/collections", collectionsRouter)
 app.use("/recipes", recipesRouter);
 app.use("/reviews", reviewsRouter);
 app.use("/world", worldRouter);
-app.use("/", router);
 app.use("/challenges", challengesRouter);
 app.use("/users-challenges", usersChallengesRouter);
+
+app.use("/", ingredientsRouter);
+app.use("/", router);
 
 app.use((error, request, response, next) => {
     console.error(error);

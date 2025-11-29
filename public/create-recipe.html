@@ -87,6 +87,7 @@
     <!-- Recipe Form -->
     <form id ="recipe-form" class="page-form" action="/recipes" method="POST" enctype="multipart/form-data">
     <main>
+        <br>
         <h1>Recipe Post Maker</h1>
         <!-- progress pills-->
          <div class="wizard-progress" aria-live="polite">
@@ -250,5 +251,32 @@
     </main>
     </form>
     <script src="./js/create-recipe.js" defer></script>
+    <script type="module">
+        // Load in avatar
+        import { getCurrentUserDetails } from "./js/users.js";
+
+        const profile = document.getElementsByClassName("icon")[0];
+        const accountLink = document.getElementsByClassName("tooltip")[0];
+        const current_user = await getCurrentUserDetails();
+
+        function loadLoggedUserAvatar(current_user) {
+            const profilePic = current_user.avatar;
+            const img = document.createElement("img");
+            img.style.width = "45px";
+            img.style.height = "45px";
+            img.style.borderRadius = "50%";            
+            img.src = profilePic;
+            accountLink.href = `/user/${current_user.username}`;
+            profile.replaceWith(img);
+        }
+
+        // Load in avatar if user is signed in and add path to their profile
+        if (current_user) {
+            loadLoggedUserAvatar(current_user);
+        } else {
+            accountLink.style.cursor = "not-allowed";
+            accountLink.href = "#";
+        }
+    </script>
 </body>
 </html>

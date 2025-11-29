@@ -9,6 +9,7 @@ import { createCollection, getCollectionByName, addRecipeToBookmarks, removeReci
 const initialCarousel = document.getElementById("trending-container");
 const mainElement = document.getElementsByTagName("main")[0];
 const viewedRecipeTags = JSON.parse(localStorage.getItem("recipeTags"));
+const scrollContainer = document.getElementById("bookmarked-recipes");
 
 // Keeps track of bookmarks
 let bookmarkCollection;
@@ -22,16 +23,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         current_user = await getCurrentUserDetails();
 
-        // Alerts user that they're not signed in and provides redirect to signup page
         if (!current_user) {
-            const currentUrl = new URL(window.location.href);
-            const portNum = currentUrl.port;
-            if (confirm(`It looks like you're not registered! Click "OK" to visit "http://localhost:${portNum}/signup to register to fully utilize our services."`)) {
-                window.location.href = `http://localhost:${portNum}/signup`;
-            }
+            throw new Error("User not logged in.");
         }
 
-        const scrollContainer = document.getElementById("bookmarked-recipes");
         bookmarkCollection = await getCollectionByName("My Bookmarks");
         bookmarkedRecipes = bookmarkCollection.recipe_ids || [];
 

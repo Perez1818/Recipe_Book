@@ -2,6 +2,7 @@ const pool = require("../database/pool.js");
 const { validate, validationResult } = require("../middleware/formValidation.js");
 const { getThumbnailVideoUpload } = require("../middleware/fileUploader.js");
 const { getErrorMessages, attributeCount } = require("../middleware/helpers.js");
+const likesTable = require("../database/likesTable.js");
 
 
 const uploadThumbnailVideo = getThumbnailVideoUpload();
@@ -116,6 +117,35 @@ async function createRecipe(req, res) {
 
   });
 
+}
+
+// POST /recipes/:id/likes
+async function likeRecipe(req, res) {
+    try {
+        await likesTable.likeRecipe(req.params.id, req.user.id);
+        return res.status(201).json({ message: 'recipe liked' });
+    }
+    catch (err) {
+        if (req.user) {
+            return res.status(500).json({ error: 'failed_to_like' });
+        }
+        else {
+            return res.status(500).json({ error: 'You must be logged in to like a recipe.' });
+        }
+    }
+}
+
+async function recipeIsLiked(req, res) {
+    try {
+        const recipeLike = await likesTable.getRecipeLike(req.params.id, req.user.id);
+        const liked = recipeLike ? true : false;
+        const likes = await likesTable.getRecipeLikes(req.params.id);
+        return res.status(200).json({ liked: liked, likes: likes });
+    }
+    catch {
+        const likes = await likesTable.getRecipeLikes(req.params.id);
+        return res.status(500).json({ liked: false, likes: likes });
+    }
 }
 
 // PUT /recipes/:id
@@ -327,6 +357,8 @@ async function getRecipesByUser(request, response) {
 module.exports = {
     getRecipeMaker,
     createRecipe,
+    likeRecipe,
+    recipeIsLiked,
     updateRecipe,
     listRecipes,
     getRecipe,

@@ -247,6 +247,42 @@
 
             window.addToBookmarks = addToBookmarks; // expose for inline onclick
     </script>
+    <script type="module">
+        import { getCurrentUserDetails } from "./js/users.js";
+
+        const profile = document.getElementsByClassName("icon")[0];
+        const accountLink = document.getElementsByClassName("tooltip")[0];
+
+        let current_user = await getCurrentUserDetails();
+
+        if (current_user) {
+            // Load logged-in user’s avatar
+            const img = document.createElement("img");
+            img.style.width = "45px";
+            img.style.height = "45px";
+            img.style.borderRadius = "50%";
+            img.src = current_user.avatar;
+
+            accountLink.href = `/user/${current_user.username}`;
+
+            if (current_user.avatar) {
+                profile.replaceWith(img);
+            }
+
+        } else {
+            // User NOT logged in
+            accountLink.style.cursor = "not-allowed";
+            accountLink.href = "#";
+
+            const signupUrl = `${location.origin}/signup`;
+            const message = "You are not registered yet.\n\nGo to the signup page now and enjoy additional features?";
+
+            if (confirm(message)) {
+                location.href = signupUrl;
+            }
+        }
+    </script>
+
     </main>
 </body>
 </html>
