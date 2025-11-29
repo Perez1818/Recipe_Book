@@ -6,6 +6,8 @@
     <title>Recipe - Search</title>
     <link rel="stylesheet" href="css/styles.css"></link>
     <link rel="stylesheet" href="css/search-engine.css"></link>
+
+    <script defer src="js/search-engine.js"></script>
 </head>
 <body>
     <header>
@@ -59,81 +61,36 @@
     <main>
         <h1>Search</h1>
         <div id="search-bar">
-            <input type="search" placeholder="Search by recipe or ingredient">
-            <button>
+            <input id="search-input" type="search" placeholder="Search by recipe or ingredient">
+            <button id="search-button">
                 <svg width="40px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                 </svg>
-
             </button>
         </div>
         <div id="select-container">
-            <select name="select-cook-time" id="">
+            <select name="select-cook-time" id="cook-time-select">
                 <option value="">Cook Time</option>
                 <option value="5-15 min">5-15 min</option>
                 <option value="20-35 min">20-35 min</option>
                 <option value="40-55 min">40-55 min</option>
                 <option value="55+ min">55+ min</option>
             </select>
-            <select name="select-category" id="">
+            <select name="select-category" id="category-select">
                 <option value="">Categories</option>
-                <option value="chinese">Chinese</option>
-                <option value="mexican">Mexican</option>
-                <option value="italian">Italian</option>
-                <option value="explore more">Explore more</option>
-            </select>
-            <select name="select-dietary-restrictions" id="">
-                <option value="">Dietary Restrictions</option>
-                <option value="lactose intolerance">Lactose Intolerance</option>
-                <option value="gluten intolerance">Gluten Intolerance</option>
-                <option value="nuts">Nuts</option>
-                <option value="explore more">Explore more</option>
+                <option value="Chinese">Chinese</option>
+                <option value="Mexican">Mexican</option>
+                <option value="Italian">Italian</option>
+                <option value="American">American</option>
+                <option value="Indian">Indian</option>
+                <option value="Thai">Thai</option>
+                <option value="Japanese">Japanese</option>
+                <option value="Greek">Greek</option>
             </select>
         </div>
         <hr width="100%">
         <div id="searched-items-container">
-            <div class="search-item">
-                <img>
-                <div class="recipe-details">
-                    <h2>Recipe Name Lorem ipsum, dolor sit amet consectetur adipisicing elit</h2>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat consequatur in vitae autem similique, quis rerum eveniet, deserunt sed ut sapiente praesentium, nam ratione ipsum eum saepe. Quae, a maxime? Lorem ipsum, dolor sit amet consectetur adipisicing elit. Expedita earum quidem, unde qui distinctio, tempora deleniti natus minus repudiandae, blanditiis adipisci aut consequatur. Totam magnam placeat minima voluptatibus vel autem! Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga quod illo natus debitis porro voluptatum culpa facilis exercitationem, dicta quia magnam ipsam hic sed magni tenetur praesentium sit sequi. Consequatur?</p>
-                </div>
-            </div>
-            <div class="search-item">
-                <img>
-                <div class="recipe-details">
-                    <h2>Recipe Name</h2>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat consequatur in vitae autem similique, quis rerum eveniet, deserunt sed ut sapiente praesentium, nam ratione ipsum eum saepe. Quae, a maxime? Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
-                </div>
-            </div>
-            <div class="search-item">
-                <img>
-                <div class="recipe-details">
-                    <h2>Recipe Name</h2>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat consequatur in vitae autem similique, quis rerum eveniet, deserunt sed ut sapiente praesentium, nam ratione ipsum eum saepe. Quae, a maxime? Lorem ipsum, dolor sit amet consectetur adipisicing elit. Expedita earum quidem, unde qui distinctio, tempora deleniti natus minus repudiandae, blanditiis adipisci aut consequatur. Totam magnam placeat minima voluptatibus vel autem! Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga quod illo natus debitis porro voluptatum culpa facilis exercitationem, dicta quia magnam ipsam hic sed magni tenetur praesentium sit sequi. Consequatur?</p>
-                </div>
-            </div>
-            <div class="search-item">
-                <img>
-                <div class="recipe-details">
-                    <h2>Recipe Name</h2>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat consequatur in vitae autem similique, quis rerum eveniet, deserunt sed ut sapiente praesentium, nam ratione ipsum eum saepe. Quae, a maxime? Lorem ipsum, dolor sit amet consectetur adipisicing elit. Expedita earum quidem, unde qui distinctio, tempora deleniti natus minus repudiandae, blanditiis adipisci aut consequatur. Totam magnam placeat minima voluptatibus vel autem! Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga quod illo natus debitis porro voluptatum culpa facilis exercitationem, dicta quia magnam ipsam hic sed magni tenetur praesentium sit sequi. Consequatur?</p>
-                </div>
-            </div>
-            <div class="search-item">
-                <img>
-                <div class="recipe-details">
-                    <h2>Recipe Name</h2>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat consequatur in vitae autem similique, quis rerum eveniet, deserunt sed ut sapiente praesentium, nam ratione ipsum eum saepe. Quae, a maxime? Lorem ipsum, dolor sit amet consectetur adipisicing elit. Expedita earum quidem, unde qui distinctio, tempora deleniti natus minus repudiandae, blanditiis adipisci aut consequatur. Totam magnam placeat minima voluptatibus vel autem! Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga quod illo natus debitis porro voluptatum culpa facilis exercitationem, dicta quia magnam ipsam hic sed magni tenetur praesentium sit sequi. Consequatur?</p>
-                </div>
-            </div>
-            <div class="search-item">
-                <img>
-                <div class="recipe-details">
-                    <h2>Recipe Name</h2>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat consequatur in vitae autem similique, quis rerum eveniet, deserunt sed ut sapiente praesentium, nam ratione ipsum eum saepe. Quae, a maxime? Lorem ipsum, dolor sit amet consectetur adipisicing elit. Expedita earum quidem, unde qui distinctio, tempora deleniti natus minus repudiandae, blanditiis adipisci aut consequatur. Totam magnam placeat minima voluptatibus vel autem! Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga quod illo natus debitis porro voluptatum culpa facilis exercitationem, dicta quia magnam ipsam hic sed magni tenetur praesentium sit sequi. Consequatur?</p>
-                </div>
-            </div>
+            <!-- Searched items will be dynamically inserted here -->
         </div>
     </main>
 </body>
