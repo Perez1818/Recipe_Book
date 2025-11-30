@@ -1,5 +1,5 @@
 
-// 
+// Retrieves all of a user's collections
 export async function fetchCollections() {
     const response = await fetch(`/collections/`);
     if (!response.ok) {
@@ -9,7 +9,7 @@ export async function fetchCollections() {
     return result;
 }
 
-// 
+// Retrieves a user's collection by name
 export async function getCollectionByName(collectionName) {
     try {
         const response = await fetch(`/collections/name/${collectionName}`);
@@ -26,7 +26,7 @@ export async function getCollectionByName(collectionName) {
     }
 }
 
-// 
+// Creates a collection for current registered user
 export async function createCollection(collectionName, recipeIds=[]) {
     try {
         const response = await fetch(`/collections`,
@@ -55,7 +55,7 @@ export async function createCollection(collectionName, recipeIds=[]) {
     }
 }
 
-// 
+// Adds recipe to registered user's bookmarks
 export async function addRecipeToBookmarks(collectionId, recipeId) {
     try {
         const response = await fetch(`/collections/${collectionId}/recipes/${recipeId}`, {
@@ -77,7 +77,7 @@ export async function addRecipeToBookmarks(collectionId, recipeId) {
     }
 }
 
-// 
+// Removes a given recipe from a specific collection
 export async function removeRecipeFromCollection(collectionId, recipeId) {
     try {
         const response = await fetch(
@@ -97,6 +97,7 @@ export async function removeRecipeFromCollection(collectionId, recipeId) {
     }
 }
 
+// Deletes a user's personal collection
 export async function deleteCollectionById(id) {
   const res = await fetch(`/collections/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error("Failed to delete collection");

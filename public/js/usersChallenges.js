@@ -78,6 +78,7 @@ export async function getLikesForChallenge(challengeId) {
     }
 }
 
+// Fetches number of people who are participating but have not completed the challenge
 export async function getNumParticipantsInChallenge(challengeId) {
     try {
         const response = await fetch(`/users-challenges/${challengeId}/participants`);
@@ -88,6 +89,7 @@ export async function getNumParticipantsInChallenge(challengeId) {
     }
 }
 
+// Fetches number of people who have completed the challenge
 export async function getNumWinnersInChallenge(challengeId) {
     try {
         const response = await fetch(`/users-challenges/${challengeId}/winners`);
@@ -98,6 +100,7 @@ export async function getNumWinnersInChallenge(challengeId) {
     }
 }
 
+// Assigns X number of points to user's profile
 export async function awardChallengePointsToUser(userId, challengePoints) {
     try {
         const response = await fetch(`/users-challenges/${userId}/points`, {
