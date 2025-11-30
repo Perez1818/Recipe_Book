@@ -3,94 +3,7 @@
     <head>
        <title>World</title>
        <meta charset="UTF-8">
-
-       <style>
-            * {
-                margin: 0px;
-                padding: 0px;
-            }
-            svg path {
-                fill: #ececec;
-                stroke: black;
-                stroke-width: 1.5;
-            }
-
-            svg path:hover {
-                fill: limegreen;
-                transition: 0.5s;
-                cursor: pointer;
-            }
-
-            div.showcase-container {
-                background-color: #79B473;
-                display: flex;
-                flex-direction: column;
-                margin-top: 25px;
-                margin-left: 10px;
-                margin-right: 10px;
-            }
-            div.showcase-title {
-                text-align: center;
-                margin: 20px;
-            }
-            div.showcase-title h1 {
-                display: inline;
-                background-color: white;
-            }
-
-            div.recipe img {
-                display: block;
-                margin-left: auto;
-                margin-right: auto;
-                margin-top: 20px;
-            }
-
-            div.recipe h2 {
-                text-align: center;
-            }
-
-            .thumbnail {
-                object-fit: cover;
-                width: 200px;
-                height: 200px;
-            }
-
-            .side-panel {
-                position: fixed;
-                background-color: #ECECEC;
-
-                top: 0;
-                right: -30em;
-                width: 100%;
-                max-width: 20em;
-                height: 100vh;
-
-                overflow: scroll;
-                z-index: 1;
-            }
-
-
-            .close-button {
-                display: block;
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 3em;
-                height: 3em;
-            }
-
-            .side-panel-container {
-                margin-top: 3em;
-            }
-
-            .no-recipes-yet {
-                position : absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-            }
-
-       </style>
+       <link rel="stylesheet" href="/static/css/world.css">
     </head>
 
     <body>
@@ -192,8 +105,9 @@
                                         .then(recipes => {
 
                                             noRecipesMessage.textContent = "";
+                                            noRecipesMessage.style.display = "none";
 
-                                            for (recipe of recipes) {
+                                            for (const recipe of recipes) {
                                                 const recipeDiv = document.createElement("div");
                                                 recipeDiv.className = "recipe";
                                                 const recipeTitle = document.createElement("h2");
@@ -201,6 +115,11 @@
 
                                                 recipeImage.className = "thumbnail"
                                                 recipeImage.src = `/static/uploads/multimedia/${recipe.thumbnail}`
+
+
+                                                recipeDiv.addEventListener("click", () => {
+                                                    window.location.href = `${window.location.origin}/static/recipe-view.html?id=${recipe.id}`;
+                                                });
 
                                                 recipeTitle.textContent = recipe.name;
 
@@ -211,6 +130,7 @@
 
                                             if (!recipes.length) {
                                                 noRecipesMessage.textContent = "No recipes yet.";
+                                                noRecipesMessage.style.display = "flex";
                                             }
 
                                             sidePanel.style.right = "0em";
