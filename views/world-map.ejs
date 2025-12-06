@@ -3,72 +3,38 @@
     <head>
        <title>World</title>
        <meta charset="UTF-8">
+       <link rel="stylesheet" href="/static/css/world.css">
+    </head>
 
-       <style>
-            * {
-                margin: 0px;
-                padding: 0px;
-            }
-            svg path {
-                fill: #ececec;
-                stroke: black;
-                stroke-width: 1.5;
-            }
+    <body>
+        <div id="world-container">
+        </div>
 
-            svg path:hover {
-                fill: limegreen;
-                transition: 0.5s;
-                cursor: pointer;
-            }
+        <div class="side-panel">
+            <button class="close-button">X</button>
 
+            <div class="side-panel-container">
+                <h1 style="text-align: center;">Country</h1>
 
-            div.recipes-container {
-                display: flex;
-                justify-content: space-around;
-                flex-wrap: wrap;
-                background-color: white;
-                margin: 0px 100px 25px 100px;
-            }
+                <div class="recipes-container">
+                </div>
 
-            div.showcase-container {
-                background-color: #79B473;
-                display: flex;
-                flex-direction: column;
-                margin-top: 25px;
-                margin-left: 10px;
-                margin-right: 10px;
-            }
-            div.showcase-title {
-                text-align: center;
-                margin: 20px;
-            }
-            div.showcase-title h1 {
-                display: inline;
-                background-color: white;
-            }
+                <h2 class="no-recipes-yet">No recipes yet.</h2>
+            </div>
+        </div>
 
-            div.recipe img {
-                margin-top: 20px;
-            }
-
-            div.recipe h2 {
-                text-align: center;
-            }
-
-            .thumbnail {
-                object-fit: cover;
-                width: 300px;
-                height: 300px;
-            }
-
-
-
-       </style>
-
-       <script>
+        <script>
           const COUNTRIES_JSON_URL = "/static/countries.json";
           const SVG_MAP_URL = "/static/img/world.svg";
           const SVG_DOWNSCALE_FACTOR = 1.25;
+
+          const sidePanel = document.querySelector(".side-panel");
+          const noRecipesMessage = document.querySelector(".no-recipes-yet");
+
+          const closePanelButton = document.querySelector(".close-button");
+          closePanelButton.addEventListener("click", () => {
+              sidePanel.style.right = "-30em";
+          });
 
           fetch(COUNTRIES_JSON_URL)
                .then(response => response.json())
@@ -114,32 +80,34 @@
                                 if (targetElement.nodeName === "path") {
                                     const header = document.querySelector("h1");
                                     let abbreviation;
+                                    let countryName;
                                     if (targetElement.classList.length) {
                                         const classArray = Array.from(targetElement.classList);
-                                        const countryName = classArray.join(" ");
+                                        countryName = classArray.join(" ");
 
                                         abbreviation = countryNameAbbreviations[countryName];
-
-                                        header.textContent = `${countryName} (${abbreviation})`;
-
                                     }
     
                                     else if (targetElement.id) {
                                         const attributes = targetElement.attributes;
                                         const nameAttribute = attributes.name;
-                                        const countryName = nameAttribute.nodeValue;
+                                        countryName = nameAttribute.nodeValue;
 
                                         abbreviation = countryNameAbbreviations[countryName];
-    
-                                        header.textContent = `${countryName} (${abbreviation})`;
                                     }
+                                    header.textContent = `${countryName} (${abbreviation})`;
+
                                     const recipesContainer = document.querySelector("div.recipes-container");
                                     recipesContainer.innerHTML = "";
 
-                                    fetch(`/world?tag=${abbreviation.toLowerCase()}`)
+                                    fetch(`/world?tag=${abbreviation.toLowerCase()}&country=${encodeURIComponent(countryName.toLowerCase())}`)
                                         .then(response => response.json())
                                         .then(recipes => {
-                                            for (recipe of recipes) {
+
+                                            noRecipesMessage.textContent = "";
+                                            noRecipesMessage.style.display = "none";
+
+                                            for (const recipe of recipes) {
                                                 const recipeDiv = document.createElement("div");
                                                 recipeDiv.className = "recipe";
                                                 const recipeTitle = document.createElement("h2");
@@ -148,6 +116,11 @@
                                                 recipeImage.className = "thumbnail"
                                                 recipeImage.src = `/static/uploads/multimedia/${recipe.thumbnail}`
 
+
+                                                recipeDiv.addEventListener("click", () => {
+                                                    window.location.href = `${window.location.origin}/static/recipe-view.html?id=${recipe.id}`;
+                                                });
+
                                                 recipeTitle.textContent = recipe.name;
 
                                                 recipeDiv.appendChild(recipeImage);
@@ -155,6 +128,12 @@
                                                 recipesContainer.appendChild(recipeDiv);
                                             }
 
+                                            if (!recipes.length) {
+                                                noRecipesMessage.textContent = "No recipes yet.";
+                                                noRecipesMessage.style.display = "flex";
+                                            }
+
+                                            sidePanel.style.right = "0em";
                                         })
                                         .then(error => console.error(error));
 
@@ -168,16 +147,5 @@
                   }).catch(error => console.error("Error fetching CSV: " + error));
 
        </script>
-    </head>
-
-    <body>
-        <div id="world-container">
-        </div>
-        <h1 style="text-align: center;">
-        </h1>
-
-        <div class="recipes-container">
-
-        </div>
     </body>
 </html>

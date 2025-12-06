@@ -33,3 +33,14 @@ exports.deleteFiles = (fileArray) => {
         }
     }
 }
+
+exports.getCurrentDateWithoutTime = () => {
+    // https://stackoverflow.com/questions/23593052/format-javascript-date-as-yyyy-mm-dd
+    let currentDate = new Date();
+    let currentDateText = currentDate.toISOString().split("T")[0];
+    return new Date(currentDateText);
+}
+
+exports.getLocalCurrentDate = () => {
+    return new Date().toLocaleDateString("en-CA");
+}

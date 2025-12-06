@@ -18,6 +18,7 @@ async function seedDatabase() {
     await client.query(`DROP TABLE IF EXISTS recipes CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS ingredients CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS instructions CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS challenges CASCADE;`);
 
     /* To ensure that usernames and emails cannot be created with different cases:
      * https://www.postgresql.org/docs/15/citext.html
@@ -82,6 +83,25 @@ async function seedDatabase() {
                   minutes INT,
                   PRIMARY KEY (recipe_id, step_num),
                   CONSTRAINT fk_instructions_recipes FOREIGN KEY (recipe_id) REFERENCES recipes (id)
+    );`);
+
+    await client.query(`CREATE TABLE IF NOT EXISTS challenges(
+                  id SERIAL PRIMARY KEY,
+                  user_id INT NOT NULL,
+                  title TEXT NOT NULL,
+                  description TEXT NOT NULL,
+
+                  thumbnail TEXT,
+                  start DATE,
+
+                  cutoff DATE NOT NULL,
+
+                  points INT NOT NULL,
+
+                  required_ingredients TEXT[],
+                  max_ingredients INT,
+
+                  CONSTRAINT fk_challenges_users FOREIGN KEY (user_id) REFERENCES users (id)
     );`);
 
     await client.end();
