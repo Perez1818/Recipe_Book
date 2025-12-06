@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title><%= user.username %></title>
+        <meta charset="UTF-8"> 
+        <link rel="stylesheet" href="/static/css/profile.css">
+        <style>
+            * {
+                border-radius: 5px;
+                font-family: sans-serif;
+            }
+
+            div.info-container, div.user-container, div.user-container > *, div.bio-container > *, div.points-container > *, div.follow-container > *,
+            div.showcase-container, div.showcase-title > *, div.recipes-container, img {
+                border-style: solid;
+                border-width: 1px;
+            }
+
+            div.showcase-title > h1 {
+                padding: 2px 5px;
+            }
+        </style>
+    </head>
+
+    <body>
+    <div class="profile-container">
+
+        <div class="user-container">
+
+            <img src="<%= user.avatar ? `/static/uploads/avatar/${user.avatar}` : "/static/img/Portrait_Placeholder.png" %>" class="avatar" alt="User <%= user.username %>'s avatar">
+            <h1><%= user.username %></h1>
+
+        </div>
+
+        <div class="info-container">
+
+            <div class="bio-container">
+                <h2>Bio</h2>
+                <p><%= user.biography || "..." %></p>
+            </div>
+
+            <div class="right-container">
+                <div class="points-container">
+                    <h2>0 Points</h2>
+                </div>
+
+                <div class="follow-container">
+                    <h2>0 Following</h2>
+                    <h2>0 Followers</h2>
+                    <% if (currentUser && currentUser.username === user.username) { %>
+                        <h2><a href="/settings">Edit Profile</a></h2>
+                    <% } %>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="showcase-container">
+        <div class="showcase-title">
+            <h1>Recipe Showcase</h1>
+        </div>
+        <div class="recipes-container">
+            <% for (recipe of userRecipes) { %>
+            <div class="recipe">
+                <img src="<%= `/static/uploads/multimedia/${recipe.thumbnail}` %>" class="thumbnail" alt="<%= recipe.name %> thumbnail">
+                <h2><%= recipe.name %></h2>
+            </div>
+            <% } %>
+        </div>
+    </div>
+
+    </body>
+</html>

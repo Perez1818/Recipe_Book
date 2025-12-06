@@ -8,6 +8,11 @@
 - Passport (passport)
 - Passport Local Strategy (passport-local)
 - Bcrypt (bcryptjs)
+- Connect PG Simple (connect-pg-simple)
+- Multer (multer)
+- Mime Types (mime-types)
+- Nodemailer (nodemailer)
+- JSON Web Token (jsonwebtoken)
 
 # Setup
 Open Node.js command prompt and:
@@ -20,6 +25,13 @@ DATABASE_CONNECTION_STRING=type_string_here
 SERVER_PORT=type_server_port_number_here
 EXPRESS_SESSION_SECRET=type_session_secret_here
 BCRYPT_SALT_LENGTH=type_salt_length_here
+
+SERVER_EMAIL=type_server_email_here
+SERVER_EMAIL_APP_PASSWORD=type_server_email_app_password_here
+
+APP_URL=type_app_url_here
+
+JSON_WEB_TOKEN_SECRET=type_json_web_token_secret_here
 ```
 Finally, install dependencies:
 ```
@@ -31,3 +43,7 @@ npm install
 ```
 node main.js
 ```
+
+# Attributions
+- [Portrait_Placeholder.png](https://commons.wikimedia.org/wiki/File:Portrait_Placeholder.png) from [Wikimedia Commons](https://commons.wikimedia.org/wiki/Main_Page) by Greasemann, [Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/)
+- [world.svg](https://simplemaps.com/resources/svg-world) from [Simple Maps](https://simplemaps.com/) by Chris Youderian, [SVG Map Library License](https://simplemaps.com/resources/svg-license)

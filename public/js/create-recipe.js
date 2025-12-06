@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
             t.textContent = msg;
             t.style.display = 'block';
             clearTimeout(t._hide);
-            t._hide = setTimeout(() => { t.style.display = 'none'; }, 1500);
+            t._hide = setTimeout(() => { t.style.display = 'none'; }, 7500);
         };
     }
 
@@ -152,13 +152,41 @@ document.addEventListener('DOMContentLoaded', () => {
             ingredients,
             instructions,
         };
+
+
+        const thumbInput = document.querySelector('input[name="thumbnail"]');
+        const videoInput = document.querySelector('input[name="video"]');
+        const thumbnailFile = thumbInput?.files?.[0] || null;
+        const videoFile = videoInput?.files?.[0] || null;
+
+        const fd = new FormData();
+        fd.append("name", payload.name);
+        fd.append("description", payload.description);
+        fd.append("cookTimeMinutes", String(payload.cookTimeMinutes));
+        fd.append("servingSize", String(payload.servingSize));
+        fd.append("tags", JSON.stringify(payload.tags));
+        fd.append("ingredients", JSON.stringify(payload.ingredients));
+        fd.append("instructions", JSON.stringify(payload.instructions));
+
+        if (thumbnailFile) fd.append("thumbnail", thumbnailFile);
+        if (videoFile) fd.append("video", videoFile);
+
+
         console.log('[SUBMIT] payload', payload);
 
+        
         // Use RELATIVE URL so it works from http://localhost:4000
+        /*
         const res = await fetch('/recipes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
+        });
+        */
+
+        const res = await fetch('/recipes', {
+          method: 'POST',
+          body: fd,
         });
 
         const ct = res.headers.get('content-type') || '';

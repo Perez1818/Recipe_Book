@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Edit Profile</title>
+        <meta charset="UTF-8"> 
+        <link rel="stylesheet" href="/static/css/profile.css">
+        <style>
+            p, li {
+                color: red;
+            }
+            a {
+                margin-top: 10px;
+                display: block;
+            }
+
+
+            * {
+                border-radius: 5px;
+                font-family: sans-serif;
+            }
+
+            div.user-container, div.info-container, div.bio-container h2, div.follow-container h2, div.error-container, img {
+                border-style: solid;
+                border-width: 1px;
+
+            }
+            div.error-container {
+                border-color: red;
+                margin-bottom: 20px;
+            }
+
+            div.follow-container h2 a {
+                margin-top: 0px;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <% function getErrorMessage(fieldName) { %>
+            <% if (locals.errorMessages && errorMessages[fieldName] !== undefined) { %>
+                <% return errorMessages[fieldName]; %>
+            <% } %>
+            <% return ""; %>
+        <% } %>
+
+
+        <form action="/settings" method="post" enctype="multipart/form-data">
+            <div class="profile-container">
+
+                <div class="user-container">
+
+                    <img src="<%= currentUser.avatar ? `/static/uploads/avatar/${currentUser.avatar}` : "/static/img/Portrait_Placeholder.png" %>" class="avatar" alt="User <%= currentUser.username %>'s avatar">
+                    <input type="file" name="avatar">
+
+
+                    <div class="field">
+                        <input type="text" id="username" name="username" value="<%= locals.invalidUser ? invalidUser.username : currentUser.username %>">
+                    </div>
+
+                </div>
+
+                <div class="info-container">
+
+                    <div class="bio-container">
+                        <h2>Bio</h2>
+                        <textarea id="biography" name="biography"><%= locals.invalidUser ? invalidUser.biography : currentUser.biography %></textarea>
+
+                    </div>
+                    <div class="right-container">
+                        <div class="follow-container">
+
+                            <h2><a href="/settings/account">Manage Account</a></h2>
+                            <h2><a href="/user/<%= currentUser.username %>">Back</a></h2>
+
+                        </div>
+
+                        <div class="follow-container">
+
+                            <% if (locals.errorMessages) { %>
+                                    <h2 style="color: red;">Error Summary</h2>
+
+                                    <div class="error-container">
+                                        <ul>
+                                            <% if (getErrorMessage("file")) { %>
+                                                <li><%= getErrorMessage("file") %></li>
+                                            <% } %>
+
+                                            <% if (getErrorMessage("username")) { %>
+                                                <li><%= getErrorMessage("username") %></li>
+                                            <% } %>
+                                        </ul>
+                                    </div>
+                            <% } %>
+
+                            <div class="field">
+                                <input id="submit-button" type="submit" value="Save">
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </body>
+</html>

@@ -17,10 +17,13 @@
             <% return ""; %>
         <% } %>
 
+        <% if (locals.successMessage) { %>
+            <p class="success"><%= successMessage %></p>
+        <% } %>
+
         <% // Submit form to current route %>
         <form action="" method="post">
             <div class="field">
-                <p><%= getErrorMessage("unavailable") %></p>
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username">
                 <p><%= getErrorMessage("username") %></p>
@@ -48,5 +51,7 @@
                 <input id="submit-button" type="submit" value="Create Account">
             </div>
         </form>
+
+        <div class="container"><a href="/login">Have an Account? Login!</a></div>
     </body>
 </html>

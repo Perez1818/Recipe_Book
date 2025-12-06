@@ -9,17 +9,22 @@ function configurePassport() {
                 const user = await usersTable.getUserByNameOrEmail(username);
 
                 if (!user) {
-                  return done(null, false, { message: "Incorrect username" });
+                  return done(null, false, { message: "Login failed. Please try again." });
                 }
 
                 const passwordsMatch = await usersTable.comparePasswords(password, user.password);
                 if (!passwordsMatch) {
-                  return done(null, false, { message: "Incorrect password" });
+                  return done(null, false, { message: "Login failed. Please try again." });
+                }
+
+                if (!user.is_verified) {
+                  return done(null, false, { message: "Login failed. Please verify email." });
                 }
 
                 return done(null, user);
             }
             catch(error) {
+                console.log(error);
                 return done(error);
             }
         })
@@ -35,6 +40,7 @@ function configurePassport() {
             done(null, user);
         }
         catch(error) {
+            console.log(error);
             done(error);
         }
     });

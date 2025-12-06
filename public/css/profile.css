@@ -1,0 +1,129 @@
+.avatar {
+    object-fit: cover;
+    width: 250px;
+    height: 250px;
+}
+.thumbnail {
+    object-fit: cover;
+    width: 300px;
+    height: 300px;
+}
+
+
+div.profile-container {
+    display: flex;
+}
+div.profile-container > * {
+    margin: 10px;
+}
+
+div.user-container {
+    background-color: #79B473;
+    padding: 5px;
+}
+div.user-container h1 {
+    background-color: white;
+    text-align: center;
+}
+div.user-container img {
+    display: block;
+}
+
+div.info-container {
+    display: flex;
+    flex-grow: 1;
+    background-color: #79B473;
+}
+
+div.info-container > * {
+    flex-grow: 1;
+    margin: 10px;
+}
+
+div.info-container h2, div.info-container p {
+    background-color: white;
+    text-align: center;
+}
+
+div.bio-container {
+    display: flex;
+    flex-direction: column;
+}
+
+div.bio-container p, div.bio-container input, div.bio-container textarea, div.follow-container ul {
+    padding: 10px;
+    flex-grow: 1;
+    text-align: left;
+    margin-top: 0px;
+}
+
+div.bio-container textarea {
+    resize: none;
+}
+
+div.error-container {
+    background-color: white;
+    padding-left: 10px;
+}
+
+div.right-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+div.field {
+    display: flex;
+
+}
+div.field input#submit-button {
+    flex-grow: 1;
+    font-size: 20px;
+}
+
+div.profile-container {
+    height: 350px;
+}
+
+div.follow-container a {
+    text-decoration: none;
+}
+
+div.recipes-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    background-color: white;
+    margin: 0px 100px 25px 100px;
+}
+
+div.showcase-container {
+    background-color: #79B473;
+    display: flex;
+    flex-direction: column;
+    margin-top: 25px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+div.showcase-title {
+    text-align: center;
+    margin: 20px;
+}
+div.showcase-title h1 {
+    display: inline;
+    background-color: white;
+}
+
+div.recipe img {
+    margin-top: 20px;
+}
+
+div.recipe h2 {
+    text-align: center;
+}
+
+input#username {
+    width: 243px;
+    font-size: 30px;
+    text-align: center;
+}
