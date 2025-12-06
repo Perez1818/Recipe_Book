@@ -40,3 +40,7 @@ exports.getCurrentDateWithoutTime = () => {
     let currentDateText = currentDate.toISOString().split("T")[0];
     return new Date(currentDateText);
 }
+
+exports.getLocalCurrentDate = () => {
+    return new Date().toLocaleDateString("en-CA");
+}

@@ -1,0 +1,136 @@
+* {
+    font-family: sans-serif;
+    margin: 0px;
+    padding: 0px;
+}
+svg path {
+    fill: #ececec;
+    stroke: black;
+    stroke-width: 1.5;
+}
+
+svg path:hover {
+    fill: limegreen;
+    transition: 0.5s;
+    cursor: pointer;
+}
+
+div.showcase-container {
+    background-color: #79B473;
+    display: flex;
+    margin-top: 25px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+div.showcase-title {
+    text-align: center;
+    margin: 20px;
+}
+div.showcase-title h1 {
+    display: inline;
+    background-color: white;
+}
+
+div.recipe {
+    display: flex;
+    justify-content: center;
+    background-color: white;
+    border-radius: 10px;
+    height: 200px;
+    margin: 20px 0;
+    border: 2px solid black;
+}
+
+div.recipe:hover {
+    cursor: pointer;
+}
+
+div.recipe img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+    border: 2px solid black;
+}
+
+div.recipe h2 {
+    margin: 10px 0;
+    text-align: center;
+    width: 150px;
+    margin-right: 15px;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.thumbnail {
+    object-fit: cover;
+    width: 150px;
+    height: 150px;
+    border-radius: 10px;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.side-panel {
+    position: fixed;
+    background-color: lightgreen;
+
+    top: 0;
+    right: -30em;
+    width: 100%;
+    max-width: 27.5em;
+    height: 100vh;
+    border-left: black solid 2px;
+
+    overflow: scroll;
+    z-index: 1;
+}
+
+
+.close-button {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2em;
+    height: 2em;
+    margin-top: 15px;
+    margin-left: 15px;
+}
+
+.close-button:hover {
+    background-color: rgb(255, 91, 91);
+    border-radius: 3px;
+    border: black solid 1px;
+    color: white;
+}
+
+.side-panel-container {
+    margin-top: 3em;
+    padding: 20px;
+    background-color: lightgreen;
+}
+
+div.side-panel-container h1 {
+    background-color: white;
+    padding: 5px;
+    border-radius: 5px;
+    border: 2px solid black;
+}
+
+.no-recipes-yet {
+    position : absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border-radius: 10px;
+    width: 80%;
+    height: 10%;
+    padding: 5px;
+    border: 2px solid black;
+}

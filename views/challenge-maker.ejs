@@ -98,6 +98,8 @@
         </form>
 
         <script>
+            const formContainer = document.querySelector("#inner-container");
+
             const addIngredientButton = document.querySelector("button#add-ingredient");
             addIngredientButton.addEventListener("click", () => {
                 const ingredients = document.querySelector("div.ingredients");
@@ -175,7 +177,8 @@
                     let paragraph = document.createElement("p");
                     paragraph.className = "success";
                     paragraph.textContent = data.message;
-                    form.prepend(paragraph);
+                    paragraph.style.marginLeft = "10px";
+                    formContainer.prepend(paragraph);
                 }).catch(data => {
                     const errorMessages = data.errorMessages;
                     if (errorMessages) {
@@ -199,7 +202,8 @@
                         let paragraph = document.createElement("p");
                         paragraph.className = "error";
                         paragraph.textContent = data.message;
-                        form.prepend(paragraph);
+                        paragraph.style.marginLeft = "10px";
+                        formContainer.prepend(paragraph);
                     }
                 })
             });
