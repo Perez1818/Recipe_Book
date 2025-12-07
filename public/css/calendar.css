@@ -15,7 +15,9 @@
 }
 
 /* Title + HR spacing (tight) */
-h1{ margin: 8px 0 6px; }
+h1 {
+    margin: 20px auto;
+}
 header + hr{ margin: 6px 0 8px; }
 
 /* ===== Month Row (arrows + centered title badge) ========================= */
@@ -25,7 +27,7 @@ header + hr{ margin: 6px 0 8px; }
   align-items: center;
   column-gap: 12px;
   max-width: min(900px, 92vw);         /* comfy width in Month */
-  margin: 4px auto 6px;
+  margin: 0 auto 6px;
 }
 
 #month-display{
