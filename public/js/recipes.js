@@ -119,3 +119,14 @@ export function initializeRecipeVariables(recipe){
         recipeCusine
     }
 }
+
+// Returns list of recipes created by a particular user provided their user ID
+export async function getRecipesByUser(userId) {
+    try {
+        const response = await fetch(`/recipes/user/${userId}`);
+        const result = await response.json();
+        return result;
+    } catch (err) {
+        console.error(err)
+    }
+}

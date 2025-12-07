@@ -3,6 +3,8 @@ const { validate, validationResult } = require("../middleware/formValidation.js"
 const { passport } = require("../middleware/passport.js");
 const { getSingleUpload } = require("../middleware/fileUploader.js");
 const { getErrorMessages, attributeCount } = require("../middleware/helpers.js");
+const { sendVerificationEmail } = require("../middleware/emailVerification.js");
+const jwt = require("jsonwebtoken");
 
 const PARENT_DIRECTORY = __dirname;
 const UPLOADS_DIRECTORY = `${PARENT_DIRECTORY}/../public/uploads`;
@@ -35,7 +37,11 @@ exports.signUpUser = [
         else {
             const userCreated = await usersTable.createUser(request.body.username, request.body.email, request.body.password);
             if (userCreated) {
-                response.redirect("/login");
+                // response.redirect("/login");
+
+                const user = await usersTable.getUserByName(request.body.username);
+                await sendVerificationEmail(user.id, user.email);
+                response.render("signup", { successMessage: "User successfully registered. Check your email to verify." });
             }
             else {
                 next();
@@ -44,17 +50,63 @@ exports.signUpUser = [
     }
 ];
 
+exports.verifyUser = async (request, response) => {
+    const { token } = request.query;
+    try {
+        const decodedToken = jwt.verify(token, process.env.JSON_WEB_TOKEN_SECRET);
+        const id = decodedToken.id;
+        const email = decodedToken.email;
+        await usersTable.verifyUser(id, email);
+
+        if (!request.user) {
+            response.redirect("/login?verified=1");
+        }
+        else {
+            response.redirect("/settings/account?verified=1");
+        }
+    }
+    catch (error) {
+        if (!request.user) {
+            response.redirect("/login?verified=0");
+        }
+        else {
+            response.redirect("/settings/account?verified=0");
+        }
+    }
+};
+
 exports.getLogin = async (request, response) => {
-    const failedLoginAttempt = (request.query.failed === "1");
-    if (failedLoginAttempt) {
-        response.render("login", { errorMessages: { credentials: "Login failed. Please try again." } });
+    const { verified } = request.query;
+    if (verified === "1") {
+        response.render("login", { successMessage: "Email successfully verified. You may now log in." });
+    }
+    else if (verified === "0") {
+        response.render("login", { errorMessages: { credentials: "Invalid token." } });
     }
     else {
         response.render("login");
     }
+
 };
 
-exports.loginUser = passport.authenticate("local", { successRedirect: "/", failureRedirect: "/login?failed=1" });
+exports.loginUser = (request, response, next) => {
+    passport.authenticate("local", (error, user, info) => {
+        if (error) {
+            return next(error);
+        }
+        if (!user) {
+            response.render("login", { errorMessages: { credentials: info.message } });
+        }
+        else {
+            request.logIn(user, (error) => {
+                if (error) {
+                    return next(error);
+                }
+                response.redirect("/");
+            });
+        }
+    })(request, response, next);
+}
 
 exports.logoutUser = (request, response, next) => {
     request.logout((error) => {
@@ -122,7 +174,16 @@ exports.updateProfile = [
 ];
 
 exports.getAccountSettings = async (request, response, next) => {
-    response.render("edit-account");
+    const { verified } = request.query;
+    if (verified === "1") {
+        response.render("edit-account", { successMessage: "Email successfully changed." });
+    }
+    else if (verified === "0") {
+        response.render("edit-account", { errorMessages: { credentials: "Invalid token." } });
+    }
+    else {
+        response.render("edit-account");
+    }
 }
 
 exports.updateAccount = [
@@ -146,7 +207,9 @@ exports.updateAccount = [
                     response.render("edit-account", { errorMessages: errorMessages, invalidUser: invalidUser });
                 }
                 else {
-                    await usersTable.updateEmail(request.user.id, request.body.email);
+                    if (request.user.email !== request.body.email) {
+                        await sendVerificationEmail(request.user.id, request.body.email);
+                    }
                     if (request.body.password) {
                         await usersTable.updatePassword(request.user.id, request.body.password);
                     }
@@ -154,7 +217,7 @@ exports.updateAccount = [
                         await usersTable.updateBirthday(request.user.id, request.body.birthday);
                     }
 
-                    response.redirect("/settings/account");
+                    response.render("edit-account", { successMessage: `Confirmation sent to ${request.body.email}.` } );
                 }
             }
             else {

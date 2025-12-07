@@ -3,13 +3,7 @@
 
 /* Horizontally centers all direct children of main; removes necessity of justify-self: center */
 main > * {
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* Shares same width across objects */
-#bookmark, #share, #calendar {
-    width: 30px;
+    margin: 20px auto;
 }
 
 #recipe-tutorial {
@@ -17,19 +11,6 @@ main > * {
     height: 337.5px;
     background-color: lightgray;
     border-radius: 10px;
-}
-
-.rating-container {
-    height: fit-content;
-    width: fit-content;
-    margin-bottom: 10px;
-}
-
-/* Applies styling to child elements of rating container */
-.rating-container * {
-    width: 25px;
-    stroke-width: 1px;
-    margin: auto 1px;
 }
 
 /* Source: https://www.w3schools.com/css/css_grid.asp */
@@ -48,11 +29,6 @@ main > * {
 
 #recipe-details p {
     margin: 10px 0 0 0;
-}
-
-#avg-rating {
-    margin-left: 20px;
-    font-size: 20px;
 }
 
 #navigate-walkthrough {
@@ -103,11 +79,6 @@ img, video {
     border-radius: 10px;
 }
 
-#recipe-name {
-    display: flex;
-    justify-content: center;
-}
-
 #recipe-thumbnail {
     display: flex;
     width: 50%;
@@ -156,35 +127,6 @@ img, video {
     bottom: 30px;
     left: 92px;
 
-}
-
-#recipe-interactions {
-    justify-content: center;
-    gap: 50px;
-}
-
-/* Refers to white background inside review container */
-#inner-container {
-    display: flex;
-    width: 100%;
-    height: 100px;
-    justify-self: center;
-    align-self: center;
-    justify-content: center;
-    align-items: center;
-    background-color: white;
-    border-radius: 10px;
-}
-
-/* Default container to be deleted when reviews are added */
-#no-review-container {
-    display: flex;
-    justify-content: center;
-    width: 75%;
-    height: fit-content;
-    padding: 20px;
-    border-radius: 10px;
-    border: gray solid 3px;
 }
 
 .divider {
@@ -280,15 +222,6 @@ img, video {
     border-radius: 10px;
     padding: 10px;
     width: fit-content;
-}
-
-.clickable:hover {
-    cursor: pointer;
-    fill: lightgray;
-}
-
-.clickable:active {
-    fill: white;
 }
 
 /* Monthly Report #2 */

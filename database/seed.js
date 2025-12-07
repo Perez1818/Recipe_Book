@@ -21,6 +21,8 @@ async function seedDatabase() {
     await client.query(`DROP TABLE IF EXISTS reviews CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS review_feedback CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS collections CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS challenges CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS usersChallenges CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS recipelikes CASCADE;`);
 
     /* To ensure that usernames and emails cannot be created with different cases:
@@ -36,6 +38,10 @@ async function seedDatabase() {
 
                   birthday DATE,
                   biography TEXT,
+
+                  points INT DEFAULT 0,
+
+                  is_verified BOOLEAN DEFAULT false,
 
                   UNIQUE(username),
                   UNIQUE(email)
@@ -116,6 +122,51 @@ async function seedDatabase() {
                   PRIMARY KEY (recipe_id, step_num),
                   CONSTRAINT fk_instructions_recipes FOREIGN KEY (recipe_id) REFERENCES recipes (id)
     );`);
+
+    await client.query(`CREATE TABLE IF NOT EXISTS challenges(
+                  id SERIAL PRIMARY KEY,
+                  user_id INT NOT NULL,
+                  title TEXT NOT NULL,
+                  description TEXT NOT NULL,
+
+                  thumbnail TEXT,
+                  start DATE,
+
+                  cutoff DATE NOT NULL,
+
+                  points INT NOT NULL,
+
+                  required_ingredients TEXT[],
+                  max_ingredients INT,
+
+                  CONSTRAINT fk_challenges_users FOREIGN KEY (user_id) REFERENCES users (id)
+    );`);
+
+    // Define enum status for user in challenge
+    await client.query(`
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'challenge_status') THEN
+            CREATE TYPE challenge_status AS ENUM (
+                'not_participating',
+                'participating',
+                'completed',
+                'expired_before_completion'
+            );
+            END IF;
+        END$$;
+    `);
+
+    // Create joint table between users and challenges
+    await client.query(`CREATE TABLE IF NOT EXISTS usersChallenges(
+                  id SERIAL PRIMARY KEY,
+                  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                  challenge_id INT NOT NULL REFERENCES challenges(id) ON DELETE CASCADE,
+                  recipe_id INT UNIQUE,
+                  liked BOOLEAN DEFAULT false,
+                  status challenge_status DEFAULT 'participating',
+                  CONSTRAINT unique_user_challenge UNIQUE (user_id, challenge_id)
+    )`);
 
     await client.query(`CREATE TABLE IF NOT EXISTS recipelikes(
                   recipe_id INT NOT NULL,

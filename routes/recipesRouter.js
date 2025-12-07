@@ -7,9 +7,11 @@ const recipesRouter = Router();
  * The way Express determines the requested route is similar to pattern matching */
 recipesRouter.get("/create", recipesController.getRecipeMaker);
 recipesRouter.get("/view", recipesController.getRecipeView);
-
 recipesRouter.post("/verify-ingredients", recipesController.verifyIngredientsPreview);
 recipesRouter.post("/", recipesController.createRecipe);
+
+// Obtains all recipes by a specific user provided their user ID
+recipesRouter.get("/user/:userId", recipesController.getRecipesByUser)
 
 recipesRouter.post("/:id/likes", recipesController.likeRecipe);
 recipesRouter.get("/:id/liked", recipesController.recipeIsLiked);

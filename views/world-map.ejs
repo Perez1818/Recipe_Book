@@ -20,6 +20,49 @@
                 transition: 0.5s;
                 cursor: pointer;
             }
+
+
+            div.recipes-container {
+                display: flex;
+                justify-content: space-around;
+                flex-wrap: wrap;
+                background-color: white;
+                margin: 0px 100px 25px 100px;
+            }
+
+            div.showcase-container {
+                background-color: #79B473;
+                display: flex;
+                flex-direction: column;
+                margin-top: 25px;
+                margin-left: 10px;
+                margin-right: 10px;
+            }
+            div.showcase-title {
+                text-align: center;
+                margin: 20px;
+            }
+            div.showcase-title h1 {
+                display: inline;
+                background-color: white;
+            }
+
+            div.recipe img {
+                margin-top: 20px;
+            }
+
+            div.recipe h2 {
+                text-align: center;
+            }
+
+            .thumbnail {
+                object-fit: cover;
+                width: 300px;
+                height: 300px;
+            }
+
+
+
        </style>
 
        <script>
@@ -70,13 +113,15 @@
                                 const targetElement = event.target;
                                 if (targetElement.nodeName === "path") {
                                     const header = document.querySelector("h1");
+                                    let abbreviation;
                                     if (targetElement.classList.length) {
                                         const classArray = Array.from(targetElement.classList);
                                         const countryName = classArray.join(" ");
 
-                                        const abbreviation = countryNameAbbreviations[countryName];
+                                        abbreviation = countryNameAbbreviations[countryName];
 
                                         header.textContent = `${countryName} (${abbreviation})`;
+
                                     }
     
                                     else if (targetElement.id) {
@@ -84,10 +129,37 @@
                                         const nameAttribute = attributes.name;
                                         const countryName = nameAttribute.nodeValue;
 
-                                        const abbreviation = countryNameAbbreviations[countryName];
+                                        abbreviation = countryNameAbbreviations[countryName];
     
                                         header.textContent = `${countryName} (${abbreviation})`;
                                     }
+                                    const recipesContainer = document.querySelector("div.recipes-container");
+                                    recipesContainer.innerHTML = "";
+
+                                    fetch(`/world?tag=${abbreviation.toLowerCase()}`)
+                                        .then(response => response.json())
+                                        .then(recipes => {
+                                            for (recipe of recipes) {
+                                                const recipeDiv = document.createElement("div");
+                                                recipeDiv.className = "recipe";
+                                                const recipeTitle = document.createElement("h2");
+                                                const recipeImage = document.createElement("img");
+
+                                                recipeImage.className = "thumbnail"
+                                                recipeImage.src = `/static/uploads/multimedia/${recipe.thumbnail}`
+
+                                                recipeTitle.textContent = recipe.name;
+
+                                                recipeDiv.appendChild(recipeImage);
+                                                recipeDiv.appendChild(recipeTitle);
+                                                recipesContainer.appendChild(recipeDiv);
+                                            }
+
+                                        })
+                                        .then(error => console.error(error));
+
+
+
                                 }
                             });
     
@@ -101,7 +173,11 @@
     <body>
         <div id="world-container">
         </div>
-        <h1>
+        <h1 style="text-align: center;">
         </h1>
+
+        <div class="recipes-container">
+
+        </div>
     </body>
 </html>
