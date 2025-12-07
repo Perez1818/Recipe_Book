@@ -117,7 +117,9 @@ async function fillRecipeViewPage() {
     // Fetches recipe (ID provided in link)
     const recipe = await searchForRecipe(recipeId);
     // Title
-    recipeName.textContent = recipe.strMeal || recipe.name;
+    const recipeTitle = recipe.strMeal || recipe.name;
+    recipeName.textContent = recipeTitle;
+    document.title = recipeTitle;
     // Publisher
     let recipeOwner = null;
     if (recipe.user_id) {
