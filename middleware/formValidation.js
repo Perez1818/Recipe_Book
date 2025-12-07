@@ -1,7 +1,7 @@
 const { body, validationResult } = require("express-validator");
 const usersTable = require("../database/usersTable.js");
 const { stringArrayToSentence } = require("./fileUploader.js");
-const { deleteFile, deleteFiles, getCurrentDateWithoutTime } = require("./helpers.js");
+const { deleteFile, deleteFiles, getLocalCurrentDate } = require("./helpers.js");
 const mime = require("mime-types");
 
 const MIN_USERNAME_LENGTH = 3;
@@ -173,9 +173,8 @@ const validate = {
     challengeStart: async (request) => body("start")
                              .custom(async start => {
                                  if (start !== "") {
-                                     const currentDate = getCurrentDateWithoutTime();
-                                     const startDate = new Date(start);
-                                     if (startDate < currentDate) {
+                                     const current = getLocalCurrentDate();
+                                     if (start < current) {
                                          throw new Error("Start date cannot be set before the challenge is created");
                                      }
                                  }
@@ -184,18 +183,14 @@ const validate = {
     challengeCutoff: async (request) => body("cutoff")
                              .notEmpty().withMessage("Cutoff date is required")
                              .custom(async (cutoff, { req }) => {
-                                 const currentDate = getCurrentDateWithoutTime();
+                                 const current = getLocalCurrentDate();
+                                 const start = req.body.start || current;
 
-                                 const start = req.body.start;
-                                 const startDate = (start === "") ? currentDate : new Date(start);
-
-                                 const cutoffDate = new Date(cutoff);
-
-                                 if (cutoffDate < currentDate) {
+                                 if (cutoff < current) {
                                      throw new Error("End date cannot be set before today");
                                  }
 
-                                 if (cutoffDate < startDate) {
+                                 if (cutoff < start) {
                                      throw new Error("End date cannot be set before the start date");
                                  }
                              }).run(request),
@@ -212,7 +207,7 @@ const validate = {
                                           }).run(request),
 
     challengeMaxIngredients: async (request) => body("max-ingredients")
-                                     .isInt({ gt: 0 })
+                                     .isInt({ gt: 0 }).withMessage("Max ingredients must be an integer greater than 0")
                                      .run(request)
 };
 

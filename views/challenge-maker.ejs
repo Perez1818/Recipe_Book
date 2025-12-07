@@ -6,9 +6,15 @@
         <meta charset="UTF-8">
         <link rel="stylesheet" href="/static/css/styles.css">
         <link rel="stylesheet" href="/static/css/challenge-maker.css">
+        <link rel="stylesheet" href="/static/css/styles.css">
+        <link rel="stylesheet" href="/static/css/challenge-maker.css">
         <style>
             div.field {
                 margin: 10px;
+            }
+            
+            p {
+                margin: 0;
             }
 
             p.success {
@@ -17,6 +23,20 @@
 
             p.error {
                 color: red;
+            }
+
+            label {
+                font-weight: bold;
+                display: block;
+            }
+            div.ingredients {
+                margin-left: 0px;
+            }
+
+            div.title {
+                display: flex;
+                justify-content: center;
+                align-items: center;
             }
         </style>
     </head>
@@ -127,6 +147,8 @@
             </form>
         </main>
         <script>
+            const formContainer = document.querySelector("#inner-container");
+
             const addIngredientButton = document.querySelector("button#add-ingredient");
             addIngredientButton.addEventListener("click", () => {
                 const ingredients = document.querySelector("div.ingredients");
@@ -177,6 +199,25 @@
                 }
             });
 
+            const pointsElement = document.getElementById("points");
+
+            // Load in preview after uploading thumbnail
+            const fileInput = document.getElementById("file");
+            const preview = document.getElementsByTagName("img")[0];
+            fileInput.addEventListener("change", () => {
+                const file = fileInput.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                    preview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                    preview.style.backgroundColor = "transparent";
+                } else {
+                    preview.style.display = "none";
+                }
+            });
+
             const form = document.querySelector("form");
             form.addEventListener("submit", (event) => {
                 event.preventDefault();
@@ -204,7 +245,8 @@
                     let paragraph = document.createElement("p");
                     paragraph.className = "success";
                     paragraph.textContent = data.message;
-                    form.prepend(paragraph);
+                    paragraph.style.marginLeft = "10px";
+                    formContainer.prepend(paragraph);
                 }).catch(data => {
                     const errorMessages = data.errorMessages;
                     if (errorMessages) {
@@ -228,7 +270,8 @@
                         let paragraph = document.createElement("p");
                         paragraph.className = "error";
                         paragraph.textContent = data.message;
-                        form.prepend(paragraph);
+                        paragraph.style.marginLeft = "10px";
+                        formContainer.prepend(paragraph);
                     }
                 })
             });
@@ -265,3 +308,4 @@
     </script>
     </body>
 </html>
+
