@@ -25,4 +25,12 @@ router.post("/settings/account", usersController.updateAccount);
 router.get("/userDetails/me", usersController.getCurrentUser)
 router.get("/userDetails/:id", usersController.getUserDetailsById);
 
+router.get("/api/users", usersController.listUsers);
+
+router.post("/users/:id/follow", usersController.followUser); // from follow-user branch
+router.delete("/users/:id/follow", usersController.unfollowUser); // from follow-user branch
+router.get("/users/:id/followers", usersController.getFollowers); // from follow-user branch
+router.get("/users/:id/following", usersController.getFollowing); // from follow-user branch
+router.get("/users/:id/isFollowing", usersController.isFollowing); // from follow-user branch
+
 module.exports = router;
