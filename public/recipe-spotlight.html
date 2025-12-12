@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaderboard</title>
+    <title>Recipe Spotlight</title>
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/leaderboard.css">
+    <link rel="stylesheet" href="css/recipe-spotlight.css">
 </head>
 <body>
     <header>
         <p id="logo"> Recipe Book</p>
-        <!-- Navbar emphasizing "home" icon -->
         <nav>
             <a href="account.html" class="tooltip">
                 <span class="tooltiptext">Account</span>
@@ -57,17 +56,21 @@
         </nav>
     </header>
     <hr width="100%">
-    <h1>Leaderboard</h1>
+    <h1>Recipe Spotlight</h1>
     <main>
-        <div id="leaderboard-container">
-            <div id="leaderboard-title">Top Chefs</div>
-            <ol id="leaderboard-list">
-                <!-- Leaderboard entries will be populated here -->
-            </ol>
+        <div id="magazine"> <!-- the magazine area where the recipe is displayed-->
+            <span id="weekly-theme-tag">Theme: Christmas Time</span> 
+            <span id="magazine-title">Christmas Cake</span>
+            <div id="text-section">
+                <a href="recipe-view.html?id=52990" style="text-decoration: none;">
+                     <span class="circle-element">Jump to Recipe</span>
+                </a>
+                <a href="search-engine.html?query=christmas" style="text-decoration: none;">
+                     <span class="circle-element">Similar Recipes</span>
+                </a>
+            </div>
         </div>
     </main>
-
-    <script src="js/leaderboard.js" defer></script>
     <script type="module">
         // Load in avatar
         import { getCurrentUserDetails } from "./js/users.js";
