@@ -949,6 +949,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                     div.appendChild(deleteBtn);
                 }
                 list.appendChild(div);
+                if (comment.user_id !== currentUserId) { //only show report button for other users' comments
+                    const reportBtn = document.createElement('button');
+                    reportBtn.textContent = "Report";
+                    reportBtn.style.marginLeft = "10px";
+                    reportBtn.onclick = async () => {  //reports a comment by getting info and sending to a report to email
+                        await fetch("/report/step-comment", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                username: comment.username,
+                                recipeId: recipeId,
+                                stepNum: stepNum,
+                                content: comment.content,
+                            }),
+                        });
+                        alert("Reported. Thank you!");
+                    };
+                    div.appendChild(reportBtn);
+                }
             });
         } catch (err) {
             list.innerHTML = "<div class='step-comment'>Failed to load comments.</div>";
