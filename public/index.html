@@ -65,6 +65,8 @@
     <main>
         <h1>Home Feed</h1>
         <!-- Bookmarked Recipes -->
+         <select>
+        </select>
         <div id="bookmarked-recipes">
             <svg class="remove-icon" xmlns="http://www.w3.org/2000/svg" display="none" fill="white" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -95,6 +97,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
                             </svg>
                         </button>
+                        <!-- Source: https://www.w3schools.com/howto/howto_js_dropdown.asp -->
                         <div class="dropdown">
                             <div class="dropdown-content">
                             </div>
@@ -143,6 +146,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
                             </svg>
                         </button>
+                        <!-- Source: https://www.w3schools.com/howto/howto_js_dropdown.asp -->
                         <div class="dropdown">
                             <div class="dropdown-content">
                             </div>
@@ -185,6 +189,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
                             </svg>
                         </button>
+                        <!-- Source: https://www.w3schools.com/howto/howto_js_dropdown.asp -->
                         <div class="dropdown">
                             <div class="dropdown-content">
                             </div>
@@ -224,7 +229,8 @@
                 </button>
             </div>
         </div>
-        <script type="module">
+        
+        <!-- <script type="module">
             import { getCollectionByName, createCollection, addRecipeToBookmarks, removeRecipeFromCollection } from './js/collections.js';
 
             async function addToBookmarks(event) {
@@ -246,7 +252,8 @@
             }
 
             window.addToBookmarks = addToBookmarks; // expose for inline onclick
-    </script>
+    </script> -->
+    <!-- Script to display user avatar -->
     <script type="module">
         import { getCurrentUserDetails } from "./js/users.js";
 

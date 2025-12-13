@@ -1,6 +1,6 @@
 
 import { fetchReviews } from "./reviews.js";
-import { fetchRecipe, initializeRecipeVariables, fetchRecipesByCategory, searchForRecipe, fetchRecipesByCuisine, fetchAreas, getRecipeIdFromURL } from "./recipes.js";
+import { fetchRecipe, initializeRecipeVariables, fetchRecipesByCategory, searchForRecipe, fetchRecipesByCuisine, fetchAreas } from "./recipes.js";
 import { getCurrentUserDetails, getUserDetails, getUsername } from "./users.js";
 import { createCollection, getCollectionByName, addRecipeToBookmarks, removeRecipeFromCollection, fetchCollections } from "./collections.js";
 
@@ -9,6 +9,7 @@ import { createCollection, getCollectionByName, addRecipeToBookmarks, removeReci
 const initialCarousel = document.getElementById("trending-container");
 const mainElement = document.getElementsByTagName("main")[0];
 const viewedRecipeTags = JSON.parse(localStorage.getItem("recipeTags"));
+const selectCollection = document.querySelector("select");
 const scrollContainer = document.getElementById("bookmarked-recipes");
 
 // Keeps track of bookmarks
@@ -17,7 +18,116 @@ let bookmarkedRecipes = [];
 // Keeps track of the number of cuisines loaded in
 let currentAreaIndex = 0;
 
-// Checks if user is signed in and obtains theit bookmarked recipes
+// Runs when user cycles through their collections
+selectCollection.addEventListener(
+    "change", async () => {
+        let collectionName = selectCollection.value;
+
+        // User chooses "Create New Collection"
+        if (collectionName === "__create__") {
+            collectionName = prompt("Enter a name for your new collection:", "My Bookmarks");
+
+            // If user cancels or enters nothing, reverts selection
+            if (!collectionName) {
+                selectCollection.value = "My Bookmarks";
+                return;
+            }
+
+            // Creates collection
+            await createCollection(collectionName);
+
+             // Adds the new option as selectable collection
+            const option = new Option(collectionName, collectionName);
+
+            // Inserts before the "Create New Collection" option
+            const createOption = selectCollection.querySelector("option[value='__create__']");
+            selectCollection.insertBefore(option, createOption);
+
+            // Selects newly created collection
+            selectCollection.value = collectionName;
+        } 
+
+        await loadCollection(collectionName);
+    }
+)
+
+// Loads in all recipes in a given collection
+async function loadCollection(collectionName) {
+    const overlayContainers = [...scrollContainer.getElementsByClassName("overlay-container")];
+
+    // Removes existing containers when loading new collection
+    overlayContainers.forEach(
+        (container) => {
+            container.remove();
+        }
+    );
+
+    bookmarkCollection = await getCollectionByName(collectionName);
+    bookmarkedRecipes = bookmarkCollection.recipe_ids || [];
+
+    // Showcases recipes associated with collection and attaches event listeners
+    for (let i=0; i < bookmarkedRecipes.length; i++) {
+        const recipeId = bookmarkedRecipes[i];
+        const div = document.createElement("div");
+        const img = document.createElement("img");
+        const hiddenSvg = document.getElementsByClassName("remove-icon")[0];
+        const svg = hiddenSvg.cloneNode(true);
+        const recipe = await searchForRecipe(recipeId);
+        const recipeName = recipe.strMeal || recipe.name;
+
+        img.src = recipe.strMealThumb || `../uploads/multimedia/${recipe.thumbnail}`;
+        img.title = recipeName;
+        div.classList.add("overlay-container");
+
+
+        img.onclick = () => {
+            window.location.href = `recipe-view.html?id=${recipeId}`
+        }
+        img.addEventListener(
+            "mouseenter", () => {
+                svg.style.display = "block";
+            }
+        );
+
+        div.addEventListener(
+            "mouseleave", () => {
+                svg.style.display = "none";
+            }
+        );
+
+        svg.addEventListener(
+            "mouseenter", () => {
+                svg.style.fill = "transparent";
+            }
+        );
+        svg.addEventListener(
+            "mouseleave", () => {
+                svg.style.fill = "white";
+            }
+        );
+        svg.addEventListener(
+            "click", async () => {
+                const collection = await getCollectionByName(collectionName);
+                let collectionId = null;
+                if (collection) {
+                    collectionId = collection.id;
+                }
+                if (!collectionId) {
+                    collectionId = await createCollection("My Bookmarks");
+                }
+                removeRecipeFromCollection(collectionId, recipeId);
+                div.remove();
+                svg.remove();
+            }
+        );
+
+        div.appendChild(img)
+        div.appendChild(svg)
+        scrollContainer.appendChild(div);
+    }
+}
+
+// Checks if user is signed in and obtains their bookmarked recipes
 let current_user = null;
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -27,61 +137,41 @@ document.addEventListener("DOMContentLoaded", async () => {
             throw new Error("User not logged in.");
         }
 
-        bookmarkCollection = await getCollectionByName("My Bookmarks");
-        bookmarkedRecipes = bookmarkCollection.recipe_ids || [];
+        // Gets the names of all the collections a user has created
+        let collectionItems = await fetchCollections();
+        collectionItems = [...collectionItems.items]
+        const collectionNames = [...new Set(collectionItems.map(item => item.collection_name)) ];
 
-        for (let i=0; i < bookmarkedRecipes.length; i++) {
-            const recipeId = bookmarkedRecipes[i];
-            const div = document.createElement("div");
-            const img = document.createElement("img");
-            const hiddenSvg = document.getElementsByClassName("remove-icon")[0];
-            const svg = hiddenSvg.cloneNode(true);
-            const recipe = await searchForRecipe(recipeId);
-            img.src = recipe.strMealThumb || `../uploads/multimedia/${recipe.thumbnail}`;
-            div.classList.add("overlay-container");
-            img.onclick = () => {
-                window.location.href = `recipe-view.html?id=${recipeId}`
+        // Allows user to select a collection of theirs
+        const optionsData = [];
+        for (const name of collectionNames) {
+            optionsData.push( { value: name, text: name } );
+        }
+        optionsData.forEach(
+            optionData => {
+                const option = new Option(optionData.text, optionData.value);
+                selectCollection.add(option);
+                selectCollection.value = optionData.text;
             }
-            img.addEventListener(
-                "mouseenter", () => {
-                    svg.style.display = "block";
-                }
-            );
-            div.addEventListener(
-                "mouseleave", () => {
-                    svg.style.display = "none";
-                }
-            );
-            svg.addEventListener(
-                "mouseenter", () => {
-                    svg.style.fill = "transparent";
-                }
-            );
-            svg.addEventListener(
-                "mouseleave", () => {
-                    svg.style.fill = "white";
-                }
-            );
-            svg.addEventListener(
-                "click", async () => {
-                    const collection = await getCollectionByName("My Bookmarks");
-                    let collectionId = null;
-                    if (collection) {
-                        collectionId = collection.id;
-                    }
-                    if (!collectionId) {
-                        collectionId = await createCollection("My Bookmarks");
-                    }
-                    removeRecipeFromCollection(collectionId, recipeId);
-                    img.remove();
-                    svg.remove();
-                }
-            );
-            div.appendChild(img)
-            div.appendChild(svg)
-            scrollContainer.appendChild(div);
+        );
+
+        // Add "Create New Collection" option
+        selectCollection.add(new Option("➕ Create New Collection", "__create__"));
+
+        // Collection loaded by default
+        try {
+            let bookmarkCollection = await getCollectionByName("My Bookmarks") || null;
+
+            if (!bookmarkCollection) {
+                await createCollection("My Bookmarks");
+            }
+
+            await loadCollection("My Bookmarks");
+        } catch (err) {
+            console.error("Failed to load or create 'My Bookmarks' collection:", err);
         }
 
+        // Scrolling behavior for container showcasing collections
         let scrollDirection = 1;
         let autoScroll;
 
@@ -89,7 +179,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             autoScroll = setInterval(() => {
                 scrollContainer.scrollLeft += scrollDirection * 1;
 
-                // detect edges with tolerance buffer
                 const atRightEdge =
                     scrollContainer.scrollLeft >= scrollContainer.scrollWidth - scrollContainer.clientWidth - 1;
 
@@ -105,117 +194,114 @@ document.addEventListener("DOMContentLoaded", async () => {
             clearInterval(autoScroll);
         }
 
+        // Controls when container displaying collection starts/stops scrolling
         scrollContainer.addEventListener("mouseenter", stopAutoScroll);
         scrollContainer.addEventListener("mouseleave", startAutoScroll);
 
         startAutoScroll();
-    } catch {
+    } catch (err) {
+        console.log(err);
         scrollContainer.remove();
+        selectCollection.remove();
         return;
     }
 });
 
-async function addEventListenersToRecipeContainer(recipeContainer) {
-    const recipeBookmark = recipeContainer.getElementsByClassName("bookmark-recipe-icon")[0];
-    const addToCollectionButton = recipeContainer.getElementsByClassName("more-options-icon")[0];
-    const dropdownContent = recipeContainer.querySelector(".dropdown-content");
-    const bookmarksCollection = dropdownContent.querySelector("collection-1");
-    const bookmarks = Array.from(recipeContainer.getElementsByClassName("bookmark-recipe-icon"));
+// Removes/adds recipe to a given collection
+async function toggleRecipeInCollection(collectionName, recipeId) {
+    const collection = await getCollectionByName(collectionName);
 
-    const collectionItems = await fetchCollections();
-    let collections = [...collectionItems.items];
-    if (collections.length === 0){
-        collections = await createCollection("My Bookmarks")
-    }
-    for (let i = 0; i < collections.length; i++) {
-        const collectionName = collections[i].collection_name;
-        const collectionId = collections[i].id;
-        const recipeId = JSON.parse(recipeContainer.dataset.recipeId);
-
-        const link = document.createElement("a");
-        link.href = "";
-        link.className = "collection-1";
-        link.title = `Add to ${collectionName}`;
-        link.textContent = `${collectionName}`; // optional visible text
-        // attach click handler properly
-        link.addEventListener("click", async (e) => {
-            e.preventDefault();
-            e.stopPropagation();         // stop event from reaching parent elements
-            await addRecipeToBookmarks(collectionId, recipeId);
-        });
-        dropdownContent.appendChild(link);
+    let collectionId = collection?.id;
+    if (!collectionId) {
+        const newCol = await createCollection(collectionName);
+        collectionId = newCol.id;
     }
 
-    recipeContainer.addEventListener("mouseover", () => {
-        recipeBookmark.setAttribute("display", "block");
-        addToCollectionButton.setAttribute("display", "block");
-    });
-    recipeContainer.addEventListener("mouseleave", () => {
-        recipeBookmark.setAttribute("display", "none");
-        addToCollectionButton.setAttribute("display", "none");
-        dropdownContent.style.display = "none";
-    });
-    addToCollectionButton.addEventListener(
-        "click", (event) => {
-            event.stopPropagation();
-            const dropdownContentVisible = dropdownContent.style.display;
-            if (dropdownContentVisible == "block") {
-                dropdownContent.style.display = "none";
-            }
-            else {
-                dropdownContent.style.display = "block";
-            }
-        }
-    );
+    const isInCollection = collection.recipe_ids.includes(recipeId);
 
-    // Applies event listeners for each bookmark
-    bookmarks.forEach(
-        (bookmark) => {
-            bookmark.addEventListener("mouseenter", () => {
-                bookmark.setAttribute("fill", "#E34234");
-            });
-
-            bookmark.addEventListener("mouseleave", () => {
-                if(!bookmark.classList.contains("bookmarked")){
-                    bookmark.setAttribute("fill", "whitesmoke");
-                }
-            });
-            
-            bookmark.addEventListener(
-                "click", (event) => {
-                    event.stopPropagation(); // Prevents recipeContainer from being clicked
-                    bookmark.setAttribute("fill", "#E34234");
-                    bookmark.classList.toggle("bookmarked");
-
-                    const parentRecipeContainer = bookmark.closest(".recipe-container");
-                    const recipeId = Number(JSON.parse(parentRecipeContainer.dataset.recipeId));
-
-                    (async () => {
-                        const collection = await getCollectionByName("My Bookmarks");
-                        let collectionId = null;
-                        if (collection) {
-                            collectionId = collection.id;
-                        }
-                        if (!collectionId) {
-                            collectionId = await createCollection("My Bookmarks");
-                        }
-                        if (bookmarkedRecipes.includes(recipeId)) {
-                            await removeRecipeFromCollection(collectionId, recipeId);
-                        }
-                        else {
-                            await addRecipeToBookmarks(collectionId, recipeId);
-                        }
-                    })()
-                }
-            );
-        }
-    );
+    if (isInCollection) {
+        await removeRecipeFromCollection(collectionId, recipeId);
+        return false;
+    } else {
+        await addRecipeToBookmarks(collectionId, recipeId);
+        return true;
+    }
 }
 
-function checkBookmarked(recipe, recipeContainer) {
+// Attaches all event listeners associated for any given recipe container
+async function addEventListenersToRecipeContainer(recipeContainer) {
+    const recipeBookmarkIcon = recipeContainer.querySelector(".bookmark-recipe-icon");
+    const addToCollectionButton = recipeContainer.querySelector(".add-to-collection-button");
+    const addToCollectionIcon = recipeContainer.querySelector(".more-options-icon");
+    const dropdownContent = recipeContainer.querySelector(".dropdown-content");
+    const bookmarks = Array.from(recipeContainer.getElementsByClassName("bookmark-recipe-icon"));
+
+    // Hover behavior for icons
+    recipeContainer.addEventListener("mouseover", () => {
+        if (recipeBookmarkIcon) recipeBookmarkIcon.style.display = "block";
+        if (addToCollectionIcon) addToCollectionIcon.style.display = "block";
+    });
+
+    recipeContainer.addEventListener("mouseleave", () => {
+        if (recipeBookmarkIcon) recipeBookmarkIcon.style.display = "none";
+        if (addToCollectionIcon) addToCollectionIcon.style.display = "none";
+        if (dropdownContent) dropdownContent.style.display = "none";
+    });
+
+    // Bookmark icon behavior
+    bookmarks.forEach((bookmark) => {
+        bookmark.addEventListener("mouseenter", () => {
+            bookmark.setAttribute("fill", "#E34234");
+        });
+
+        bookmark.addEventListener("mouseleave", () => {
+            if (!bookmark.classList.contains("bookmarked")) {
+                bookmark.setAttribute("fill", "whitesmoke");
+            }
+        });
+
+        // Three-dots / "add to collection" button
+        addToCollectionButton.addEventListener("click", async (e) => {
+            e.preventDefault();   // Prevents submit forms / follow links
+            e.stopPropagation();  // Prevents trigger of recipeContainer's click
+            dropdownContent.style.display = "block";
+        });
+
+        bookmark.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const recipeId = Number(JSON.parse(recipeContainer.dataset.recipeId));
+            const added = await toggleRecipeInCollection("My Bookmarks", recipeId);
+            const dropdownContent = recipeContainer.getElementsByClassName("dropdown-content")[0];
+            const links = dropdownContent.getElementsByClassName("collection");
+
+            let link;
+            for (const l of links) {
+                if (l.textContent == "My Bookmarks") {
+                    link = l;
+                }
+            }
+
+            if (added) {
+                bookmark.setAttribute("fill", "#E34234");
+                bookmark.classList.add("bookmarked");
+                link.style.backgroundColor = "lightgray";
+            } else {
+                bookmark.setAttribute("fill", "whitesmoke");
+                bookmark.classList.remove("bookmarked");
+                link.style.backgroundColor = "";
+            }
+        });
+    });
+}
+
+// Toggles filling color of bookmark for recipe based on bookmark status
+async function checkBookmarked(recipe, recipeContainer) {
     const recipeId = Number(recipe.idMeal || recipe.id);
     const bookmark = recipeContainer.getElementsByClassName("bookmark-recipe-icon")[0];
-    let isBookmarked = bookmarkedRecipes.includes(recipeId);
+    const bookmarkedRecipes = await getCollectionByName("My Bookmarks");
+    let isBookmarked = bookmarkedRecipes.recipe_ids.includes(recipeId);
 
     // Fills in bookmark if recipe exists in "bookmarked" dictionary
     if (isBookmarked){
@@ -228,8 +314,7 @@ function checkBookmarked(recipe, recipeContainer) {
     // Adds CSS "bookmarked" class to recipes bookmarked by user
     bookmark.classList.toggle(
         "bookmarked",
-        Boolean(bookmarkedRecipes.includes(recipeId))
-        // Boolean(bookmarkedRecipes[recipeId])
+        Boolean(bookmarkedRecipes.recipe_ids.includes(recipeId))
     );
 }
 
@@ -258,12 +343,18 @@ async function createNewCarousel(lookupMethod, filter, recentlyViewed = false) {
     heading1.textContent = recentlyViewed ? `Because You Recently Viewed a ${filter} Recipe` : `${filter} Recipes`;
 
     mainElement.append(clonedCarousel);
+
+    // Default behavior to override cloned behavior
+    const [leftButton, rightButton] = clonedCarousel.getElementsByClassName("carousel-button");
+    leftButton.disabled = true;
+    rightButton.disabled = false;
+
     await renderCarousel(clonedCarousel, lookupMethod, filter);
 
     return clonedCarousel; // Returns the element for later use
 }
 
-// 
+// Adds carousels to webpage as user scrolls fown
 async function loadMoreCarousels() {
     const areasToLoad = 3;
     const areas = await fetchAreas();
@@ -280,8 +371,7 @@ async function loadMoreCarousels() {
     setupCarousels(newCarousels);
 }
 
-
-
+// Intializes carousel variables and attaches event listeners
 function setupCarousels(carousels) {
     carousels.forEach((carousel) => {
         if (carousel.classList.contains("initialized")) return;
@@ -295,6 +385,7 @@ function setupCarousels(carousels) {
         rightButton.parentCarousel = carousel;
         rightButton.siblingButton = leftButton;
 
+        // Left Button click logic
         leftButton.addEventListener("click", async () => {
             leftButton.disabled = true;
             const currentCarousel = leftButton.parentCarousel;
@@ -308,6 +399,7 @@ function setupCarousels(carousels) {
             rightButton.disabled = currentCarousel.sliderIndex + 3 >= seenRecipeIds.length;
         });
 
+        // Right Button click logic
         rightButton.addEventListener("click", async () => {
             rightButton.disabled = true;
             const currentCarousel = rightButton.parentCarousel;
@@ -337,7 +429,12 @@ function setupCarousels(carousels) {
         if (current_user) {
             recipeContainers.forEach(
                 async (recipeContainer) => {
+                    const recipeId = Number(JSON.parse(recipeContainer.dataset.recipeId));
+                    const recipe = await searchForRecipe(recipeId);
+                    await setRecipeContainer(recipe, recipeContainer);
+                    await checkBookmarked(recipe, recipeContainer);
                     await addEventListenersToRecipeContainer(recipeContainer);
+                    await buildDropdownForRecipe(recipeContainer);
             });
         }
     });
@@ -419,9 +516,8 @@ function addVisibleRecipesFromCarousel(carousel) {
     }
 
     // For each recipe container in a carousel, checks if recipe was seen prior
-    // New recipes are added to "seenRecipes"
     recipeContainerChildren.forEach((recipeContainer) => {
-        const id = JSON.parse(recipeContainer.dataset.recipeId || null);
+        const id = Number(JSON.parse(recipeContainer.dataset.recipeId || null));
 
         if (!seenRecipes.includes(id)) {
             seenRecipes.push(id);
@@ -432,36 +528,68 @@ function addVisibleRecipesFromCarousel(carousel) {
     carousel.dataset.seenRecipes = JSON.stringify(seenRecipes);
 }
 
-// Given a recipe container, adds the recipe ID to the "seenRecipes" data of parent carousel
-function addVisibleRecipesFromRecipeContainer(recipeContainer){
-    // Obtains reference to the carousel holding the recipe container
-    parentCarousel = recipeContainer.closest(".carousel-container");
-    // Obtains recipe ID
-    id = JSON.parse(recipeContainer.dataset.recipeId);
-    // Adds ID to "seenRecipes" property of parent carousel
-    seenRecipes = JSON.parse(parentCarousel.dataset.seenRecipes);
-    seenRecipes.push(id);
-    parentCarousel.dataset.seenRecipes = JSON.stringify(seenRecipes);
-}
+// Dynamically creates dropdown menu for a given recipe
+async function buildDropdownForRecipe(recipeContainer) {
+    const dropdownContent = recipeContainer.querySelector(".dropdown-content");
+    dropdownContent.innerHTML = "";
 
+    const recipeId = Number(JSON.parse(recipeContainer.dataset.recipeId));
+    const collectionItems = await fetchCollections();
+    const collections = collectionItems.items || [];
+
+    for (const c of collections) {
+        const link = document.createElement("a");
+        link.className = "collection";
+        link.textContent = c.collection_name;
+        link.href = "#";
+
+        let isInCollection = c.recipe_ids.includes(recipeId);
+        link.style.backgroundColor = isInCollection ? "lightgray" : "";
+
+        link.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const recipeId = Number(JSON.parse(recipeContainer.dataset.recipeId));
+            const added = await toggleRecipeInCollection(c.collection_name, recipeId);
+
+            if (added) {
+                link.style.backgroundColor = "lightgray";
+            } else {
+                link.style.backgroundColor = "";
+            }
+
+            if (c.collection_name == "My Bookmarks") {
+                const bookmark = recipeContainer.querySelector(".bookmark-recipe-icon");
+
+                if (added) {
+                    bookmark.setAttribute("fill", "#E34234");
+                    bookmark.classList.add("bookmarked");
+                } else {
+                    bookmark.setAttribute("fill", "whitesmoke");
+                    bookmark.classList.remove("bookmarked");
+                }
+            }
+        });
+        dropdownContent.appendChild(link);
+    }
+}
 
 // Fills in a recipe container with the details of a specific recipe
 async function setRecipeContainer(recipe, recipeContainer) {
-
-    // Obtains attributes associated with a particular recipe 
+    // Obtains attributes associated with a particular recipe
     const { recipeName,
         recipeThumbnail,
         recipeId,
         recipeIngredients,
         recipeOrigin,
         recipeCategory,
-        recipeCusine } = initializeRecipeVariables(recipe);
-    
-    
+        recipeCusine } = initializeRecipeVariables(recipe);   
+   
     // Associates recipe container with the ID of the recipe it's displaying
     recipeContainer.dataset.recipeId = JSON.stringify(recipeId);
 
-    // Sets username displayed 
+    // Sets username displayed
     const usernameEl = recipeContainer.getElementsByClassName("username")[0];
 
     if (recipe.user_id) {
@@ -479,7 +607,7 @@ async function setRecipeContainer(recipe, recipeContainer) {
     }
 
     // Takes user to specified recipe page when user clicks its container
-    recipeContainer.onclick = () => {
+    recipeContainer.addEventListener("click", () => {
         const recipeTags = {
             category: recipeCategory,
             cuisine: recipeCusine
@@ -493,10 +621,10 @@ async function setRecipeContainer(recipe, recipeContainer) {
         if (recipeContainer.hasAttribute("data-recipe-id")) {
             window.location.href = `recipe-view.html?id=${recipeId}`;
         }
-    }
+    });
 
     // Shows full name of recipe when user hovers over container
-    recipeContainer.title = recipeName 
+    recipeContainer.title = recipeName
 
     // Writes the name and description of the recipe and shows its thumbnail
     const recipeHeading = recipeContainer.getElementsByClassName("recipe-name")[0];
@@ -508,7 +636,7 @@ async function setRecipeContainer(recipe, recipeContainer) {
     const recipeOwnerId = recipe.user_id;
 
     let username = null;
-    
+   
     if (!recipeOwnerId) {
         username = await listPublisher(recipeOrigin, recipeContainer);
     }
@@ -538,7 +666,7 @@ async function setRecipeContainer(recipe, recipeContainer) {
     const averageRating = (sum / reviewsLength).toFixed(1);
 
     numRatings.textContent = `(${reviewsLength})`;
-    
+   
     if (reviewsLength === 0) {
         displayAverageStars(ratingContainer, 0);
         avgRating.textContent = (0).toFixed(1);
@@ -547,22 +675,24 @@ async function setRecipeContainer(recipe, recipeContainer) {
         displayAverageStars(ratingContainer, averageRating);
         avgRating.textContent = averageRating;
     }
-
 }
 
 // Renders elements previously seen when clicking left button
 async function renderCarouselWithOldElements(carousel, recipeIds){
     const carouselRecipeContainers = getCarouselRecipeContainerObjs(carousel);
 
-    for (let [ index, recipeContainer] of carouselRecipeContainers.entries() ) {
+    for (let [ index, recipeContainer ] of carouselRecipeContainers.entries() ) {
         let recipeId = recipeIds[index];
-        
+       
         recipeContainer.onclick = () => {
             window.location.href = `recipe-view.html?id=${recipeId}`;
         }
         const recipe = await searchForRecipe(recipeId);
-        setRecipeContainer(recipe, recipeContainer);
-        checkBookmarked(recipe, recipeContainer);
+       
+        await setRecipeContainer(recipe, recipeContainer);
+        await checkBookmarked(recipe, recipeContainer);
+        await addEventListenersToRecipeContainer(recipeContainer);
+        await buildDropdownForRecipe(recipeContainer);
     }
 }
 
@@ -586,7 +716,7 @@ function getIngredientsList(recipe){
     const upperbound =  20;
     for (let i = 1; i <= upperbound; i++){
         const ingredient = recipe[`strIngredient${i}`]
-        
+       
         if (ingredient){
             recipeIngredients.push(ingredient);
         }
@@ -599,7 +729,7 @@ function getIngredientsList(recipe){
 }
 
 async function renderCarousel(carousel, lookupMethod=null, filter=null){
-    // Obtains reference to all existing recipe container 
+    // Obtains reference to all existing recipe container
     const carouselRecipeContainers = getCarouselRecipeContainerObjs(carousel);
     // Sets up `startIndex` and `batchSize`
     const startIndex = carousel.sliderIndex || 0;
@@ -610,7 +740,6 @@ async function renderCarousel(carousel, lookupMethod=null, filter=null){
         try {
             const response = await fetch(`/recipes/`);
             const result = await response.json();
-            console.log(result)
             if (!result) {
                 throw Error(result.error);
             }
@@ -635,11 +764,13 @@ async function renderCarousel(carousel, lookupMethod=null, filter=null){
             for (let i = 0; i < carouselRecipeContainers.length; i++) {
                 const recipe = recipes[i];
                 const recipeContainer = carouselRecipeContainers[i];
-                            
+                           
                 if (!recipes[i]) break;
-                            
+                           
                 await setRecipeContainer(recipe, recipeContainer);
-                checkBookmarked(recipe, recipeContainer);
+                await checkBookmarked(recipe, recipeContainer);
+                await addEventListenersToRecipeContainer(recipeContainer);
+                await buildDropdownForRecipe(recipeContainer);
             }
             // carousel.dataset.seenRecipes = JSON.stringify(recipeIds);
         } catch (err) {
@@ -647,8 +778,11 @@ async function renderCarousel(carousel, lookupMethod=null, filter=null){
             console.error(err)
             for (let recipeContainer of carouselRecipeContainers) {
                 const recipe = await fetchRecipe();
+               
                 await setRecipeContainer(recipe, recipeContainer);
-                checkBookmarked(recipe, recipeContainer);
+                await checkBookmarked(recipe, recipeContainer);
+                await addEventListenersToRecipeContainer(recipeContainer);
+                await buildDropdownForRecipe(recipeContainer);
             }
         }
     // Carousel must be associated with a lookup method
@@ -685,8 +819,11 @@ async function renderCarousel(carousel, lookupMethod=null, filter=null){
 
             // Otherwise, fetch full recipe details and render into container
             const fullRecipe = await searchForRecipe(recipe.idMeal);
+           
             await setRecipeContainer(fullRecipe, recipeContainer);
-            checkBookmarked(fullRecipe, recipeContainer);
+            await checkBookmarked(fullRecipe, recipeContainer);
+            await addEventListenersToRecipeContainer(recipeContainer);
+            await buildDropdownForRecipe(recipeContainer);
         }
     }
     // Adds recipes in carousel to `seenRecipes` property of carousel
@@ -729,24 +866,10 @@ async function main() {
         await createNewCarousel("category", viewedRecipeTags.category, true);
         await createNewCarousel("cuisine", viewedRecipeTags.cuisine, true);
     }
-    
+   
     const carousels = Array.from(document.getElementsByClassName("carousel-container"));
-    const recipeContainers = document.getElementsByClassName("recipe-container");
-    const recipeContainersArray = Array.from(recipeContainers);
 
-    // Applies event listeners to each recipe container
-    recipeContainersArray.forEach(
-        async (recipeContainer) => {
-            if (recipeContainer.hasAttribute("data-recipe-id")) {
-                if (current_user) {
-                    await addEventListenersToRecipeContainer(recipeContainer);
-                }
-                recipeContainer.style.cursor = "";
-            }
-        }
-    );
-
-    // 
+    // Listens for moment when user scrolls to bottom to add more carousels
     window.addEventListener(
         "scroll", async () => {
             const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
