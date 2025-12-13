@@ -701,74 +701,8 @@ async function main() {
 main()
 
 // Store comments in-memory per step (for demo; lacks persistence)
-const stepComments = {};
 
-// Show/hide comment input for the current step
-function showCommentSection(currentStep) {
-    const section = document.getElementById('step-comment-section');
-    const input = document.getElementById('step-comment-input');
-    const list = document.getElementById('step-comments-list');
-    section.style.display = 'block';
-    input.value = '';
-    // Show existing comments for this step
-    const comments = stepComments[currentStep] || [];
-    comments.forEach(c => {
-    const div = document.createElement('div');
-        div.style.margin = '4px 0';
-        div.textContent = `💡 ${c}`;
-        list.appendChild(div);
-    });
-}
-
-document.addEventListener('DOMContentLoaded', async () => {
-    const commentBtn = document.getElementById('add-step-comment');
-    const submitBtn = document.getElementById('submit-step-comment');
-    const input = document.getElementById('step-comment-input');
-    const section = document.getElementById('step-comment-section');
-    const list = document.getElementById('step-comments-list');
-
-    let currentStep = 1;
-    const stepComments = {};
-
-    function updateCurrentStep() { //update current step from the displayed step fraction
-        const [step] = document.getElementById('completion-fraction').textContent.split(' / ');
-        currentStep = parseInt(step, 10);
-    }
-
-    //https://medium.com/@ayshaismail021/creating-a-simple-comment-box-with-javascript-for-beginners-e865c2dda97e + help from copilot
-    function showCommentSection(currentStep) { //show comment section for current step
-        section.style.display = 'block';
-        input.value = '';
-        const comments = stepComments[currentStep] || [];
-        list.innerHTML = comments.map(c => `<div style="margin:4px 0;">💡 ${c}</div>`).join('');
-    }
-
-    if (commentBtn) {
-        commentBtn.addEventListener('click', () => { //when comment button is clicked
-            updateCurrentStep(); //get current step
-            showCommentSection(currentStep); //show comment section for that step
-        });
-    }
-
-    if (submitBtn) {
-        submitBtn.addEventListener('click', () => {
-            const text = input.value.trim(); //get text and trim whitespace
-            if (!text) return;
-            if (!stepComments[currentStep]) stepComments[currentStep] = []; //initialize array if it doesn't exist
-            stepComments[currentStep].push(text); //add comment
-            showCommentSection(currentStep); //show updated comments
-        });
-    }
-
-    //hide comment section when navigating steps
-    const nav = document.getElementById('navigate-walkthrough');
-    if (nav) {
-        nav.addEventListener('click', (e) => {
-            // Don't hide if the comment button itself was clicked
-            if (e.target === commentBtn) return;
-            section.style.display = 'none';
-        });
-    }
+document.addEventListener('DOMContentLoaded', async () => {    
 
     // Text-to-speech for step instructions
     // https://forum.freecodecamp.org/t/text-to-speech-with-javascript-and-html/724321
@@ -905,7 +839,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     cancelBtn.addEventListener('click', hidePopup);
     overlay.addEventListener('click', hidePopup);
 
-    //save bookmark (demo: just alerts for now)
+    //save bookmark
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const recipeId = getRecipeIdFromURL();
@@ -932,4 +866,138 @@ document.addEventListener('DOMContentLoaded', async () => {
             showPopup();
         });
     }
+
+    // Step comment logic
+    const commentBtn = document.getElementById('add-step-comment');
+    const section = document.getElementById('step-comment-section');
+    const input = document.getElementById('step-comment-input');
+    const submitBtn = document.getElementById('submit-step-comment');
+    const list = document.getElementById('step-comments-list');
+    const stepCounter = document.getElementById('step-counter');
+    const recipeId = getRecipeIdFromURL();
+
+    let currentUser = null;
+    try {
+        currentUser = await getCurrentUserDetails();
+    } catch {
+        currentUser = null;
+    }
+
+    // Fetch and render comments for a step
+    async function renderStepComments() {
+        const stepNum = Number(stepCounter.textContent) || 1;
+        list.innerHTML = '';
+        let currentUserId = currentUser?.id;
+        try {
+            const res = await fetch(`/step-comments/${recipeId}/${stepNum}`); //fetch comments for this recipe and step
+            const comments = await res.json();
+            comments.forEach(comment => {
+                const div = document.createElement('div');
+                div.className = "step-comment";
+                div.innerHTML = `<b>@${comment.username}:</b> <span class="comment-content">${comment.content}</span>`;
+
+                // Only show edit/delete for user's own comment
+                if (comment.user_id === currentUserId) {
+                    const editBtn = document.createElement('button');
+                    editBtn.textContent = "Edit";
+                    editBtn.style.marginLeft = "10px";
+                    editBtn.onclick = () => {
+                        const contentSpan = div.querySelector('.comment-content');
+                        const oldContent = contentSpan.textContent;
+                        const input = document.createElement('input');
+                        input.type = "text";
+                        input.value = oldContent;
+                        const saveBtn = document.createElement('button');
+                        saveBtn.textContent = "Save";
+                        const cancelBtn = document.createElement('button');
+                        cancelBtn.textContent = "Cancel";
+                        contentSpan.replaceWith(input); //replace with input field
+                        editBtn.replaceWith(saveBtn); //replace edit with save
+                        deleteBtn.replaceWith(cancelBtn); //replace delete with cancel
+
+                        saveBtn.onclick = async () => { //save updated comment
+                            const newContent = input.value.trim();
+                            if (!newContent) return;
+                            const resp = await fetch(`/step-comments/${comment.id}`, {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ content: newContent })
+                            });
+                            if (resp.ok) {
+                                await renderStepComments();
+                            } else {
+                                alert("Failed to update comment.");
+                            }
+                        };
+                        cancelBtn.onclick = () => renderStepComments();
+                    };
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = "Delete";
+                    deleteBtn.style.marginLeft = "5px";
+                    deleteBtn.onclick = async () => {
+                        if (!confirm("Delete this comment?")) return;
+                        const resp = await fetch(`/step-comments/${comment.id}`, { method: "DELETE" });
+                        if (resp.ok) {
+                            await renderStepComments();
+                        } else {
+                            alert("Failed to delete comment.");
+                        }
+                    };
+
+                    div.appendChild(editBtn);
+                    div.appendChild(deleteBtn);
+                }
+                list.appendChild(div);
+            });
+        } catch (err) {
+            list.innerHTML = "<div class='step-comment'>Failed to load comments.</div>";
+        }
+    }
+
+    commentBtn.addEventListener('click', () => { //toggle comment section
+        if (!currentUser) {
+            alert("You must be logged in to comment.");
+            return;
+        }
+        section.style.display = section.style.display === "none" ? "block" : "none";
+        input.focus();
+        renderStepComments();
+    });
+
+    submitBtn.addEventListener('click', async () => { //submit new comment
+        if (!currentUser) {
+            alert("You must be logged in to comment.");
+            return;
+        }
+        const text = input.value.trim();
+        if (!text) return;
+        const stepNum = Number(stepCounter.textContent) || 1;
+        try {
+            const res = await fetch("/step-comments", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    recipe_id: recipeId,
+                    step_num: stepNum,
+                    content: text
+                })
+            });
+            if (res.ok) {
+                input.value = "";
+                await renderStepComments();
+            } else {
+                alert("Failed to post comment.");
+            }
+        } catch {
+            alert("Failed to post comment.");
+        }
+    });
+
+    // Update comments when step changes
+    const observer = new MutationObserver(renderStepComments);
+    observer.observe(stepCounter, { childList: true });
+
+    renderStepComments();
+
 });

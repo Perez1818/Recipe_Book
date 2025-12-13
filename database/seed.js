@@ -187,6 +187,16 @@ async function seedDatabase() {
                     CONSTRAINT fk_followers_followee FOREIGN KEY (followee_id) REFERENCES users (id) ON DELETE CASCADE
     );`);
 
+    await client.query(`CREATE TABLE IF NOT EXISTS step_comments(
+                    id SERIAL PRIMARY KEY,
+                    recipe_id INT NOT NULL,
+                    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    step_num INT NOT NULL,
+                    content TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`);
+
     await client.end();
 }
 
