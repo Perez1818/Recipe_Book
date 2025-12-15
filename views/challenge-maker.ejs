@@ -6,8 +6,6 @@
         <meta charset="UTF-8">
         <link rel="stylesheet" href="/static/css/styles.css">
         <link rel="stylesheet" href="/static/css/challenge-maker.css">
-        <link rel="stylesheet" href="/static/css/styles.css">
-        <link rel="stylesheet" href="/static/css/challenge-maker.css">
         <style>
             div.field {
                 margin: 10px;
@@ -96,7 +94,7 @@
             <form id="form-body" action="" method="post" enctype="multipart/form-data">
                 <div id="inner-container">
                     <div class="field">
-                        <label for="thumbnail">Thumbnail: </label>
+                        <label for="file">Thumbnail: </label>
                         <input type="file" id="file" name="thumbnail">
                     </div>
 
@@ -179,25 +177,6 @@
             });
 
             addIngredientButton.click();
-
-            const pointsElement = document.getElementById("points");
-
-            // Load in preview after uploading thumbnail
-            const fileInput = document.getElementById("file");
-            const preview = document.getElementsByTagName("img")[0];
-            fileInput.addEventListener("change", () => {
-                const file = fileInput.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = e => {
-                    preview.src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                    preview.style.backgroundColor = "transparent";
-                } else {
-                    preview.style.display = "none";
-                }
-            });
 
             const pointsElement = document.getElementById("points");
 

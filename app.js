@@ -46,8 +46,8 @@ app.use("/world", worldRouter);
 app.use("/challenges", challengesRouter);
 app.use("/users-challenges", usersChallengesRouter);
 
-app.use("/", ingredientsRouter);
 app.use("/", router);
+app.use("/", ingredientsRouter);
 
 app.use((error, request, response, next) => {
     console.error(error);
