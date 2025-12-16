@@ -1,0 +1,100 @@
+body {
+    margin: 0;
+    overflow-x: hidden;
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 1000px;
+    background-size: cover;
+    background-image: url("../img/Wood_Material_Background_Wallpaper_Texture_Concept_(32881036551).png");
+}
+
+#leaderboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 600px;
+    background-color: whitesmoke;
+    border-radius: 10px;
+    box-shadow: 5px 5px 5px black;
+    padding: 40px 0;
+    margin-top: 40px;
+    position: relative;
+}
+
+#leaderboard-title {
+    font-size: 3em;
+    font-family: "Didot", "Playfair Display", serif;
+    font-style: italic;
+    font-weight: bold;
+    color: #79B473;
+    background-color: rgba(0,0,0,0.05);
+    width: 100%;
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #79B473;
+    padding-bottom: 10px;
+}
+
+#leaderboard-list {
+    list-style: none;
+    padding: 0;
+    width: 90%;
+}
+
+.leaderboard-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f7f7f7;
+    border-radius: 10px;
+    margin: 15px 0;
+    padding: 15px 25px;
+    font-size: 1.5em;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.08);
+    border-left: 10px solid #79B473;
+}
+
+.leaderboard-entry.first {
+    background-color: gold;
+    border-left: 10px solid gold;
+    font-weight: bold;
+}
+
+.leaderboard-entry.second {
+    background-color: silver;
+    border-left: 10px solid silver;
+    font-weight: bold;
+}
+
+.leaderboard-entry.third {
+    background-color: #cd7f32; /* bronze */
+    border-left: 10px solid #cd7f32;
+    font-weight: bold;
+}
+
+.profile-pic {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-right: 20px;
+    border: 3px solid #79B473;
+    background-color: lightgray;
+}
+
+.username {
+    flex: 1 1 auto;
+    margin-left: 10px;
+    font-weight: 700;
+    color: #333;
+}
+
+.points {
+    font-size: 1.2em;
+    color: #79B473;
+    font-weight: bold;
+    margin-left: 20px;
+}

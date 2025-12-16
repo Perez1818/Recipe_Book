@@ -177,6 +177,26 @@ async function seedDatabase() {
                   // CONSTRAINT fk_likes_recipes FOREIGN KEY (recipe_id) REFERENCES recipes (id),
                   // NOTE: This constraint would be added when user-created recipe IDs and MealDB recipe IDs no longer collide!
 
+    // Followers table: (follower_id follows followee_id) // from follow-user branch
+    await client.query(`CREATE TABLE IF NOT EXISTS followers( 
+                    follower_id INT NOT NULL,
+                    followee_id INT NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+                    PRIMARY KEY (follower_id, followee_id),
+                    CONSTRAINT fk_followers_follower FOREIGN KEY (follower_id) REFERENCES users (id) ON DELETE CASCADE,
+                    CONSTRAINT fk_followers_followee FOREIGN KEY (followee_id) REFERENCES users (id) ON DELETE CASCADE
+    );`);
+
+    await client.query(`CREATE TABLE IF NOT EXISTS step_comments(
+                    id SERIAL PRIMARY KEY,
+                    recipe_id INT NOT NULL,
+                    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    step_num INT NOT NULL,
+                    content TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`);
+
     await client.end();
 }
 

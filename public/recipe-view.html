@@ -522,6 +522,161 @@
     </script>
     <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
+    <script>
+    // to assign and maintain unique ids for usernames in reviews (help from copilot)
+    (function(){
+        function sanitizeForId(s){
+            let out = String(s || '').trim()
+                .replace(/^@+/, '')
+                .replace(/[^a-zA-Z0-9\-_]/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-+|-+$/g, '');
+            if (!out) out = 'unknown';
+            if (/^\d/.test(out)) out = 'u-' + out;
+            return out.toLowerCase();
+        }
+
+        function makeUniqueIdFor(base, el){
+            const prefix = 'user-' + base;
+            if (!document.getElementById(prefix) || document.getElementById(prefix) === el) return prefix;
+            let i = 1;
+            let candidate;
+            do {
+                candidate = prefix + '-' + i++;
+            } while (document.getElementById(candidate) && document.getElementById(candidate) !== el);
+            return candidate;
+        }
+
+        function isTemplateNode(el){
+            const review = el && el.closest && el.closest('.review');
+            if (!review) return false;
+            const cs = getComputedStyle(review);
+            return cs && cs.display === 'none';
+        }
+
+        const recentlyProcessed = new WeakSet();
+
+        function ensureUsernameId(el){
+            if (!el || el.nodeType !== 1) return null;
+            if (isTemplateNode(el)) return null;
+
+            const text = (el.textContent || el.innerText || '').trim() || '';
+            const base = sanitizeForId(text);
+            const candidate = makeUniqueIdFor(base, el);
+
+            if (el.id === candidate && el.dataset.username === text) return el.id;
+
+            if (recentlyProcessed.has(el)) return el.id || null;
+            recentlyProcessed.add(el);
+            setTimeout(() => recentlyProcessed.delete(el), 1000);
+
+            if (el.id !== candidate) el.id = candidate;
+            if (el.dataset.username !== text) el.dataset.username = text;
+            return el.id;
+        }
+
+        // initial pass
+        document.querySelectorAll('#reviews-section .username').forEach(ensureUsernameId);
+
+        // Observe additions and keep ids in sync — do NOT change the URL or auto-scroll here
+        const reviewsSection = document.getElementById('reviews-section');
+        if (reviewsSection) {
+            const obs = new MutationObserver(mutations => {
+                const toProcess = [];
+                for (const m of mutations) {
+                    if (m.type !== 'childList') continue;
+                    for (const n of m.addedNodes) {
+                        if (n.nodeType !== 1) continue;
+                        if (n.classList && n.classList.contains('username')) toProcess.push(n);
+                        if (n.querySelectorAll) toProcess.push(...Array.from(n.querySelectorAll('.username')));
+                    }
+                }
+                if (toProcess.length) {
+                    setTimeout(() => {
+                        toProcess.forEach(el => {
+                            ensureUsernameId(el);
+                            // intentionally do NOT update location.hash or scroll here
+                        });
+                    }, 50);
+                }
+            });
+            obs.observe(reviewsSection, { childList: true, subtree: true });
+        }
+
+        // Post button: do NOT modify the hash or auto-scroll. Keep only id assignment.
+        const postBtn = document.getElementById('post-button');
+        if (postBtn) {
+            postBtn.addEventListener('click', () => {
+                setTimeout(() => {
+                    const visibleReviews = Array.from(document.querySelectorAll('#reviews-section .review'))
+                        .filter(r => r.offsetParent !== null);
+                    const last = visibleReviews.length ? visibleReviews[visibleReviews.length - 1] :
+                        document.querySelector('#reviews-section .review:last-of-type');
+                    if (!last) return;
+                    const usernameEl = last.querySelector('.username');
+                    if (!usernameEl) return;
+                    ensureUsernameId(usernameEl);
+                    // do NOT change location.hash or scroll — leave that to user-driven navigation
+                }, 150);
+            });
+        }
+
+        // On load: if user opened a URL with a hash, scroll to it (user intent)
+        window.addEventListener('load', () => {
+            const h = location.hash ? location.hash.slice(1) : '';
+            if (!h) return;
+            setTimeout(() => {
+                const el = document.getElementById(h);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 200);
+        });
+    })();
+    </script>
+
+    <script>
+    // highlight usernames when navigated to via hash (help from copilot)
+    (function(){
+        function flashElement(el, duration = 2200) {
+            if (!el) return;
+            if (el._flashTimeout) {
+                clearTimeout(el._flashTimeout);
+                el.classList.remove('username-highlight');
+            }
+            el.classList.add('username-highlight');
+            if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+            el.focus({ preventScroll: true });
+            el._flashTimeout = setTimeout(() => {
+                el.classList.remove('username-highlight');
+                try { el.removeAttribute('tabindex'); } catch(e){}
+                el._flashTimeout = null;
+            }, duration);
+        }
+
+        // flash on user-driven hash navigation
+        window.addEventListener('hashchange', () => {
+            const id = location.hash ? location.hash.slice(1) : '';
+            if (!id) return;
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                flashElement(el);
+            }
+        });
+
+        // initial load with a hash (bookmark / link) -> scroll + flash
+        window.addEventListener('load', () => {
+            const id = location.hash ? location.hash.slice(1) : '';
+            if (!id) return;
+            setTimeout(() => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    flashElement(el);
+                }
+            }, 250);
+        });
+    })();
+    </script>
     
     <!-- Bookmark Collection Popup -->
     <!-- Daniel: Source that helped = https://www.w3schools.com/html/html_forms.asp + https://www.w3schools.com/howto/howto_js_popup_form.asp -->

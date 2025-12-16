@@ -89,6 +89,11 @@ div.follow-container a {
     text-decoration: none;
 }
 
+#follow-btn { /* only change from follow user  */
+  margin: 10px auto;
+  display: block;
+}
+
 div.recipes-container {
     display: flex;
     justify-content: space-around;

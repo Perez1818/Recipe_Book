@@ -1,0 +1,102 @@
+body {
+  margin: 0; /* removes white space on sides of image */
+  overflow-x: hidden; /* gets rid of scroll-bar for x-axis */
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 1000px;
+    background-size: cover;
+    background-image: url("../img/Wood_Material_Background_Wallpaper_Texture_Concept_(32881036551).png");
+}
+
+#magazine { /* the main area where the recipe is shown */
+    display: flex;
+    flex-direction: column; /* arranged vertically */
+    justify-content: center; /* in the center */
+    height: 700px;
+    width: 620px;
+    background-color: whitesmoke;
+    transform: rotate(5deg); /* rotates the area by 5 degrees */
+    box-shadow: 5px 5px 5px black;
+    border-radius: 2px; /* slightly rounded corners */
+    background-image: url("../img/christmas_cake.jpg");
+    overflow: hidden;
+}
+
+#weekly-theme-tag { /* the tag on the top left corner */
+    font-family: "Didot", "Playfair Display", serif;
+    font-size: 1em;
+    font-weight: bold;
+    align-self: flex-start; /* aligns to the left */
+    text-align: center;
+    padding: 10px;
+    background-color: #79B473;
+    color: white;
+    border-radius:  0 10px 10px 0;
+}
+
+#magazine-title {
+    font-size: 5em;
+    font-family: "Didot", "Playfair Display", serif;
+    font-style: italic;
+    font-weight: bold;
+    margin-top: 0px;
+    text-align: center;
+    align-self: center;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    padding: 5px;
+    /* Gives transparent white border to top and bottom */
+    border-top: 10px solid rgba(255, 255, 255, 0.5);
+    border-bottom: 10px solid rgba(255, 255, 255, 0.5);
+}
+
+#text-section { /* before the circle element */
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    align-self: flex-end;
+    margin-right: 10px;
+    width: 200px;
+    height: 50%;
+}
+
+.circle-element { /* the circle element on the right side + text */
+    display: block;
+    width: 100px;
+    aspect-ratio: 1 / 1;
+    margin-top: 15px;
+    align-content: center;
+    padding: 20px;
+    border-radius: 50%;
+    background-color: burlywood;
+    color: white;
+    font-size: 1.4em;
+    font-weight: bold;
+}
+
+#community-winner-text {
+    position: absolute;
+    bottom: 20px;
+    right: -100px;
+    transform: rotate(-45deg) translateX(50px); /* positions element slanted in corner with text appearing centered */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.6em;
+    font-weight: bold;
+    margin-top: 40px;
+    align-self: center;
+    height: fit-content;
+    width: 400px;
+    padding: 10px;
+    background-color: whitesmoke;
+    border: gold solid 5px;
+    color: goldenrod;
+    border-radius: 1px;
+}
