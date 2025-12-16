@@ -707,6 +707,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Text-to-speech for step instructions
     // https://forum.freecodecamp.org/t/text-to-speech-with-javascript-and-html/724321
     const speakBtn = document.getElementById('speak-step-btn');
+    const stopSpeakBtn = document.getElementById('stop-speak-btn');
     const instructionsEl = document.getElementById('instructions');
     if (speakBtn && instructionsEl) {
         speakBtn.addEventListener('click', () => {
@@ -718,6 +719,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.speechSynthesis.speak(speech);
         });
     }
+    if (stopSpeakBtn) {
+    stopSpeakBtn.addEventListener('click', () => {
+        window.speechSynthesis.cancel();
+    });
+}
 
     //bookmark popup logic
     const bookmarkBtn = document.querySelector("#bookmark");
