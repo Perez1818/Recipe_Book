@@ -104,6 +104,8 @@
 
 ============================================================================= */
 
+import { getCollectionByName } from "./collections.js";
+
 
 /* ===== PERSISTENCE ===== */
 const LIST_STORAGE_KEY = 'shoppingListV1';
@@ -446,9 +448,10 @@ function addBuyButtonsToExisting() {
 
 /* ===== Saved recipes → populate select & add ingredients ===== */
 
-function getBookmarkedRecipeIds() {
-  const raw = JSON.parse(localStorage.getItem('bookmarkedRecipes') || '{}');
-  return Object.keys(raw).filter(id => raw[id]);
+async function getBookmarkedRecipeIds() {
+  const bookmarkCollection = await getCollectionByName("My Bookmarks");
+  const bookmarkedRecipes = bookmarkCollection.recipe_ids || [];
+  return bookmarkedRecipes;
 }
 
 async function fetchRecipeById(id) {
@@ -465,7 +468,7 @@ async function populateSavedRecipesSelect() {
   sel.innerHTML = `<option value="">Saved recipes…</option>`;
   sel.disabled = true; btn.disabled = true;
 
-  const ids = getBookmarkedRecipeIds();
+  const ids = await getBookmarkedRecipeIds();
   if (!ids.length) {
     sel.innerHTML = `<option value="">No saved recipes yet</option>`;
     return;

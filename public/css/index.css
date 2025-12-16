@@ -1,10 +1,10 @@
 
 /* Adds unique styling to heading element */
 h1 {
+    margin: 20px auto;
     width: fit-content;
     padding: 5px 15px;
     border: lightcoral solid 4px;
-    justify-self: center;
     border-radius: 30px;
 }
 
@@ -17,6 +17,11 @@ h2 {
     align-self: center;
     margin: 20px 20px;
     text-wrap: wrap;
+}
+
+select {
+    height: fit-content;
+    padding: 5px;
 }
 
 button:disabled {
@@ -45,16 +50,20 @@ button:disabled {
 }
 
 .carousel-button {
+    display: flex;
     width: 30px;
+    height: 350px;
     border-radius: 5px;
     margin: 15px;
-    justify-items: center;
-    padding: 5px 15px;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
 }
 
 /* Prevents svg from moving outside container */
 .carousel-button svg {
-    display: block;
+    width: 100%;
+    height: auto;
 }
 
 .carousel {
@@ -96,8 +105,6 @@ button:disabled {
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
-    text-overflow: ellipsis;
-    text-wrap: nowrap;
 }
 
 /* Makes description never exceed 2 lines */
@@ -111,7 +118,7 @@ button:disabled {
     text-align: start;
 }
 
-#avg-rating {
+#num-ratings {
     vertical-align: center;
     font-size: 15px;
 }
@@ -184,17 +191,120 @@ h1, h2 {
 }
 
 /* Positions bookmark button to be invisible in the top-right corner of recipe container */
-.bookmark-recipe-button {
+.bookmark-recipe-button, .add-to-collection-button {
     position: absolute;
     top: 0;
-    right: 0;
     border: none;
     background-color: transparent;
 }
 
+.add-to-collection-button {
+    right: 0;
+}
+
+.bookmark-recipe-button {
+    left: 0;
+}
+
 /* Fills in bookmark button that has been bookmarked */
 .bookmark-recipe-button .bookmarked {
-    fill: #E34234;
+    fill: hsl(5, 76%, 55%);
+}
+
+.more-options-icon:hover {
+    color: gray;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    border-radius: 50%;
+}
+
+.dropdown-content a {
+    color: black;
+}
+
+.dropdown-content a:hover {
+    color: #79B473;
+}
+
+.dropdown-content a {
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    background-color: white;
+}
+
+.dropdown-content a:hover {
+    background-color: whitesmoke;
+}
+
+/* Ty #4 */
+
+select {
+    margin: 0px 40px;
+}
+
+.bookmark-recipe-button:hover {
+    fill: "#E34234";
+}
+
+#bookmarked-recipes {
+    display: flex;
+    gap: 100px;
+    height: fit-content;
+    background-color: whitesmoke;
+    padding: 20px;
+    margin: 20px 40px;
+    border-radius: 10px;
+    overflow-x: auto;
+    scrollbar-width: none; /* hide scrollbar in Firefox */
+    scroll-behavior: smooth;
+    animation: autoScroll 2s linear infinite alternate;
+}
+
+#bookmarked-recipes:hover {
+    animation-play-state: paused;
+    scrollbar-width: thin;
+}
+
+@keyframes autoScroll {
+  0%   { scroll-left: 0; }
+  100% { scroll-left: 9999px; } /* large value -> scroll to far right */
+}
+
+#bookmarked-recipes img {
+    background-color: lightgray;
+    width: 100px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    border: gray solid 2px;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+#bookmarked-recipes svg {
+    width: 30px;
+    color: red;
+    cursor: pointer;
+}
+
+/* Prevents the container for bookmarked recipes from collapsing and recipe thumbnails shifting */
+.overlay-container {
+    position: relative;
+    display: inline-block;
+}
+
+.overlay-container svg {
+    position: absolute;
+    top: -10px;
+    right: -10px;
 }
 
 

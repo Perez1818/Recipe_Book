@@ -119,6 +119,61 @@ async function getUserRecipes(id) {
     return rows;
 }
 
+async function listUsers() {
+    const { rows } = await pool.query(`SELECT username, points FROM users ORDER BY points DESC;`);
+    return rows;
+}
+
+async function followUser(followerId, followeeId) {
+    if (!followerId || !followeeId || followerId === followeeId) return false;
+    try {
+        await pool.query(
+            `INSERT INTO followers (follower_id, followee_id) VALUES ($1,$2) ON CONFLICT DO NOTHING`,
+            [followerId, followeeId]
+        );
+        return true;
+    } catch (e) {
+        console.error('followUser error', e);
+        return false;
+    }
+}
+
+async function unfollowUser(followerId, followeeId) {
+    try {
+        const r = await pool.query(
+            `DELETE FROM followers WHERE follower_id=$1 AND followee_id=$2`,
+            [followerId, followeeId]
+        );
+        return r.rowCount > 0;
+    } catch (e) {
+        console.error('unfollowUser error', e);
+        return false;
+    }
+}
+
+async function getFollowers(userId) {
+    const { rows } = await pool.query(
+        `SELECT u.* FROM followers f JOIN users u ON u.id = f.follower_id WHERE f.followee_id = $1 ORDER BY f.created_at DESC`,
+        [userId]
+    );
+    return rows;
+}
+
+async function getFollowing(userId) {
+    const { rows } = await pool.query(
+        `SELECT u.* FROM followers f JOIN users u ON u.id = f.followee_id WHERE f.follower_id = $1 ORDER BY f.created_at DESC`,
+        [userId]
+    );
+    return rows;
+}
+
+async function isFollowing(followerId, followeeId) {
+    const { rows } = await pool.query(
+        `SELECT 1 FROM followers WHERE follower_id=$1 AND followee_id=$2 LIMIT 1`,
+        [followerId, followeeId]
+    );
+    return rows.length === 1;
+}
 
 /* Avoid listing all exports manually
  */
@@ -138,5 +193,11 @@ module.exports = {
     updatePassword,
     updateBirthday,
     verifyUser,
-    getUserRecipes
+    getUserRecipes,
+    listUsers,
+    followUser, // from follow-user-old branch
+    unfollowUser, // from follow-user-old branch
+    getFollowers, // from follow-user-old branch
+    getFollowing, // from follow-user-old branch
+    isFollowing // from follow-user-old branch
 }

@@ -41,12 +41,23 @@
 
             <div class="right-container">
                 <div class="points-container">
-                    <h2>0 Points</h2>
+                    <h2><%= user.points %> Points</h2>
                 </div>
 
                 <div class="follow-container">
-                    <h2>0 Following</h2>
-                    <h2>0 Followers</h2>
+                    <h2>
+                        Followers: <span id="followers-count">0</span>  <!-- from follow-user branch -->
+                        &nbsp;&nbsp;
+                        Following: <span id="following-count">0</span> <!-- from follow-user branch -->
+                    </h2>
+                    <button id="follow-btn" data-user-id="<%= user.id %>" <%= (typeof currentUser !== 'undefined' && currentUser && currentUser.id === user.id) ? 'disabled' : '' %>>
+                        <%= (typeof currentUser !== 'undefined' && currentUser && currentUser.id === user.id) ? "It's you" : 'Loading...' %>
+                    </button> <!-- from follow-user branch -->
+
+                    <!-- Follow/unfollow client -->
+                    <script src="/static/js/profile-follow.js"></script>
+
+
                     <% if (currentUser && currentUser.username === user.username) { %>
                         <h2><a href="/settings">Edit Profile</a></h2>
                     <% } %>

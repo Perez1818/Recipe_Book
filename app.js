@@ -4,8 +4,13 @@ const dotenv = require("dotenv");
 
 const recipesRouter = require("./routes/recipesRouter.js");
 const worldRouter = require("./routes/worldRouter.js");
-const challengesRouter = require("./routes/challengesRouter.js");
+const reviewsRouter = require("./routes/reviewsRouter.js");
+const collectionsRouter = require("./routes/collectionsRouter.js")
 const ingredientsRouter = require("./routes/ingredientsRouter.js");
+const challengesRouter = require("./routes/challengesRouter.js");
+const usersChallengesRouter = require("./routes/usersChallengesRouter.js");
+const stepCommentsRouter = require("./routes/stepCommentsRouter.js");
+const reportRouter = require("./routes/reportRouter.js");
 
 const sessionMiddleware = require("./middleware/session.js");
 const { passport, configurePassport } = require("./middleware/passport.js");
@@ -36,16 +41,24 @@ app.use("/static", express.static(`${PARENT_DIRECTORY}/public`));
 app.use(express.json({ limit: "1mb" }));
 
 // Routes
+app.use("/collections", collectionsRouter)
 app.use("/recipes", recipesRouter);
+app.use("/reviews", reviewsRouter);
 app.use("/world", worldRouter);
+app.use("/challenges", challengesRouter);
+app.use("/users-challenges", usersChallengesRouter);
+app.use("/step-comments", stepCommentsRouter);
+app.use("/report", reportRouter);
+
 app.use("/", router);
 app.use("/", ingredientsRouter);
-app.use("/challenges", challengesRouter);
 
 app.use((error, request, response, next) => {
     console.error(error);
     response.status(500).send("Server Error");
 });
+
+app.use("/uploads", express.static(`${PARENT_DIRECTORY}/public/uploads`));
 
 app.listen(SERVER_PORT, (error) => {
     if (error) {

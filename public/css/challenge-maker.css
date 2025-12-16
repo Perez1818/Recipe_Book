@@ -75,3 +75,73 @@ img {
 textarea {
     background-color: lightyellow;
 }
+
+body {
+    margin: 40px;
+}
+
+input {
+    width: 70%;
+    height: fit-content;
+    padding: 5px;
+}
+
+#form-body {
+    display: flex;
+    background-color: lightgreen;
+    padding: 20px;
+    border-radius: 10px;
+    justify-content: center;
+}
+
+#inner-container {
+    background-color: white;
+    padding: 20px;
+    width: 60%;
+}
+
+#remove-ingredient {
+    margin-left: 20px;
+}
+
+#remove-ingredient:hover {
+    background-color: tomato;
+    border-radius: 3px;
+    border: 1px gray solid;
+}
+
+#add-ingredient {
+    margin-top: 10px;
+}
+
+#submit-button {
+    display: flex;
+    justify-self: center;
+    background-color: #eee;
+    border: 1px solid #ccc;
+}
+
+#submit-buttton:hover {
+    cursor: pointer;
+    background-color: lightgray;
+}
+
+#preview-holder {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 40%;
+    background-color: white;
+}
+
+.ingredients {
+    margin-left: 30px;
+}
+
+img {
+    width: 90%;
+    aspect-ratio: 1 / 1;
+    background-color: lightgray;
+    border-radius: 5px;
+    object-fit: scale-down;
+}

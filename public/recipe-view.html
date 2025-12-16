@@ -9,8 +9,13 @@
     <link defer rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!--  -->
     <link defer rel="stylesheet" href="./css/styles.css">
-    <script defer src="./js/recipe-view.js"></script>
+    <link defer rel="stylesheet" href="css/view-header.css">
+    <link defer rel="stylesheet" href="./css/reviews.css">
+    <script type="module" src="./js/reviews.js"></script>
+    <script type="module" src="./js/users.js"></script>
+    <script defer type="module" src="./js/recipe-view.js"></script>
     <script defer src="./js/timer.js"></script>
+    <script defer type="module" src="js/recipe-review-handler.js"></script>
 </head>
 <body>
     <header>
@@ -47,8 +52,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                 </svg>
             </a>
-            <a href="bulletin-board.html" class="tooltip">
-                <span class="tooltiptext">Bulletin Board</span>
+            <a href="challenges.html" class="tooltip">
+                <span class="tooltiptext">Challenges</span>
                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
                 </svg>
@@ -65,23 +70,17 @@
     <main>
         <h1 id="recipe-name">Recipe Name</h1>
         <span id="username-and-date">
-            <span>By 
+            <span>By
                 <a id="username-link">
-                    <b id="username">@username1234567890</b>
+                    <img src="img/Profile_icon.svg" id="poster-profile-pic">
+                    <b id="username">. . .</b>
                 </a>
-                <a id="origin-site-link">
-                    <svg id="origin-site-available" width="15px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-                    </svg>
-                    <svg id="origin-site-not-available" width="15px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.181 8.68a4.503 4.503 0 0 1 1.903 6.405m-9.768-2.782L3.56 14.06a4.5 4.5 0 0 0 6.364 6.365l3.129-3.129m5.614-5.615 1.757-1.757a4.5 4.5 0 0 0-6.364-6.365l-4.5 4.5c-.258.26-.479.541-.661.84m1.903 6.405a4.495 4.495 0 0 1-1.242-.88 4.483 4.483 0 0 1-1.062-1.683m6.587 2.345 5.907 5.907m-5.907-5.907L8.898 8.898M2.991 2.99 8.898 8.9" />
-                    </svg>
-                </a>
-
             </span>
-            <span id="separator">|</span>
-            <span id="publishing-date">Uploaded on on August 14, 2025</span>
+            <span id="publishing-date" ></span>
         </span>
+         <!-- for google translate + source that helped: https://www.w3schools.com/howto/howto_google_translate.asp -->
+         <div id="google_translate_element"></div>
+
          <div class="rating-container">
             <!-- Daniel: source that helped: https://www.w3schools.com/howto/howto_css_star_rating.asp-->
             <span class="fa fa-star" data-r-value="1"></span>
@@ -129,31 +128,31 @@
 
                 <!-- Comment Button -->
                 <div id="comments">
-                    <button>
-                        <svg class="clickable" width="30px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
-                        </svg>
-                    </button>
-                    <span>150</span>
+                    <a href="#reviews-section" style="text-decoration: none; color: black;">
+                        <button>
+                            <svg class="clickable" width="30px" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
+                            </svg>
+                        </button>
+                        <span id="num-comments">0</span>
+                    </a>
                 </div>
             </div>
-
+        
         <!-- Intro Section -->
         <section id="intro">
             <img id="recipe-thumbnail">
+            <div id="recipe-tag"></div>
             <div id="recipe-details">
                 <div id="prep-time">
                     <b>Prep Time</b>
-                    <p>30 mins</p>
+                    <p id="prep-time-total"></p>
                 </div>
-                <div id="total-time">
-                    <b>Total Time</b>
-                    <p>1 hr</p>
+                <div id="cook-time">
+                    <b>Cook Time</b>
+                    <p id="cook-time-total"></p>
                 </div>
             </div>
-            <p>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Beatae assumenda sequi rerum repellat nulla ipsam, facere ut excepturi ad totam sed aliquid deserunt. Amet reiciendis pariatur veritatis omnis! Quisquam, animi! Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos reiciendis recusandae corporis dolores vel nihil repellendus. Consequuntur quis voluptas ipsam delectus saepe quae soluta accusamus sequi, amet provident nam quos!
-            </p>
         </section>
 
         <!-- Video Tutorial -->
@@ -162,17 +161,63 @@
             <h2>Video Tutorial</h2>
             <iframe id="recipe-tutorial"
             allowfullscreen></iframe>
-            <p>
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Velit molestiae, amet provident ratione sed omnis, aut, sunt incidunt veritatis at autem quia? Mollitia, ab veniam non laudantium error odio! Quam?
-            </p>
         </section>
 
         <!-- Walkthrough Section -->
         <section>
             <hr class="divider">
             <h2>Walkthrough</h2>
-            <h3 id="countdown">5:00</h3>
-            <progress id="timer"></progress>
+            <!-- Timer Steps Section -->
+            <div id="timer-section">
+                <h3 id="countdown"></h3>
+                <button id="start-btn" title="Start timer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15px" fill="black" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+                    </svg>
+                </button>
+                <button id="stop-btn" title="Stop timer" style="display:none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" fill="black" viewBox="0 0 24 24" stroke-width="4" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+                    </svg>
+                </button>
+                <button id="reset-btn" title="Reset timer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" stroke-width="4" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                        <path fill-rule="evenodd" d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <!-- Source: https://www.w3schools.com/howto/howto_js_dropdown.asp -->
+                <div class="dropdown">
+                    <button id="more-options-btn" title="More options">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                        </svg>
+                    </button>
+                    <div class="dropdown-content">
+                        <a id="switch-timer-btn" title="Switch timer bound">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                            </svg>
+                        </a>
+                        <a id="next-timer-btn" title="Skip to next timer">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8.689c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061A1.125 1.125 0 0 1 3 16.811V8.69ZM12.75 8.689c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061a1.125 1.125 0 0 1-1.683-.977V8.69Z" />
+                            </svg>
+                        </a>
+                        <a id="prev-timer-btn" title="Go to previous timer">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061A1.125 1.125 0 0 1 21 8.689v8.122ZM11.25 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061a1.125 1.125 0 0 1 1.683.977v8.122Z" />
+                            </svg>
+
+                        </a>
+                        <a id="manage-timers-btn" title="Manage timers" style="display: none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <progress id="timer"></progress>
+            </div>
             <div class="two-column-container">
                 <div class="ingredient-card">
                     <h3>Ingredients</h3>
@@ -184,9 +229,13 @@
                     <div id="step-counter">1</div>
                     <div>
                         <h3 id="instructions">
-                            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Architecto, dicta! Doloremque, deserunt neque nam, esse alias explicabo ducimus reiciendis veniam voluptatibus assumenda iste doloribus iusto recusandae excepturi accusantium officiis libero.
                         </h3>
-                        <span class="estimated-time">⏱️ Estimated Time: <b>5 minutes</b></span>
+                        <div id="estimated-time" style="visibility: hidden">
+                            <span id="description">⏱️ Estimated Time: </span>
+                            <b id="time-in-bold"></b>
+                        </div>
+                        <!-- for text-to-speech -->
+                        <button id="speak-step-btn" type="button" style="margin-top:8px;">🔊 Speak Step</button>
                     </div>
                 </div>
             </div>
@@ -211,49 +260,445 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                     </svg>
-                </button>
+                <!-- add comment to step button -->
+                <button id="add-step-comment" type="button" style="margin-left: 14px; min-width: 90px;">💬 Comment</button>
+            </div>
+            <div id="step-comment-section" style="display:none; margin-top:10px;">
+                <textarea id="step-comment-input" rows="2" style="width:90%; background-color: lightyellow; font-family: arial;" placeholder="Leave a tip or comment for this step..."></textarea>
+                <button id="submit-step-comment" type="button">Submit</button>
+                <div id="step-comments-list"></div>
             </div>
         </section>
 
-        <!-- Review Section -->
-        <section>
-            <hr class="divider">
-            <h2>Reviews</h2>
-            <div id="review-container">
-                <div id="inner-container">
-                    <div id="no-review-container">
-                        <b> No Reviews yet!</b>
+        <!-- Reviews -->
+        <section id="reviews-section">
+            <h2>
+                <span id="num-reviews">0 </span>
+                <span> Reviews</span>
+            </h2>
+            <!-- Section where user can post a review -->
+            <div id="post-review-container">
+                <img src="img/Profile_icon.svg" id="current-user-profile-pic">
+                <input id="review-to-post" placeholder="Add a review?" maxlength="350">
+                <div class="rating-container-2">
+                    <input type="radio" id="1-star" name="stars" value="1">
+                    <input type="radio" id="2-star" name="stars" value="2">
+                    <input type="radio" id="3-star" name="stars" value="3">
+                    <input type="radio" id="4-star" name="stars" value="4">
+                    <input type="radio" id="5-star" name="stars" value="5">
+                    <label for="5-star">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="whitesmoke" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                        </svg>
+                    </label>
+                    <label for="4-star">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="whitesmoke" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                        </svg>
+                    </label>
+                    <label for="3-star">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="whitesmoke" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                        </svg>
+                    </label>
+                    <label for="2-star">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="whitesmoke" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                        </svg>
+                    </label>
+                    <label for="1-star">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="whitesmoke" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                        </svg>
+                    </label>
+                </div>
+                <button id="post-button" disabled style="cursor: not-allowed">Post</button>
+            </div>
+            <!-- Initial review not visible to produce other reviews -->
+            <div class="review" style="display:none">
+                <img src="img/Profile_icon.svg" class="profile-pic">
+                <div class="review-details">
+                    <div>
+                        <a class="username">@username1234567890</a>
+                        <time></time>
+                        <span class="edit-flag"></span>
+                        <div class="review-buttons" style="display: none;">
+                            <!-- Edit Button -->
+                            <button class="edit-button" title="Edit this review">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25px" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                </svg>
+                            </button>
+                            <!-- Delete Button -->
+                            <button class="delete-button" title="Delete this review"> 
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25px" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="rating-container-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="whitesmoke" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="whitesmoke" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="whitesmoke" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="whitesmoke" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="whitesmoke" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                        </svg>
+                    </div>
+                    <p class="review-text"></p>
+                    <div id="feedback-container">
+                        <div>
+                            <button class="like-button">
+                                <svg class="clickable" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z" />
+                                </svg>
+                            </button>
+                            <span class="feedback-number">0</span>
+                        </div>
+                        <div>
+                            <button class="dislike-button">
+                                <svg class="clickable" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.498 15.25H4.372c-1.026 0-1.945-.694-2.054-1.715a12.137 12.137 0 0 1-.068-1.285c0-2.848.992-5.464 2.649-7.521C5.287 4.247 5.886 4 6.504 4h4.016a4.5 4.5 0 0 1 1.423.23l3.114 1.04a4.5 4.5 0 0 0 1.423.23h1.294M7.498 15.25c.618 0 .991.724.725 1.282A7.471 7.471 0 0 0 7.5 19.75 2.25 2.25 0 0 0 9.75 22a.75.75 0 0 0 .75-.75v-.633c0-.573.11-1.14.322-1.672.304-.76.93-1.33 1.653-1.715a9.04 9.04 0 0 0 2.86-2.4c.498-.634 1.226-1.08 2.032-1.08h.384m-10.253 1.5H9.7m8.075-9.75c.01.05.027.1.05.148.593 1.2.925 2.55.925 3.977 0 1.487-.36 2.89-.999 4.125m.023-8.25c-.076-.365.183-.75.575-.75h.908c.889 0 1.713.518 1.972 1.368.339 1.11.521 2.287.521 3.507 0 1.553-.295 3.036-.831 4.398-.306.774-1.086 1.227-1.918 1.227h-1.053c-.472 0-.745-.556-.5-.96a8.95 8.95 0 0 0 .303-.54" />
+                                </svg>
+                            </button>
+                            <span class="feedback-number">0</span>
+                        </div>
                     </div>
                 </div>
+            </div>
+            <!-- Placeholder until a single review is added -->
+            <div id="no-reviews-placeholder">
+                <b style="font-size: 2vw; font-family: Georgia, serif;">Looks like nobody is home...</b>
+                <img src="gif/Planta_rodadora_o_Estepicursor.gif">
             </div>
         </section>
     </main>
 
     <script> //javascript for star ratings + like button
 
+        function getRecipeIdFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get("id");
+        }
+        const recipeId = getRecipeIdFromURL();
+
+        //something that helped with local storage: https://www.w3schools.com/jsref/prop_win_localstorage.asp
+        //load rating from local storage
+        const savedRating = localStorage.getItem('userRating');
+        if (savedRating) {
+            document.querySelectorAll('.rating-container .fa-star').forEach((s, i) => {
+                s.classList.toggle('checked', i < savedRating);
+            });
+            // document.getElementById('avg-rating').textContent = Number(savedRating).toFixed(1);
+        }
+
+        //load liked status
+        const icon = document.querySelector('#likes i');
+        const countSpan = document.getElementById('like-count');
+
+        function updateLikeCountAndIcon() {
+            fetch(`/recipes/${recipeId}/liked`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => {
+                return response.json()
+                       .then(json => {
+                           if (response.ok) {
+                               return Promise.resolve(json);
+                           }
+                           return Promise.reject(json);
+                       });
+            })
+            .then(data => {
+                const liked = data.liked;
+                if (icon) {
+                    if (liked) {
+                        icon.classList.add('liked');
+                    }
+                    else {
+                        icon.classList.remove('liked');
+                    }
+                }
+                if (countSpan) {
+                    countSpan.textContent = data.likes;
+                }
+            }).catch(data => {
+                console.error("failed to retrieve liked status");
+                if (icon) {
+                    icon.classList.remove('liked');
+                }
+                if (countSpan) {
+                    countSpan.textContent = data.likes;
+                }
+            });
+        }
+
+        //clicking the stars
         document.querySelectorAll('.rating-container .fa-star').forEach(star => {
             star.addEventListener('click', function() {
                 const rating = parseInt(this.getAttribute('data-r-value'));
                 document.querySelectorAll('.rating-container .fa-star').forEach((s, i) => {
                 s.classList.toggle('checked', i < rating);
                 });
-                document.getElementById('avg-rating').textContent = rating.toFixed(1);
+                // document.getElementById('avg-rating').textContent = rating.toFixed(1);
+                localStorage.setItem('userRating', rating);
             });
         });
 
+        //clicking the like button
+        updateLikeCountAndIcon();
         document.getElementById('likes').addEventListener('click', function(e) {
-            if (!e.target.closest('button')) return;
             const icon = this.querySelector('i');
             const countSpan = document.getElementById('like-count');
-            let count = parseInt(countSpan.textContent, 10);
-            if (!icon.classList.contains('liked')) {
-                icon.classList.add('liked');
-                countSpan.textContent = count + 1;
-            } else {
-                icon.classList.remove('liked');
-                countSpan.textContent = count > 0 ? count - 1 : 0;
+
+            fetch(`/recipes/${recipeId}/likes`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => {
+                return response.json()
+                       .then(json => {
+                           if (response.ok) {
+                               return Promise.resolve(json);
+                           }
+                           return Promise.reject(json);
+                       });
+            })
+            .then(data => {
+                console.log(data.message);
+                updateLikeCountAndIcon();
+            }).catch(data => {
+                console.error(data.error);
+            });
+        });
+
+    </script>
+    <script type="module">
+        // Load in avatar
+        import { getCurrentUserDetails } from "./js/users.js";
+
+        const profile = document.getElementsByClassName("icon")[0];
+        const accountLink = document.getElementsByClassName("tooltip")[0];
+        const current_user = await getCurrentUserDetails();
+
+        function loadLoggedUserAvatar(current_user) {
+            const profilePic = current_user.avatar;
+            const img = document.createElement("img");
+            img.style.width = "45px";
+            img.style.height = "45px";
+            img.style.borderRadius = "50%";            
+            img.src = profilePic;
+            accountLink.href = `/user/${current_user.username}`;
+            
+            if (current_user.avatar) {
+                profile.replaceWith(img);
+            }
+        }
+
+        // Load in avatar if user is signed in and add path to their profile
+        if (current_user) {
+            loadLoggedUserAvatar(current_user);
+        } else {
+            accountLink.style.cursor = "not-allowed";
+            accountLink.href = "#";
+        }
+    </script>
+
+    <!-- w3schools google translate guide: https://www.w3schools.com/howto/howto_google_translate.asp-->
+    <script type="text/javascript">
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script>
+    // to assign and maintain unique ids for usernames in reviews (help from copilot)
+    (function(){
+        function sanitizeForId(s){
+            let out = String(s || '').trim()
+                .replace(/^@+/, '')
+                .replace(/[^a-zA-Z0-9\-_]/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-+|-+$/g, '');
+            if (!out) out = 'unknown';
+            if (/^\d/.test(out)) out = 'u-' + out;
+            return out.toLowerCase();
+        }
+
+        function makeUniqueIdFor(base, el){
+            const prefix = 'user-' + base;
+            if (!document.getElementById(prefix) || document.getElementById(prefix) === el) return prefix;
+            let i = 1;
+            let candidate;
+            do {
+                candidate = prefix + '-' + i++;
+            } while (document.getElementById(candidate) && document.getElementById(candidate) !== el);
+            return candidate;
+        }
+
+        function isTemplateNode(el){
+            const review = el && el.closest && el.closest('.review');
+            if (!review) return false;
+            const cs = getComputedStyle(review);
+            return cs && cs.display === 'none';
+        }
+
+        const recentlyProcessed = new WeakSet();
+
+        function ensureUsernameId(el){
+            if (!el || el.nodeType !== 1) return null;
+            if (isTemplateNode(el)) return null;
+
+            const text = (el.textContent || el.innerText || '').trim() || '';
+            const base = sanitizeForId(text);
+            const candidate = makeUniqueIdFor(base, el);
+
+            if (el.id === candidate && el.dataset.username === text) return el.id;
+
+            if (recentlyProcessed.has(el)) return el.id || null;
+            recentlyProcessed.add(el);
+            setTimeout(() => recentlyProcessed.delete(el), 1000);
+
+            if (el.id !== candidate) el.id = candidate;
+            if (el.dataset.username !== text) el.dataset.username = text;
+            return el.id;
+        }
+
+        // initial pass
+        document.querySelectorAll('#reviews-section .username').forEach(ensureUsernameId);
+
+        // Observe additions and keep ids in sync — do NOT change the URL or auto-scroll here
+        const reviewsSection = document.getElementById('reviews-section');
+        if (reviewsSection) {
+            const obs = new MutationObserver(mutations => {
+                const toProcess = [];
+                for (const m of mutations) {
+                    if (m.type !== 'childList') continue;
+                    for (const n of m.addedNodes) {
+                        if (n.nodeType !== 1) continue;
+                        if (n.classList && n.classList.contains('username')) toProcess.push(n);
+                        if (n.querySelectorAll) toProcess.push(...Array.from(n.querySelectorAll('.username')));
+                    }
+                }
+                if (toProcess.length) {
+                    setTimeout(() => {
+                        toProcess.forEach(el => {
+                            ensureUsernameId(el);
+                            // intentionally do NOT update location.hash or scroll here
+                        });
+                    }, 50);
+                }
+            });
+            obs.observe(reviewsSection, { childList: true, subtree: true });
+        }
+
+        // Post button: do NOT modify the hash or auto-scroll. Keep only id assignment.
+        const postBtn = document.getElementById('post-button');
+        if (postBtn) {
+            postBtn.addEventListener('click', () => {
+                setTimeout(() => {
+                    const visibleReviews = Array.from(document.querySelectorAll('#reviews-section .review'))
+                        .filter(r => r.offsetParent !== null);
+                    const last = visibleReviews.length ? visibleReviews[visibleReviews.length - 1] :
+                        document.querySelector('#reviews-section .review:last-of-type');
+                    if (!last) return;
+                    const usernameEl = last.querySelector('.username');
+                    if (!usernameEl) return;
+                    ensureUsernameId(usernameEl);
+                    // do NOT change location.hash or scroll — leave that to user-driven navigation
+                }, 150);
+            });
+        }
+
+        // On load: if user opened a URL with a hash, scroll to it (user intent)
+        window.addEventListener('load', () => {
+            const h = location.hash ? location.hash.slice(1) : '';
+            if (!h) return;
+            setTimeout(() => {
+                const el = document.getElementById(h);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 200);
+        });
+    })();
+    </script>
+
+    <script>
+    // highlight usernames when navigated to via hash (help from copilot)
+    (function(){
+        function flashElement(el, duration = 2200) {
+            if (!el) return;
+            if (el._flashTimeout) {
+                clearTimeout(el._flashTimeout);
+                el.classList.remove('username-highlight');
+            }
+            el.classList.add('username-highlight');
+            if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+            el.focus({ preventScroll: true });
+            el._flashTimeout = setTimeout(() => {
+                el.classList.remove('username-highlight');
+                try { el.removeAttribute('tabindex'); } catch(e){}
+                el._flashTimeout = null;
+            }, duration);
+        }
+
+        // flash on user-driven hash navigation
+        window.addEventListener('hashchange', () => {
+            const id = location.hash ? location.hash.slice(1) : '';
+            if (!id) return;
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                flashElement(el);
             }
         });
+
+        // initial load with a hash (bookmark / link) -> scroll + flash
+        window.addEventListener('load', () => {
+            const id = location.hash ? location.hash.slice(1) : '';
+            if (!id) return;
+            setTimeout(() => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    flashElement(el);
+                }
+            }, 250);
+        });
+    })();
     </script>
+    
+    <!-- Bookmark Collection Popup -->
+    <!-- Daniel: Source that helped = https://www.w3schools.com/html/html_forms.asp + https://www.w3schools.com/howto/howto_js_popup_form.asp -->
+    <div id="bookmark-popup" style="display:none; position:fixed; top:30%; left:50%; transform:translate(-50%,-50%); background:white; border:1px solid #aaa; border-radius:8px; box-shadow:0 2px 8px #0002; padding:24px; z-index:1000; min-width:300px;">
+        <h3>Save to Collection</h3>
+        <form id="bookmark-form">
+            <label for="collection-select">Choose a collection:</label>
+            <select id="collection-select" style="width:100%; margin:8px 0;">
+                <option value="bookmarks">Bookmarks</option>
+            </select>
+            <div  style="display:flex; justify-content:center; margin-bottom: 8px;">
+                <input type="text" id="new-collection-name" placeholder="New collection name" style="width:70%;">
+            </div>
+            <div style="text-align:center;">
+                <button type="button" id="add-collection-btn">Add</button>
+                <button type="button" id="delete-collection-btn" disabled>Delete</button>
+                <button type="button" id="cancel-bookmark-popup">Cancel</button>
+                <button type="submit" id="save-bookmark-btn">Save</button>
+            </div>
+        </form>
+    </div>
+    <div id="bookmark-popup-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#0005; z-index:999;"></div>
+
 </body>
 </html>

@@ -180,3 +180,14 @@ categorySelect.addEventListener("change", () => {
         handleSearch();
     }
 });
+
+// --- Auto-search if ?query= is present ---
+document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get("query");
+    if (query) {
+        searchInput.value = query;
+        // Trigger the search as if the user clicked the button
+        searchButton.click();
+    }
+});

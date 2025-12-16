@@ -225,3 +225,94 @@ exports.updateAccount = [
             }
     }
 ];
+
+// Obtains the ID, username, and avatar of the current user (if they're logged in)
+exports.getCurrentUser = async (request, response) => {
+    if (!request.user) {
+        return response.status(401).json({ error: "Not logged in" });
+    }
+    response.json({
+        id: request.user.id,
+        username: request.user.username,
+        avatar: request.user.avatar ? `../uploads/avatar/${request.user.avatar}` : null
+    });
+}
+
+// Provided a user ID, retreives username and avatar
+exports.getUserDetailsById = async (request, response) => {
+    const id = Number(request.params.id);
+    if (!id) {
+        return response.status(400).json({ error: 'Number ID required' })
+    }
+    const userDetails = await usersTable.getUserById(id);
+    if (!userDetails) {
+        return res.status(404).json({ error: "User not found" });
+    }
+    response.json({
+        username: userDetails.username,
+        avatar: userDetails.avatar ? `../uploads/avatar/${userDetails.avatar}` : null
+    });
+}
+
+exports.listUsers = async (req, res) => {
+    try {
+        const users = await usersTable.listUsers();
+        res.json({ users });
+    } catch (err) {
+        console.error("listUsers error:", err);
+        res.status(500).json({ error: "failed_to_list_users" });
+    }
+};
+
+exports.followUser = async (req, res) => { // from follow-user-old branch
+    const actor = req.user?.id;
+    const target = Number(req.params.id);
+    if (!actor) return res.status(401).json({ error: 'not_authenticated' });
+    if (!target || actor === target) return res.status(400).json({ error: 'invalid_target' });
+
+    const ok = await usersTable.followUser(actor, target);
+    if (!ok) return res.status(500).json({ error: 'follow_failed' });
+    return res.json({ message: 'followed', id: target });
+};
+
+// DELETE /users/:id/follow
+exports.unfollowUser = async (req, res) => { // from follow-user-old branch
+    const actor = req.user?.id;
+    const target = Number(req.params.id);
+    if (!actor) return res.status(401).json({ error: 'not_authenticated' });
+    if (!target || actor === target) return res.status(400).json({ error: 'invalid_target' });
+
+    const ok = await usersTable.unfollowUser(actor, target);
+    if (!ok) return res.status(500).json({ error: 'unfollow_failed' });
+    return res.json({ message: 'unfollowed', id: target });
+};
+
+// GET /users/:id/followers
+exports.getFollowers = async (req, res) => { // from follow-user-old branch
+    const target = Number(req.params.id);
+    if (!target) return res.status(400).json({ error: 'invalid_target' });
+    const rows = await usersTable.getFollowers(target);
+    return res.json({ items: rows });
+};
+
+// GET /users/:id/following
+exports.getFollowing = async (req, res) => { // from follow-user-old branch
+    const target = Number(req.params.id);
+    if (!target) return res.status(400).json({ error: 'invalid_target' });
+    const rows = await usersTable.getFollowing(target);
+    return res.json({ items: rows });
+};
+
+exports.isFollowing = async (req, res) => { // from follow-user branch-old
+  const actor = req.user?.id;
+  const target = Number(req.params.id);
+  if (!target) return res.status(400).json({ error: 'invalid_target' });
+  if (!actor) return res.json({ isFollowing: false }); // not logged in => not following
+  try {
+    const ok = await usersTable.isFollowing(Number(actor), target);
+    return res.json({ isFollowing: !!ok });
+  } catch (e) {
+    console.error('isFollowing error', e);
+    return res.status(500).json({ error: 'server_error' });
+  }
+};
