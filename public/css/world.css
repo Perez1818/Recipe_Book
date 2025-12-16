@@ -10,7 +10,7 @@ svg path {
 }
 
 svg path:hover {
-    fill: limegreen;
+    fill: #79B473;
     transition: 0.5s;
     cursor: pointer;
 }
@@ -74,7 +74,7 @@ div.recipe h2 {
 
 .side-panel {
     position: fixed;
-    background-color: lightgreen;
+    background-color: #79B473;
 
     top: 0;
     right: -30em;
@@ -109,7 +109,7 @@ div.recipe h2 {
 .side-panel-container {
     margin-top: 3em;
     padding: 20px;
-    background-color: lightgreen;
+    background-color: #79B473;
 }
 
 div.side-panel-container h1 {

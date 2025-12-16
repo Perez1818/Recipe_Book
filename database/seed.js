@@ -1,6 +1,9 @@
 const dotenv = require("dotenv");
 const { Client } = require("pg");
 
+const pool = require("./pool.js");
+const usersTable = require("./usersTable.js");
+
 const PARENT_DIRECTORY = __dirname;
 dotenv.config({ path: `${PARENT_DIRECTORY}/../.env` });
 
@@ -198,6 +201,12 @@ async function seedDatabase() {
     );`);
 
     await client.end();
+
+    const sampleUsername = "tester";
+    await usersTable.createUser(sampleUsername, "", sampleUsername);
+    const sampleUser = await usersTable.getUserByNameOrEmail(sampleUsername);
+    await usersTable.verifyUser(sampleUser.id, sampleUser.email);
+    await pool.end();
 }
 
-seedDatabase()
+seedDatabase();

@@ -73,9 +73,16 @@
             <h1>Recipe Showcase</h1>
         </div>
         <div class="recipes-container">
+            <% if (userRecipes.length === 0) { %>
+            <div class="recipe">
+                <img src="" class="thumbnail" alt="">
+                <h2>No recipes yet.</h2>
+            <% } %>
             <% for (recipe of userRecipes) { %>
             <div class="recipe">
+                <a href="<%= `/static/recipe-view.html?id=${recipe.id}` %>">
                 <img src="<%= `/static/uploads/multimedia/${recipe.thumbnail}` %>" class="thumbnail" alt="<%= recipe.name %> thumbnail">
+                </a>
                 <h2><%= recipe.name %></h2>
             </div>
             <% } %>
