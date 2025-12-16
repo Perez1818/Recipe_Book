@@ -371,6 +371,16 @@ async function loadMoreCarousels() {
     setupCarousels(newCarousels);
 }
 
+// Initializes recipe container with event listeners, bookmark, and dropdown menu
+async function initializeRecipeContainer(recipe, recipeContainer) {
+    await setRecipeContainer(recipe, recipeContainer);
+    if (current_user) {
+        await checkBookmarked(recipe, recipeContainer);
+        await addEventListenersToRecipeContainer(recipeContainer);
+        await buildDropdownForRecipe(recipeContainer);
+    }
+}
+
 // Intializes carousel variables and attaches event listeners
 function setupCarousels(carousels) {
     carousels.forEach((carousel) => {
@@ -431,10 +441,7 @@ function setupCarousels(carousels) {
                 async (recipeContainer) => {
                     const recipeId = Number(JSON.parse(recipeContainer.dataset.recipeId));
                     const recipe = await searchForRecipe(recipeId);
-                    await setRecipeContainer(recipe, recipeContainer);
-                    await checkBookmarked(recipe, recipeContainer);
-                    await addEventListenersToRecipeContainer(recipeContainer);
-                    await buildDropdownForRecipe(recipeContainer);
+                    await initializeRecipeContainer(recipe, recipeContainer);
             });
         }
     });
@@ -688,11 +695,7 @@ async function renderCarouselWithOldElements(carousel, recipeIds){
             window.location.href = `recipe-view.html?id=${recipeId}`;
         }
         const recipe = await searchForRecipe(recipeId);
-       
-        await setRecipeContainer(recipe, recipeContainer);
-        await checkBookmarked(recipe, recipeContainer);
-        await addEventListenersToRecipeContainer(recipeContainer);
-        await buildDropdownForRecipe(recipeContainer);
+        await initializeRecipeContainer(recipe, recipeContainer);
     }
 }
 
@@ -766,11 +769,7 @@ async function renderCarousel(carousel, lookupMethod=null, filter=null){
                 const recipeContainer = carouselRecipeContainers[i];
                            
                 if (!recipes[i]) break;
-                           
-                await setRecipeContainer(recipe, recipeContainer);
-                await checkBookmarked(recipe, recipeContainer);
-                await addEventListenersToRecipeContainer(recipeContainer);
-                await buildDropdownForRecipe(recipeContainer);
+                await initializeRecipeContainer(recipe, recipeContainer);
             }
             // carousel.dataset.seenRecipes = JSON.stringify(recipeIds);
         } catch (err) {
@@ -778,11 +777,7 @@ async function renderCarousel(carousel, lookupMethod=null, filter=null){
             console.error(err)
             for (let recipeContainer of carouselRecipeContainers) {
                 const recipe = await fetchRecipe();
-               
-                await setRecipeContainer(recipe, recipeContainer);
-                await checkBookmarked(recipe, recipeContainer);
-                await addEventListenersToRecipeContainer(recipeContainer);
-                await buildDropdownForRecipe(recipeContainer);
+                await initializeRecipeContainer(recipe, recipeContainer);
             }
         }
     // Carousel must be associated with a lookup method
@@ -819,11 +814,7 @@ async function renderCarousel(carousel, lookupMethod=null, filter=null){
 
             // Otherwise, fetch full recipe details and render into container
             const fullRecipe = await searchForRecipe(recipe.idMeal);
-           
-            await setRecipeContainer(fullRecipe, recipeContainer);
-            await checkBookmarked(fullRecipe, recipeContainer);
-            await addEventListenersToRecipeContainer(recipeContainer);
-            await buildDropdownForRecipe(recipeContainer);
+            await initializeRecipeContainer(fullRecipe, recipeContainer);
         }
     }
     // Adds recipes in carousel to `seenRecipes` property of carousel
