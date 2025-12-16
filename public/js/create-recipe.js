@@ -209,15 +209,15 @@ document.addEventListener('DOMContentLoaded', () => {
             </p>
             <div style="display:flex; gap:12px; justify-content:center;">
             <button id="create-another" class="start-btn">Create another</button>
-            <a href="/create-recipe.html" id="new-recipe-link" class="start-btn" style="text-decoration:none; display:inline-block;">Start over</a>
-            <a href="/index.html" class="start-btn" style="text-decoration:none; display:inline-block;">Go home</a>
+            <a href="/static/create-recipe.html" id="new-recipe-link" class="start-btn" style="text-decoration:none; display:inline-block;">Start over</a>
+            <a href="/" class="start-btn" style="text-decoration:none; display:inline-block;">Go home</a>
             </div>
         </section>
         `;
 
         // optional: “Create another” just reloads the page clean
         document.getElementById('create-another')?.addEventListener('click', () => {
-        location.href = '/create-recipe.html';
+        location.href = '/static/create-recipe.html';
         });
 
         // Scroll to top so the message is in view
