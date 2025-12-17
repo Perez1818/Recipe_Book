@@ -185,6 +185,10 @@ exports.updateProfile = [
 ];
 
 exports.getAccountSettings = async (request, response, next) => {
+    if (!request.user) {
+        return response.redirect("/login");
+    }
+
     const { verified } = request.query;
     if (verified === "1") {
         response.render("edit-account", { successMessage: "Email successfully changed." });
