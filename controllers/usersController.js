@@ -141,7 +141,8 @@ exports.getUserSettings = async (request, response, next) => {
         response.render("edit-profile");
     }
     else {
-        next();
+        /* NOTE: Could add redirection back to profile after successful sign in */
+        response.redirect("/login");
     }
 }
 
