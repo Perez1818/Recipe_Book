@@ -82,6 +82,10 @@ exports.verifyUser = async (request, response) => {
 };
 
 exports.getLogin = async (request, response) => {
+    if (request.user) {
+        return response.redirect("/");
+    }
+
     const { verified } = request.query;
     if (verified === "1") {
         response.render("login", { successMessage: "Email successfully verified. You may now log in." });
