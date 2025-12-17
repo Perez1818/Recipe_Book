@@ -29,7 +29,9 @@ app.use(express.urlencoded({ extended: false }));
 
 app.set("view engine", "ejs");
 app.set("views", `${PARENT_DIRECTORY}/views`);     /* https://stackoverflow.com/a/41055903 */
-app.use("/static", express.static(`${PARENT_DIRECTORY}/public`));
+//app.use("/static", express.static(`${PARENT_DIRECTORY}/public`));
+app.use(express.static(`${PARENT_DIRECTORY}/public`));
+
 
 app.use(express.json({ limit: "1mb" }));
 
