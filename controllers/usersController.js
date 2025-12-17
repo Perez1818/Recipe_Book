@@ -18,7 +18,13 @@ exports.getIndex = async (request, response) => {
 };
 
 exports.getSignUp = async (request, response) => {
-    response.render("signup");
+    const user = request.user;
+    if (user) {
+        response.redirect("/");
+    }
+    else {
+        response.render("signup");
+    }
 };
 
 exports.signUpUser = [
