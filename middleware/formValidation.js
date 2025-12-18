@@ -171,6 +171,7 @@ const validate = {
                                                .run(request),
 
     challengeStart: async (request) => body("start")
+                             .notEmpty().withMessage("Start date is required")
                              .custom(async start => {
                                  if (start !== "") {
                                      const current = getLocalCurrentDate();
