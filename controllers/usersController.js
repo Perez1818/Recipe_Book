@@ -56,7 +56,7 @@ exports.signUpUser = [
     }
 ];
 
-exports.verifyUser = async (request, response) => {
+exports.verifyUser = async (request, response, next) => {
     const { token } = request.query;
     try {
         const decodedToken = jwt.verify(token, process.env.JSON_WEB_TOKEN_SECRET);
@@ -65,11 +65,15 @@ exports.verifyUser = async (request, response) => {
         await usersTable.verifyUser(id, email);
 
         if (!request.user) {
+            return response.redirect("/login?verified=1");
+        }
+        if (String(request.user.id) === String(id)) {
+            return response.redirect("/settings/account?verified=1");
+        }
+        return request.logout((error) => {
+            if (error) { return next(error); }
             response.redirect("/login?verified=1");
-        }
-        else {
-            response.redirect("/settings/account?verified=1");
-        }
+        });
     }
     catch (error) {
         if (!request.user) {
