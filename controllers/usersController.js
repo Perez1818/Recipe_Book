@@ -90,7 +90,10 @@ exports.getLogin = async (request, response) => {
         return response.redirect("/");
     }
 
-    const { verified } = request.query;
+    const { verified, loggedOut } = request.query;
+    if (loggedOut === "1") {
+        return response.render("login", { successMessage: "You've been logged out." });
+    }
     if (verified === "1") {
         response.render("login", { successMessage: "Email successfully verified. You may now log in." });
     }
@@ -127,7 +130,7 @@ exports.logoutUser = (request, response, next) => {
         if (error) {
             return next(error);
         }
-        response.redirect("/login");
+        response.redirect("/login?loggedOut=1");
     });
 };
 
