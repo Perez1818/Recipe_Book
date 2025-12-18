@@ -18,7 +18,13 @@ exports.getIndex = async (request, response) => {
 };
 
 exports.getSignUp = async (request, response) => {
-    response.render("signup");
+    const user = request.user;
+    if (user) {
+        response.redirect("/");
+    }
+    else {
+        response.render("signup");
+    }
 };
 
 exports.signUpUser = [
@@ -50,7 +56,7 @@ exports.signUpUser = [
     }
 ];
 
-exports.verifyUser = async (request, response) => {
+exports.verifyUser = async (request, response, next) => {
     const { token } = request.query;
     try {
         const decodedToken = jwt.verify(token, process.env.JSON_WEB_TOKEN_SECRET);
@@ -59,11 +65,15 @@ exports.verifyUser = async (request, response) => {
         await usersTable.verifyUser(id, email);
 
         if (!request.user) {
+            return response.redirect("/login?verified=1");
+        }
+        if (String(request.user.id) === String(id)) {
+            return response.redirect("/settings/account?verified=1");
+        }
+        return request.logout((error) => {
+            if (error) { return next(error); }
             response.redirect("/login?verified=1");
-        }
-        else {
-            response.redirect("/settings/account?verified=1");
-        }
+        });
     }
     catch (error) {
         if (!request.user) {
@@ -76,12 +86,19 @@ exports.verifyUser = async (request, response) => {
 };
 
 exports.getLogin = async (request, response) => {
-    const { verified } = request.query;
+    if (request.user) {
+        return response.redirect("/");
+    }
+
+    const { verified, loggedOut } = request.query;
+    if (loggedOut === "1") {
+        return response.render("login", { successMessage: "You've been logged out." });
+    }
     if (verified === "1") {
         response.render("login", { successMessage: "Email successfully verified. You may now log in." });
     }
     else if (verified === "0") {
-        response.render("login", { errorMessages: { credentials: "Invalid token." } });
+        response.render("login", { errorMessages: { credentials: "Verification link is invalid or expired. Request a new one." } });
     }
     else {
         response.render("login");
@@ -113,7 +130,7 @@ exports.logoutUser = (request, response, next) => {
         if (error) {
             return next(error);
         }
-        response.redirect("/login");
+        response.redirect("/login?loggedOut=1");
     });
 };
 
@@ -135,7 +152,8 @@ exports.getUserSettings = async (request, response, next) => {
         response.render("edit-profile");
     }
     else {
-        next();
+        /* NOTE: Could add redirection back to profile after successful sign in */
+        response.redirect("/login");
     }
 }
 
@@ -174,12 +192,16 @@ exports.updateProfile = [
 ];
 
 exports.getAccountSettings = async (request, response, next) => {
+    if (!request.user) {
+        return response.redirect("/login");
+    }
+
     const { verified } = request.query;
     if (verified === "1") {
         response.render("edit-account", { successMessage: "Email successfully changed." });
     }
     else if (verified === "0") {
-        response.render("edit-account", { errorMessages: { credentials: "Invalid token." } });
+        response.render("edit-account", { errorMessages: { credentials: "Verification link is invalid or expired. Request a new one." } });
     }
     else {
         response.render("edit-account");

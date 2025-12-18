@@ -32,6 +32,8 @@ SERVER_EMAIL_APP_PASSWORD=type_server_email_app_password_here
 APP_URL=type_app_url_here
 
 JSON_WEB_TOKEN_SECRET=type_json_web_token_secret_here
+
+SPOONACULAR_KEY=type_spoonacular_key_here
 ```
 Finally, install dependencies:
 ```

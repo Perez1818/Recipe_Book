@@ -13,13 +13,7 @@ const CHALLENGE_THUMBNAIL_FIELD_NAME = "thumbnail";
 const uploadSingleThumbnail = getSingleUpload(CHALLENGE_DIRECTORY, CHALLENGE_THUMBNAIL_FIELD_NAME);
 
 exports.getChallengeMaker = async (request, response, next) => {
-    const user = request.user;
-    if (user) {
-        response.render("challenge-maker");
-    }
-    else {
-        response.redirect("/login");
-    }
+    response.render("challenge-maker");
 };
 
 exports.createChallenge = async (request, response) => {
@@ -39,6 +33,10 @@ exports.createChallenge = async (request, response) => {
             if (user) {
                 const result = validationResult(request);
                 const errorMessages = getErrorMessages(result);
+
+                if (!request.file) {
+                    errorMessages["file"] = "Thumbnail is required";
+                }
                 
                 if (attributeCount(errorMessages)) {
                     response.status(400).send({
@@ -57,7 +55,7 @@ exports.createChallenge = async (request, response) => {
                 }
             }
             else {
-                response.status(400).send({ message: "You must be logged in to do that." });
+                response.status(400).send({ message: "You must be logged in to create a challenge." });
             }
         }
 
