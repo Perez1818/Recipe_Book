@@ -95,7 +95,7 @@ exports.getLogin = async (request, response) => {
         response.render("login", { successMessage: "Email successfully verified. You may now log in." });
     }
     else if (verified === "0") {
-        response.render("login", { errorMessages: { credentials: "Invalid token." } });
+        response.render("login", { errorMessages: { credentials: "Verification link is invalid or expired. Request a new one." } });
     }
     else {
         response.render("login");
@@ -198,7 +198,7 @@ exports.getAccountSettings = async (request, response, next) => {
         response.render("edit-account", { successMessage: "Email successfully changed." });
     }
     else if (verified === "0") {
-        response.render("edit-account", { errorMessages: { credentials: "Invalid token." } });
+        response.render("edit-account", { errorMessages: { credentials: "Verification link is invalid or expired. Request a new one." } });
     }
     else {
         response.render("edit-account");
