@@ -33,6 +33,10 @@ exports.createChallenge = async (request, response) => {
             if (user) {
                 const result = validationResult(request);
                 const errorMessages = getErrorMessages(result);
+
+                if (!request.file) {
+                    errorMessages["file"] = "Thumbnail is required";
+                }
                 
                 if (attributeCount(errorMessages)) {
                     response.status(400).send({
