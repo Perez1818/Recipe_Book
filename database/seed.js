@@ -202,7 +202,7 @@ async function seedDatabase() {
 
     await client.end();
 
-    const sampleUsername = "tester";
+    const sampleUsername = "guest";
     await usersTable.createUser(sampleUsername, "", sampleUsername);
     const sampleUser = await usersTable.getUserByNameOrEmail(sampleUsername);
     await usersTable.verifyUser(sampleUser.id, sampleUser.email);

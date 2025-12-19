@@ -1,3 +1,16 @@
+# Testing
+For testing purposes, there is a sample user in the database once you run:
+```
+node ./database/seed.js
+```
+As a result, you can test part of the app as a logged-in user even if you don't provide a `SERVER_EMAIL` and `SERVER_EMAIL_APP_PASSWORD` in the `.env` file mentioned below.
+
+The login details are as follows:
+```
+Username: guest
+Password: guest
+```
+
 # Installation
 ## Database (PostgreSQL)
 Follow [these instructions](https://www.theodinproject.com/lessons/nodejs-installing-postgresql) to install and configure PostgreSQL on Linux.
