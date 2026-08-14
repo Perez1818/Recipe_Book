@@ -18,15 +18,11 @@ Recipe Book is a full-stack social media platform developed as a senior capstone
 
 Users can register new accounts, log in securely, and maintain a personalized profile.
 
-![Signup Page](docs/img/signup-page.png)
-
 ---
 
 ### Recipe Discovery Homepage
 
 The homepage displays curated collections of recipes from a variety of cultural cuisines, ensuring content is always available through API integration even when user-generated content is limited.
-
-![Recipe Book Homepage Demo](docs/gif/homepage-to-recipe-demo.gif)
 
 ---
 
@@ -34,15 +30,11 @@ The homepage displays curated collections of recipes from a variety of cultural 
 
 Users can create, edit, and publish recipes as well as community challenges for other users to participate in.
 
-![Recipe Maker Page](docs/img/recipe-post-maker.png)
-
 ---
 
 ### Bookmarks & Collections
 
 Users can bookmark recipes and organize them into personal collections for future reference.
-
-![Recipe Bookmarking and Management Demo](docs/gif/bookmarks-demo.gif)
 
 ---
 
@@ -54,14 +46,10 @@ Each recipe includes:
 - Built-in timers for cooking steps
 - Community tips and comments tied to individual recipe steps
 
-![Recipe Walkthrough Demo](docs/gif/walkthrough-demo.gif)
-
 ---
 ### Ratings & Reviews
 
 Users can rate recipes, leave reviews, and engage with feedback from other community members.
-
-![Review Demo](docs/gif/review-demo.gif)
 
 ---
 
@@ -69,17 +57,11 @@ Users can rate recipes, leave reviews, and engage with feedback from other commu
 
 Users can schedule recipes on a personal calendar to organize meals and plan ahead.
 
-![Meal Planning Demo](docs/gif/calendar-demo.gif)
-
 ---
 
 ### Community Challenges & Leaderboards
 
 Users can participate in challenges, submit qualifying recipes, earn points, and compete for positions on the community leaderboard.
-
-![Community Challenge Demo](docs/gif/challenge-demo.gif)
-
-![Leaderboard Page](docs/img/leaderboard.png)
 
 ---
 
@@ -87,15 +69,11 @@ Users can participate in challenges, submit qualifying recipes, earn points, and
 
 Users can search for recipes and filter results by cultural cuisine and other criteria.
 
-![Recipe Search Demo](docs/gif/search-engine-demo.gif)
-
 ---
 
 ### Automated Shopping Lists
 
 Users can generate shopping lists automatically from bookmarked recipes and selected meal plans.
-
-![Shopping List Demo](docs/gif/shopping-list-demo.gif)
  
 ## External API Integrations
 
@@ -115,10 +93,6 @@ Users can generate shopping lists automatically from bookmarked recipes and sele
 
 - Translation support for recipe content and user interactions
  
-## Project Architecture
-
-![Shopping List Demo](docs/img/class-diagram.png)
-
 ## Testing
 For testing purposes, there is a sample user in the database once you run:
 ```
