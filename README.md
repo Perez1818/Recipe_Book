@@ -1,4 +1,99 @@
-# Testing
+# Recipe Book: A Webapp for Sharing Recipes
+Recipe Book is a full-stack social media platform developed as a senior capstone project. The application enables users to discover recipes, share their own creations, participate in community challenges, and manage meal planning activities. The platform integrates external APIs including Google Translate, TheMealDB, and Spoonacular to enhance recipe discovery and user experience.
+
+## Overview
+
+### Technologies & Integrations
+
+- Full-stack web application
+- REST API development
+- SQL database integration
+- Google Translate API
+- TheMealDB API
+- Spoonacular API
+
+## Features
+
+### Account Creation & Authentication
+
+Users can register new accounts, log in securely, and maintain a personalized profile.
+
+---
+
+### Recipe Discovery Homepage
+
+The homepage displays curated collections of recipes from a variety of cultural cuisines, ensuring content is always available through API integration even when user-generated content is limited.
+
+---
+
+### Recipe & Challenge Creation
+
+Users can create, edit, and publish recipes as well as community challenges for other users to participate in.
+
+---
+
+### Bookmarks & Collections
+
+Users can bookmark recipes and organize them into personal collections for future reference.
+
+---
+
+### Interactive Recipe Walkthrough
+
+Each recipe includes:
+- Step-by-step cooking instructions
+- Ingredient measurement conversion
+- Built-in timers for cooking steps
+- Community tips and comments tied to individual recipe steps
+
+---
+### Ratings & Reviews
+
+Users can rate recipes, leave reviews, and engage with feedback from other community members.
+
+---
+
+### Meal Planning Calendar
+
+Users can schedule recipes on a personal calendar to organize meals and plan ahead.
+
+---
+
+### Community Challenges & Leaderboards
+
+Users can participate in challenges, submit qualifying recipes, earn points, and compete for positions on the community leaderboard.
+
+---
+
+### Recipe Search & Filtering
+
+Users can search for recipes and filter results by cultural cuisine and other criteria.
+
+---
+
+### Automated Shopping Lists
+
+Users can generate shopping lists automatically from bookmarked recipes and selected meal plans.
+ 
+## External API Integrations
+
+### Spoonacular API
+
+- Automatic shopping list generation
+- Ingredient aggregation
+- Online ingredient purchasing support
+
+### TheMealDB API
+
+- Recipe search functionality
+- Homepage recipe population
+- Fallback content when user-created recipes are unavailable
+
+### Google Translate API
+
+- Translation support for recipe content and user interactions
+ 
+## Testing
 For testing purposes, there is a sample user in the database once you run:
 ```
 node ./database/seed.js
@@ -11,8 +106,8 @@ Username: guest
 Password: guest
 ```
 
-# Installation
-## Database (PostgreSQL)
+## Installation
+### Database (PostgreSQL)
 Follow [these instructions](https://www.theodinproject.com/lessons/nodejs-installing-postgresql) to install and configure PostgreSQL on Linux.
 
 Once this is done, open the PostgreSQL shell by running the following command:
@@ -30,10 +125,10 @@ Moreover, exit by typing:
 
 Before moving on, note that `database_name` must match `{database-name}` in the `.env` file below.
 
-## Runtime Environment (Node.js)
+### Runtime Environment (Node.js)
 Follow [these instructions](https://www.theodinproject.com/lessons/foundations-installing-node-js) to install Node.js on Linux.
 
-## App
+### App
 Clone the repository
 ```
 git clone REPOSITORY_URL
@@ -43,7 +138,7 @@ Navigate to your local copy of the repository, for example:
 cd Recipe_Book
 ```
 
-### Environment File
+#### Environment File
 Then create a `.env` file with this structure:
 ```
 DATABASE_CONNECTION_STRING=postgres://{username}:{password}@localhost:{database-port}/{database-name}
@@ -80,7 +175,7 @@ Important notes about the `.env` file are as follows:
 - `SERVER_EMAIL_APP_PASSWORD` is a special 16-digit code for a gmail account that can only be created when two factor authentication is enabled. For instructions on how to get an app password for a gmail account, see the following link: [Sign in with app passwords](https://support.google.com/accounts/answer/185833?hl=en)
 - `SPOONACULAR_KEY` is an API key from Spoonacular. To get a key, see the following link: [Spoonacular API](https://spoonacular.com/food-api)
 
-## Dependencies
+### Dependencies
 
 Then install dependencies with:
 ```
@@ -88,7 +183,7 @@ npm init -y
 npm install
 ```
 
-## Run
+### Run
 Seed the database by running the following script:
 ```
 node ./database/seed.js
@@ -99,7 +194,7 @@ Finally, run the app:
 node app.js
 ```
 
-# Tech Stack
+## Tech Stack
 - Node.js
 - Express.js
 - Embedded JavaScript Templates (ejs)
@@ -115,7 +210,7 @@ node app.js
 - Nodemailer (nodemailer)
 - JSON Web Token (jsonwebtoken)
 
-# Attributions
+## Attributions
 - [Portrait_Placeholder.png](https://commons.wikimedia.org/wiki/File:Portrait_Placeholder.png) from [Wikimedia Commons](https://commons.wikimedia.org/wiki/Main_Page) by Greasemann, [Attribution-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-sa/4.0/)
 - [world.svg](https://simplemaps.com/resources/svg-world) from [Simple Maps](https://simplemaps.com/) by Chris Youderian, [SVG Map Library License](https://simplemaps.com/resources/svg-license)
 - [countries.json](https://simplemaps.com/resources/svg-world) (modified for this project) derived from [Simple Maps](https://simplemaps.com/) by Chris Youderian, [SVG Map Library License](https://simplemaps.com/resources/svg-license)
